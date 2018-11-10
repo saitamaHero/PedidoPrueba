@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    >
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:cardElevation="10dp"
+        app:cardCornerRadius="10dp"
+        app:cardPreventCornerOverlap="true"
+
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical"
+            android:padding="5dp"
+            >
+            <TextView
+                android:id="@+id/nombre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre del producto"
+
+                android:textColor="@color/colorText"
+                />
+
+            <TextView
+                android:id="@+id/id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="COD-00002569"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:layout_margin="5dp"
+                >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_inventario_cargo"
+                        android:layout_weight="5"
+                        android:gravity="start"
+                        />
+
+                    <TextView
+                        android:id="@+id/cantidad_inventario"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="95"
+                        android:layout_gravity="center"
+                        android:textColor="@color/colorText"
+                        android:paddingLeft="2dp"
+                        android:text="1,553.00 PZA"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_currency"
+                        android:layout_weight="5"
+                        android:gravity="start"
+                        />
+
+                    <TextView
+                        android:id="@+id/precio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="95"
+                        android:layout_gravity="center"
+                        android:textColor="@color/colorText"
+                        android:paddingLeft="2dp"
+                        android:text="550.00"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_cart"
+                        android:layout_weight="5"
+                        android:gravity="start"
+                        />
+
+                    <TextView
+                        android:id="@+id/cantidad"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="95"
+                        android:layout_gravity="center"
+                        android:textColor="@color/colorText"
+                        android:paddingLeft="2dp"
+                        android:text="3.00"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_cash"
+                        android:layout_weight="5"
+                        android:gravity="start"
+                        />
+
+                    <TextView
+                        android:id="@+id/subtotal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="95"
+                        android:layout_gravity="center"
+                        android:textColor="@android:color/holo_green_dark"
+                        android:paddingLeft="2dp"
+                        android:text="550.00"
+                        android:textStyle="bold"
+
+                        />
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+<!--
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:orientation="horizontal"
+            android:layout_margin="6dp"
+            >
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_action_remove"
+                android:layout_weight="1"
+                />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_action_add"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+-->
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            app:popupTheme="@style/Theme.AppCompat.Light"
+            android:backgroundTint="@color/cardview_dark_background"
+            android:layout_gravity="bottom|end"
+            />
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
