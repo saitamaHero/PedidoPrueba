@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         app:cardElevation="10dp"
-        app:cardCornerRadius="10dp"
+        android:drawingCacheQuality="high"
         app:cardPreventCornerOverlap="true"
 
         >
@@ -142,30 +142,6 @@
 
 
         </LinearLayout>
-<!--
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:orientation="horizontal"
-            android:layout_margin="6dp"
-            >
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_action_remove"
-                android:layout_weight="1"
-                />
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_action_add"
-                android:layout_weight="1"
-                />
-        </LinearLayout>
-
--->
 
 
         <android.support.v7.widget.Toolbar
@@ -174,7 +150,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             app:popupTheme="@style/Theme.AppCompat.Light"
-            android:backgroundTint="@color/cardview_dark_background"
+            android:backgroundTint="@android:color/holo_blue_dark"
             android:layout_gravity="bottom|end"
             />
 

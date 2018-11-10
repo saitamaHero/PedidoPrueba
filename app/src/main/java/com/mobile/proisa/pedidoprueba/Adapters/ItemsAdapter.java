@@ -59,22 +59,22 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder> {
                 switch (menuItem.getItemId()){
                     case R.id.action_add:
                         onItemQuantityChange(item, item.getQuantity() + 1);
-                        //notifyItemChanged(position);
+                        notifyItemChanged(position);
                         break;
 
                     case R.id.action_remove:
                         onItemQuantityChange(item,item.getQuantity() - 1);
-                        //notifyItemChanged(position);
+                        notifyItemChanged(position);
 
                         break;
 
                     case R.id.action_delete:
                         itemList.remove(item);
-                        //notifyItemRemoved(position);
+                        notifyItemRemoved(position);
                         break;
                 }
 
-                notifyDataSetChanged();
+                //notifyDataSetChanged();
 
                 Log.d("menuItemClicked", "position: "+ position);
                 return true;
