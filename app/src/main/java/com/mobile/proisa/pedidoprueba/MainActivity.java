@@ -4,11 +4,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsAdapter;
 import com.mobile.proisa.pedidoprueba.Models.Item;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +20,20 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private List<Item> products;
+    private ItemsAdapter adapter;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        products = createListItem(50);
+        products = createListItem(3, 0);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+       recyclerView = findViewById(R.id.recycler_view);
 
         //Create de adapter for items
-        ItemsAdapter adapter = new ItemsAdapter(products, R.layout.item_card_view);
+        adapter = new ItemsAdapter(products, R.layout.item_card_view);
         recyclerView.setAdapter(adapter);
 
         //set the layout manager
@@ -54,15 +59,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static List<Item> createListItem(int count){
+    public static List<Item> createListItem(int count, int startPosition){
         List<Item> items = new ArrayList<>(count);
 
-        for(int i = 0; i < count; i++){
-            items.add(getItem("","PRODUCTO DE PRUEBA " + (i+1)));
+        for(int i = startPosition; i < startPosition + count; i++){
+            items.add(getItem("","PRODUCTO DE PRUEBA " + i));
         }
 
         return items;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.action_add:
+                int currSize = adapter.getItemCount();
+
+                products.addAll(createListItem(5, adapter.getItemCount()));
+
+                adapter.notifyItemRangeInserted(currSize, products.size());
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                break;
+
+            case R.id.action_clear:
+                int currSz = adapter.getItemCount();
+                products.clear();
+                adapter.notifyItemRangeRemoved(0, currSz);
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+    }
 }
 

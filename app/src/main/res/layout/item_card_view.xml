@@ -5,13 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp"
+    android:focusable="true"
+    android:clickable="true"
+    style="?attr/selectableItemBackground"
     >
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:cardElevation="10dp"
+        app:cardElevation="20dp"
         android:drawingCacheQuality="high"
         app:cardPreventCornerOverlap="true"
+        app:cardBackgroundColor="@color/cardview_light_background"
 
         >
 
@@ -133,7 +137,7 @@
                         android:layout_gravity="center"
                         android:textColor="@android:color/holo_green_dark"
                         android:paddingLeft="2dp"
-                        android:text="550.00"
+
                         android:textStyle="bold"
 
                         />
@@ -147,11 +151,12 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbarCard"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            app:popupTheme="@style/Theme.AppCompat.Light"
-            android:backgroundTint="@android:color/holo_blue_dark"
+            android:layout_height="45dp"
             android:layout_gravity="bottom|end"
+            android:background="@android:color/white"
+
+            app:popupTheme="@style/Theme.AppCompat.Light"
+
             />
 
     </android.support.v7.widget.CardView>
