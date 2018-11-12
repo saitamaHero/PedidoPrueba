@@ -2,10 +2,14 @@ package com.mobile.proisa.pedidoprueba;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsAdapter;
@@ -16,6 +20,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FlipInBottomXAnimator;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
+import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
+import jp.wasabeef.recyclerview.animators.ScaleInBottomAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,10 +46,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Create de adapter for items
         adapter = new ItemsAdapter(products, R.layout.item_card_view);
-        recyclerView.setAdapter(adapter);
 
+        recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(new ScaleInBottomAnimator());//new ScaleInBottomAnimator()
         //set the layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        //layoutManager.sc
+
         recyclerView.setLayoutManager(layoutManager);
 
 
@@ -77,12 +92,22 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int currSize;
 
         switch (item.getItemId()){
             case R.id.action_add:
-                int currSize = adapter.getItemCount();
+                currSize = adapter.getItemCount();
 
-                products.addAll(createListItem(5, adapter.getItemCount()));
+                products.addAll(createListItem(50, adapter.getItemCount()));
+
+                adapter.notifyItemRangeInserted(currSize, products.size());
+                //recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                break;
+
+            case R.id.action_add_one:
+                currSize = adapter.getItemCount();
+
+                products.addAll(createListItem(1, adapter.getItemCount()));
 
                 adapter.notifyItemRangeInserted(currSize, products.size());
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
@@ -100,5 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
+
+    
 }
 

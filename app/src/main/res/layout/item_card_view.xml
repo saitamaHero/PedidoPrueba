@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp"
-    android:focusable="true"
-    android:clickable="true"
-    style="?attr/selectableItemBackground"
+
+
     >
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -16,7 +15,10 @@
         android:drawingCacheQuality="high"
         app:cardPreventCornerOverlap="true"
         app:cardBackgroundColor="@color/cardview_light_background"
-
+        android:focusable="true"
+        android:clickable="true"
+        android:foreground="?android:selectableItemBackground"
+        app:cardCornerRadius="10dp"
         >
 
         <LinearLayout
@@ -137,9 +139,7 @@
                         android:layout_gravity="center"
                         android:textColor="@android:color/holo_green_dark"
                         android:paddingLeft="2dp"
-
                         android:textStyle="bold"
-
                         />
                 </LinearLayout>
             </LinearLayout>
@@ -153,8 +153,7 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:layout_gravity="bottom|end"
-            android:background="@android:color/white"
-
+            android:background="@android:color/transparent"
             app:popupTheme="@style/Theme.AppCompat.Light"
 
             />

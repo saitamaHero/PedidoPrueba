@@ -5,6 +5,10 @@
         android:id="@+id/action_add"
         />
 
+    <item android:title="Agregar"
+        android:id="@+id/action_add_one"
+        />
+
     <item android:title="Limpiar"
         android:id="@+id/action_clear"
         />
