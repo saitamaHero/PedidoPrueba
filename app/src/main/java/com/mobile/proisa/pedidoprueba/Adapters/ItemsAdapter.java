@@ -2,6 +2,7 @@ package com.mobile.proisa.pedidoprueba.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,10 +25,13 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
     private List<Item> itemList;
     private int layoutResource;
 
+    private MyItemClick myItemClick;
+
 
     public ItemsAdapter(List<Item> itemList, int layoutResource) {
         this.itemList = itemList;
         this.layoutResource = layoutResource;
+        setHasStableIds(true);
     }
 
     @NonNull
@@ -36,15 +40,15 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         Context context = parent.getContext();
 
         View view = LayoutInflater.from(context).inflate(layoutResource, parent, false);
-
         MyHolder holder = new MyHolder(view);
+
 
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        Item item = itemList.get(position);
+    public void onBindViewHolder(@NonNull MyHolder holder, final int position) {
+        final Item item = itemList.get(position);
 
         holder.txtNombre.setText(item.getName());
         holder.txtId.setText(item.getId());
@@ -52,6 +56,15 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         holder.txtCantidadInv.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtPrecio.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtSubtotal.setText(NumberUtils.formatNumber(item.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(myItemClick != null) myItemClick.onItemClickListener(item, position);
+            }
+        });
+
 
         holder.toolbar.setOnMenuItemClickListener(new MyMenuClickListener(position, new OnNotifyNeededListener() {
 
@@ -71,7 +84,10 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
                 notifyItemRangeChanged(position, getItemCount());
             }
         }));
+    }
 
+    public void setMyItemClick(MyItemClick myItemClick) {
+        this.myItemClick = myItemClick;
     }
 
 
@@ -80,6 +96,10 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         return itemList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return itemList.get(position).hashCode();
+    }
 
     public class MyHolder extends RecyclerView.ViewHolder {
         public TextView txtNombre;
@@ -89,6 +109,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         public TextView txtPrecio;
         public TextView txtSubtotal;
         public Toolbar toolbar;
+        public CardView cardView;
 
         public MyHolder(View itemView) {
             super(itemView);
@@ -102,10 +123,13 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
             toolbar = itemView.findViewById(R.id.toolbarCard);
             toolbar.inflateMenu(R.menu.menu_per_item);
 
-
-
-
-
+            cardView = itemView.findViewById(R.id.card);
+            /*cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("MyHolder", "position: "+getAdapterPosition());
+                }
+            });*/
         }
     }
 
@@ -133,6 +157,10 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
                 case R.id.action_delete:
                     notifyNeededListener.onDelete(position);
                     break;
+
+               /* case R.id.action_send:
+                    notifyNeededListener.onSend(position);
+                break;*/
             }
 
             return true;
@@ -141,12 +169,11 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         public interface OnNotifyNeededListener{
             public void onUpdate(int position, double newQuantity);
             public void onDelete(int position);
-        }
 
+        }
     }
 
-
-
-
-
+    public interface MyItemClick{
+        void onItemClickListener(Object item, int position);
+    }
 }

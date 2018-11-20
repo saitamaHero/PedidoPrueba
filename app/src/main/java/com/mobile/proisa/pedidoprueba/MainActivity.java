@@ -6,14 +6,20 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsAdapter;
 import com.mobile.proisa.pedidoprueba.Models.Item;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -46,12 +52,29 @@ public class MainActivity extends AppCompatActivity {
 
         //Create de adapter for items
         adapter = new ItemsAdapter(products, R.layout.item_card_view);
+        adapter.setMyItemClick(new ItemsAdapter.MyItemClick() {
+            @Override
+            public void onItemClickListener(Object item, int position) {
+                Item i = (Item) item;
+
+                Toast.makeText(getApplicationContext(), i.toString() + " in the position: "+position, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         recyclerView.setAdapter(adapter);
-        recyclerView.setItemAnimator(new ScaleInBottomAnimator());//new ScaleInBottomAnimator()
+
+        recyclerView.setItemAnimator(new ScaleInBottomAnimator());
+
+        //recyclerView.setItemAnimator(new ScaleInBottomAnimator());//new ScaleInBottomAnimator()
+        //((DefaultItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        recyclerView.getItemAnimator().setChangeDuration(0);
+
+
         //set the layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        //layoutManager.sc
+
+
+
 
         recyclerView.setLayoutManager(layoutManager);
 
@@ -98,10 +121,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_add:
                 currSize = adapter.getItemCount();
 
-                products.addAll(createListItem(50, adapter.getItemCount()));
+                products.addAll(createListItem(5, adapter.getItemCount()));
 
                 adapter.notifyItemRangeInserted(currSize, products.size());
                 //recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                Log.d("ItemCount", String.format("Hay %s productos", NumberUtils.formatNumber(products.size(), NumberUtils.FORMAT_NUMER_INTEGER)));
                 break;
 
             case R.id.action_add_one:
@@ -111,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
 
                 adapter.notifyItemRangeInserted(currSize, products.size());
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+
+                Log.d("ItemCount", String.format("Hay %s productos", NumberUtils.formatNumber(products.size(), NumberUtils.FORMAT_NUMER_DOUBLE)));
                 break;
 
             case R.id.action_clear:
@@ -126,6 +152,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    
+
 }
 

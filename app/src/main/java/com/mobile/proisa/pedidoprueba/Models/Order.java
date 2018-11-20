@@ -1,10 +1,16 @@
 package com.mobile.proisa.pedidoprueba.Models;
 
+import android.support.annotation.NonNull;
+
+import org.xmlpull.v1.XmlPullParser;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class Order implements ITotal {
+public class Order implements ITotal, Comparable<Order>{
     public final static String NEW_ORDER = "NEW_ORDER";
     private String id;
     private Date date;
@@ -12,12 +18,14 @@ public class Order implements ITotal {
 
 
     public Order() {
-        itemList = new ArrayList<>();
+        this.itemList = new ArrayList<>();
+        this.date = Calendar.getInstance().getTime();
     }
 
-    public Order(String id) {
+    public Order(String id, Date date) {
         this();
         this.id = id;
+        this.date = date;
     }
 
     public Order(String id, List<Item> itemList) {
@@ -25,17 +33,58 @@ public class Order implements ITotal {
         this.itemList = itemList;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public boolean addItem(Item item){
         return this.itemList.add(item);
     }
 
-    public boolean addAll(List<Item> items){
+    public boolean addAllItems(List<Item> items){
         return this.itemList.addAll(items);
     }
 
     @Override
     public double getTotal() {
-        return 0;
+        double total = 0;
+
+        for(Item i : itemList){
+            total += i.getTotal();
+        }
+
+        return total;
+    }
+
+    @Override
+    public int compareTo(@NonNull Order order) {
+        return this.getDate().compareTo(order.getDate());
+    }
+
+    public static class SortByOrderDate implements Comparator<Order> {
+        @Override
+        public int compare(Order order, Order t1) {
+            return order.getDate().compareTo(t1.getDate());
+        }
+    }
+
+    public static class SortByOrderId implements Comparator<Order> {
+        @Override
+        public int compare(Order order, Order t1) {
+            return order.getId().compareTo(t1.getId());
+        }
     }
 }
 
