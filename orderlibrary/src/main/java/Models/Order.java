@@ -1,6 +1,5 @@
-package com.example.orderlibrary.Models;
+package Models;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.orderlibrary.Models;
+package Models;
 
 public class Vendor extends Person {
 

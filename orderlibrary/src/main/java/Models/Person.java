@@ -1,10 +1,11 @@
-package com.example.orderlibrary.Models;
+package Models;
 
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -17,7 +18,7 @@ public class Person implements Parcelable{
     private String id;
     private String name;
     private List<String> phoneNumbers;
-    //private Lat
+    private PointF latlng;
     private String identityCard;
     private String address;
     private Date birthDate;
@@ -39,6 +40,7 @@ public class Person implements Parcelable{
         address = in.readString();
         email = in.readString();
         profilePhoto = in.readParcelable(Uri.class.getClassLoader());
+        latlng = in.readParcelable(PointF.class.getClassLoader());
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {
@@ -124,6 +126,14 @@ public class Person implements Parcelable{
         this.profilePhoto = profilePhoto;
     }
 
+    public PointF getLatlng() {
+        return latlng;
+    }
+
+    public void setLatlng(PointF latlng) {
+        this.latlng = latlng;
+    }
+
     @Override
     public int hashCode() {
         int result = 17;
@@ -165,6 +175,7 @@ public class Person implements Parcelable{
         parcel.writeString(address);
         parcel.writeString(email);
         parcel.writeParcelable(profilePhoto, i);
+        parcel.writeParcelable(latlng, i);
     }
 }
 

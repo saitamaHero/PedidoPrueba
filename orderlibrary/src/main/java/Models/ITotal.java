@@ -1,4 +1,4 @@
-package com.example.orderlibrary.Models;
+package Models;
 
 public interface ITotal {
 

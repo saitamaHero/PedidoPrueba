@@ -1,4 +1,4 @@
-package com.example.orderlibrary.Models;
+package Models;
 
 /**
  * Clase que representa la unidad de un {@link Item}

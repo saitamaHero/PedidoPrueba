@@ -1,15 +1,21 @@
-package com.example.orderlibrary.Models;
+package Models;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class Item extends SimpleElement implements ITotal, Parcelable{
+    private String barcode;
     private double stock;
     private double quantity;
     private double cost;
     private double price;
     private Category category;
     private Unit unit;
+    private Uri photo;
+    private Date lastModification;
 
     public Item() {
         category = Category.UNKNOWN_CATEGORY;
@@ -108,6 +114,30 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
         this.cost = cost;
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public Uri getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Uri photo) {
+        this.photo = photo;
+    }
+
+    public Date getLastModification() {
+        return lastModification;
+    }
+
+    public void setLastModification(Date lastModification) {
+        this.lastModification = lastModification;
+    }
+
     @Override
     public double getTotal() {
         return this.price * this.quantity;
@@ -119,6 +149,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
 
         result = result * 31 + this.getId().hashCode();
         result = result * 31 + this.getName().hashCode();
+        result = result * 31 + this.getBarcode().hashCode();
         result = result * 31 + this.getCategory().hashCode();
         result = result * 31 + this.getUnit().hashCode();
 

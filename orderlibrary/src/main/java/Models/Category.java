@@ -1,6 +1,4 @@
-package com.example.orderlibrary.Models;
-
-import java.util.Locale;
+package Models;
 
 /**
  * Clase que representa la categoría de un {@link Item}
