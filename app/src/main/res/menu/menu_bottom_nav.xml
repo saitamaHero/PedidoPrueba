@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/stock"
+        android:title="@string/stock"
+        android:icon="@drawable/ic_cart"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="1"
+        />
+
+    <item
+        android:id="@+id/clients"
+        android:title="@string/clients"
+        android:icon="@drawable/ic_clients"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="2"
+    />
+
+    <item
+        android:id="@+id/vendor_activity"
+        android:title="@string/activity"
+        android:icon="@drawable/ic_events"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="3"
+        />
+
+    <item
+        android:id="@+id/vendor_profile"
+        android:title="@string/profile"
+        android:icon="@drawable/ic_account_user"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="4"
+        />
+
+
+</menu>

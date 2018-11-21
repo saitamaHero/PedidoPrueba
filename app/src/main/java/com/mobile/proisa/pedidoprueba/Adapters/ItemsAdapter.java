@@ -1,25 +1,10 @@
 package com.mobile.proisa.pedidoprueba.Adapters;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
+public class ItemsAdapter {
 
-import com.mobile.proisa.pedidoprueba.Adapters.ItemsAdapter.MyMenuClickListener.OnNotifyNeededListener;
-import com.mobile.proisa.pedidoprueba.Models.Item;
-import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
-
-import java.util.List;
-
+}
+/*
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
     public static final String TAG = "ItemsAdapter";
     private List<Item> itemList;
@@ -124,12 +109,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
             toolbar.inflateMenu(R.menu.menu_per_item);
 
             cardView = itemView.findViewById(R.id.card);
-            /*cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("MyHolder", "position: "+getAdapterPosition());
-                }
-            });*/
+
         }
     }
 
@@ -158,9 +138,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
                     notifyNeededListener.onDelete(position);
                     break;
 
-               /* case R.id.action_send:
-                    notifyNeededListener.onSend(position);
-                break;*/
+
             }
 
             return true;
@@ -176,4 +154,6 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
     public interface MyItemClick{
         void onItemClickListener(Object item, int position);
     }
+
 }
+*/

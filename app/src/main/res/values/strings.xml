@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">PedidoPrueba</string>
+    <string name="app_name">AppContaproRuteros</string>
+    <string name="sing_in">Entrar</string>
+    <string name="sing_in_title">Iniciar Sesión</string>
+    <string name="remember_user">Recordar Usuario</string>
+    <string name="hint_user">Usuario</string>
+    <string name="hint_pass">Contraseña</string>
+    <string name="clients">Clientes</string>
+    <string name="stock">Inventario</string>
+    <string name="activity">Actividad</string>
+    <string name="profile">Perfil</string>
 </resources>
