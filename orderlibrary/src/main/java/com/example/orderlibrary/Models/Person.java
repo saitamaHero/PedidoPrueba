@@ -1,13 +1,19 @@
 package com.example.orderlibrary.Models;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class Person {
+/**
+ * Representa una persona, clase base para cualquier derivado
+ */
+public class Person implements Parcelable{
     private String id;
     private String name;
     private List<String> phoneNumbers;
@@ -24,6 +30,28 @@ public class Person {
         birthDate = Calendar.getInstance().getTime();
         enteredDate = Calendar.getInstance().getTime();
     }
+
+    protected Person(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        phoneNumbers = in.createStringArrayList();
+        identityCard = in.readString();
+        address = in.readString();
+        email = in.readString();
+        profilePhoto = in.readParcelable(Uri.class.getClassLoader());
+    }
+
+    public static final Creator<Person> CREATOR = new Creator<Person>() {
+        @Override
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
+
+        @Override
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -121,6 +149,22 @@ public class Person {
     public String toString() {
         return "Person{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", identityCard='"
                 + identityCard + '\'' + ", birthDate=" + birthDate + ", email='" + email + '\'' + '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(name);
+        parcel.writeStringList(phoneNumbers);
+        parcel.writeString(identityCard);
+        parcel.writeString(address);
+        parcel.writeString(email);
+        parcel.writeParcelable(profilePhoto, i);
     }
 }
 
