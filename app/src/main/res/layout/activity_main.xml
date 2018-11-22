@@ -7,14 +7,14 @@
     <include layout="@layout/login_layout"/>
 
     <android.support.design.widget.BottomNavigationView
+        android:id="@+id/nav_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:menu="@menu/menu_bottom_nav"
-        app:itemTextColor="@color/white"
-        app:itemIconTint="@color/white"
-        android:background="@color/colorPrimaryDark"
-
+        app:itemTextColor="@drawable/selector_nav_bottom"
+        app:itemIconTint="@drawable/selector_nav_bottom"
+        android:background="@color/white"
         >
 
     </android.support.design.widget.BottomNavigationView>
