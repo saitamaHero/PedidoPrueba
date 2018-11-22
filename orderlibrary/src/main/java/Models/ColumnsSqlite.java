@@ -30,6 +30,7 @@ public interface ColumnsSqlite {
         String _LAT = "_latitude";
         String _LNG = "_longitude";
 
+
     }
 
 
