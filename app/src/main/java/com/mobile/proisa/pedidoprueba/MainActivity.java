@@ -4,32 +4,66 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
+import com.mobile.proisa.pedidoprueba.Clases.Actividad;
+import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
+import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
     //private List<Item> products;
     //private ItemsAdapter adapter;
     //private RecyclerView recyclerView;
 
+    ViewPager viewPager;
+    BottomNavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final BottomNavigationView navigationView = findViewById(R.id.nav_bottom);
+        navigationView = findViewById(R.id.nav_bottom);
+        //navigationView.;
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int positon = item.getOrder() - 1;
+                viewPager.setCurrentItem(positon, true);
                 /*switch (item.getItemId()){
                     case R.id.stock:
-
+                        viewPager.setCurrentItem(0, true);
                         break;
+                    case R.id.clients:
+                        viewPager.setCurrentItem(1, true);
+                        break;
+                    case R.id.vendor_activity:
+                        viewPager.setCurrentItem(2, true);
+                        break;
+
+                    case R.id.vendor_profile:
+                        viewPager.setCurrentItem(3, true);
+                        break;
+
+                    default:
+                        return false;
+
                 }*/
-                Snackbar.make(navigationView, item.toString(), Snackbar.LENGTH_SHORT).show();
+                //Snackbar.make(navigationView, ""+item.getOrder()+" "+item.toString(), Snackbar.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -41,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setUpViewPager(2);
         /*products = createListItem(3, 0);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -143,5 +178,97 @@ public class MainActivity extends AppCompatActivity {
     }
 */
 
+    private void setUpViewPager(int positionForStart){
+        viewPager = findViewById(R.id.view_pager);
+        MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), getFragmentsForViewPager());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(this);
+
+        viewPager.setCurrentItem(positionForStart);
+
+    }
+
+   private List<Fragment> getFragmentsForViewPager()
+   {
+       List<Fragment> fragments = new ArrayList<>();
+
+       fragments.add(TestFragment.newInstance("Inventario", "Ver el inventario"));
+       fragments.add(TestFragment.newInstance("Clientes", "Ver los clientes"));
+       fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
+       fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
+
+       return fragments;
+   }
+
+   private List<Actividad> getActividadesDePrueba(){
+        List<Actividad> actividads = new ArrayList<>();
+
+       Random random = new Random();
+
+
+       int visitas = random.nextInt(50);
+       int visitasCompletas = random.nextInt(visitas);
+       int visitanIncompletas = visitas - visitasCompletas;
+
+       Log.d("percent", "visitas: "+ visitas);
+       Log.d("percent", "visitasCompletas: "+ visitasCompletas + " "+getPercent(visitasCompletas, visitas));
+       Log.d("percent", "visitasCompletas: "+ visitanIncompletas + String.format(" |--| %d%% de las visitas",getPercent(visitanIncompletas, visitas)));
+
+        actividads.add(new Actividad("RD$ "+ NumberUtils.formatNumber(random.nextDouble() * 100.00 + 1000.00, NumberUtils.FORMAT_NUMER_DOUBLE),
+                "Venta Total", "Todo lo vendido en el día"));
+
+        actividads.add(new Actividad(NumberUtils.formatNumber(visitasCompletas, NumberUtils.FORMAT_NUMER_INTEGER),
+                "Visitas Completas", String.format("%d%% de las visitas",getPercent(visitasCompletas, visitas))
+        ));
+
+        actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER),
+                "Visitas Incompletas", String.format("%d%% de las visitas",getPercent(visitanIncompletas, visitas))));
+
+        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50), NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
+        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100), NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos", ""));
+
+        return actividads;
+   }
+
+   private int getPercent(float min, float max){
+        float p = ( min / max) * 100.00f;
+
+
+        Log.d("percent", "calc ---> " + String.format("%f / %f* 100 = %f",min,max,p));
+
+        return Math.round(p);
+   }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        MenuItem menuItem = navigationView.getMenu().getItem(position);
+        navigationView.setSelectedItemId(menuItem.getItemId());
+        /*switch (position){
+            case 0:
+                navigationView.setSelectedItemId(R.id.stock);
+                break;
+            case 1:
+                navigationView.setSelectedItemId(R.id.clients);
+                break;
+
+            case 2:
+                navigationView.setSelectedItemId(R.id.vendor_activity);
+                break;
+            case 3:
+                navigationView.setSelectedItemId(R.id.vendor_profile);
+                break;
+        }*/
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 }
 

@@ -9,4 +9,7 @@
     <string name="stock">Inventario</string>
     <string name="activity">Actividad</string>
     <string name="profile">Perfil</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

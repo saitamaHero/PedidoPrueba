@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/login_layout"/>
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/nav_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:menu="@menu/menu_bottom_nav"
-        app:itemTextColor="@drawable/selector_nav_bottom"
-        app:itemIconTint="@drawable/selector_nav_bottom"
-        android:background="@color/white"
-        >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
 
-    </android.support.design.widget.BottomNavigationView>
-
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/nav_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/white"
+            android:elevation="4dp"
+            app:itemIconTint="@drawable/selector_nav_bottom"
+            app:itemTextColor="@drawable/selector_nav_bottom"
+            app:menu="@menu/menu_bottom_nav"
+            />
 </FrameLayout>
