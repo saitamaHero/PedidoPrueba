@@ -16,12 +16,15 @@ import android.widget.Toast;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
+import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import Models.Client;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -37,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setContentView(R.layout.activity_main);
 
         navigationView = findViewById(R.id.nav_bottom);
-        //navigationView.;
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -193,11 +195,32 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
        List<Fragment> fragments = new ArrayList<>();
 
        fragments.add(TestFragment.newInstance("Inventario", "Ver el inventario"));
-       fragments.add(TestFragment.newInstance("Clientes", "Ver los clientes"));
+       fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
        fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
 
        return fragments;
+   }
+
+   private List<Client> getClientsForTest(int count){
+        List<Client> clients = new ArrayList<>();
+        Random random = new Random();
+
+        for(int i = 0; i < count; i++){
+            Client client = new Client();
+
+            client.setId(String.valueOf(random.nextInt(5000)));
+            client.setName("Cliente de Prueba #"+(i+1));
+            client.setCreditLimit(5000.00);
+            client.setDistance(random.nextDouble()* 100.00 * 50.00);
+            client.setAddress("Calle #"+(i+1)+" Santiago de los Caballeros");
+            client.setIdentityCard("402-2570666-8");
+            clients.add(client);
+
+        }
+
+
+        return clients;
    }
 
    private List<Actividad> getActividadesDePrueba(){
@@ -210,32 +233,33 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
        int visitasCompletas = random.nextInt(visitas);
        int visitanIncompletas = visitas - visitasCompletas;
 
-       Log.d("percent", "visitas: "+ visitas);
-       Log.d("percent", "visitasCompletas: "+ visitasCompletas + " "+getPercent(visitasCompletas, visitas));
-       Log.d("percent", "visitasCompletas: "+ visitanIncompletas + String.format(" |--| %d%% de las visitas",getPercent(visitanIncompletas, visitas)));
-
         actividads.add(new Actividad("RD$ "+ NumberUtils.formatNumber(random.nextDouble() * 100.00 + 1000.00, NumberUtils.FORMAT_NUMER_DOUBLE),
                 "Venta Total", "Todo lo vendido en el día"));
 
-        actividads.add(new Actividad(NumberUtils.formatNumber(visitasCompletas, NumberUtils.FORMAT_NUMER_INTEGER),
-                "Visitas Completas", String.format("%d%% de las visitas",getPercent(visitasCompletas, visitas))
-        ));
 
-        actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER),
-                "Visitas Incompletas", String.format("%d%% de las visitas",getPercent(visitanIncompletas, visitas))));
+        if(visitasCompletas > 0){
+            actividads.add(new Actividad(NumberUtils.formatNumber(visitasCompletas, NumberUtils.FORMAT_NUMER_INTEGER),
+                    "Visitas Completas", String.format("%d%% de las visitas",getPercent(visitasCompletas, visitas))
+            ));
+        }
+
+
+
+        if(visitanIncompletas > 0){
+            actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER),
+                    "Visitas Incompletas", String.format("%d%% de las visitas",getPercent(visitanIncompletas, visitas)), false)
+            );
+        }
 
         actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50), NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100), NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos", ""));
+        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100), NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos", "Hola soy goku"));
+
 
         return actividads;
    }
 
    private int getPercent(float min, float max){
         float p = ( min / max) * 100.00f;
-
-
-        Log.d("percent", "calc ---> " + String.format("%f / %f* 100 = %f",min,max,p));
-
         return Math.round(p);
    }
 

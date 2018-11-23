@@ -7,17 +7,34 @@ public class Actividad implements Parcelable{
     private String numeric;
     private String descrition;
     private String info;
+    private boolean isGood;
 
     public Actividad(String numeric, String descrition, String info) {
         this.numeric = numeric;
         this.descrition = descrition;
         this.info = info;
+        this.isGood = true;
+    }
+
+    public Actividad(String numeric, String descrition, String info, boolean isGood) {
+        this.numeric = numeric;
+        this.descrition = descrition;
+        this.info = info;
+        this.isGood = isGood;
     }
 
     protected Actividad(Parcel in) {
         numeric = in.readString();
         descrition = in.readString();
         info = in.readString();
+    }
+
+    public boolean isGood() {
+        return isGood;
+    }
+
+    public void setGood(boolean good) {
+        isGood = good;
     }
 
     public static final Creator<Actividad> CREATOR = new Creator<Actividad>() {

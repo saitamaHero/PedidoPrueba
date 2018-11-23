@@ -36,6 +36,13 @@ public class ActividadAdapter extends RecyclerView.Adapter<ActividadAdapter.Acti
         Actividad actividad = actividadList.get(position);
 
         holder.txtNumeric.setText(actividad.getNumeric());
+
+        if(!actividad.isGood()){
+            Context context = holder.txtNumeric.getContext();
+
+            holder.txtNumeric.setTextColor(context.getResources().getColor(R.color.badStatus));
+        }
+
         holder.txtDescription.setText(actividad.getDescrition());
         holder.txtInfo.setText(actividad.getInfo());
     }
