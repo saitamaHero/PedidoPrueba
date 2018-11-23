@@ -13,43 +13,43 @@ public class DateUtils {
     /**
      * Cadena de formato dia, mes, año
      */
-    public static final String DD_MM_YYYY = "dd-MM-YYYY";
+    public static final String DD_MM_YYYY = "dd-MM-yyyy";
 
     /**
      * Cadena de formato dia, mes con tres letras, año
      */
-    public static final String DD_MMM_YYYY = "dd-MMM-YYYY";
+    public static final String DD_MMM_YYYY = "dd-MMM-yyyy";
 
     /**
      * Cadena de formato dia, mes, año, horas(24), minutos
      */
-    public static final String DD_MM_YYYY_HH_mm = "dd-MM-YYYY HH:mm";
+    public static final String DD_MM_YYYY_HH_mm = "dd-MM-yyyy HH:mm";
 
 
     /**
      * Cadena de formato dia, mes, año, horas(12), minutos
      */
-    public static final String DD_MM_YYYY_hh_mm = "dd-MM-YYYY hh:mm";
+    public static final String DD_MM_YYYY_hh_mm = "dd-MM-yyyy hh:mm";
 
     /**
      * Cadena de formato dia, mes, año, horas(24), minutos
      */
-    public static final String DD_MM_YYYY_HH_mm_ss = "dd-MM-YYYY HH:mm:ss";
+    public static final String DD_MM_YYYY_HH_mm_ss = "dd-MM-yyyy HH:mm:ss";
 
     /**
      * Cadena de formato dia, mes, año, horas(12), minutos
      */
-    public static final String DD_MM_YYYY_hh_mm_ss = "dd-MM-YYYY hh:mm:ss";
+    public static final String DD_MM_YYYY_hh_mm_ss = "dd-MM-yyyy hh:mm:ss";
 
     /**
      * Formato para almacenaje de fechas en formato ISO
      */
-    public static final String YYYY_MM_DD = "YYYY-MM-dd";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
     /**
      * Formato para almacenaje de fechas y tiempo en formato ISO
      */
-    public static final String YYYY_MM_DD_HH_mm_ss = "YYYY-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
 
 
     /**
