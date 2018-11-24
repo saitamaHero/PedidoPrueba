@@ -2,4 +2,7 @@
 <resources>
     <dimen name="card_elevation">4dp</dimen>
     <dimen name="card_view_margin">5dp</dimen>
+
+    <dimen name="text_size_titles">16sp</dimen>
+    <dimen name="text_size_subtitles">14sp</dimen>
 </resources>

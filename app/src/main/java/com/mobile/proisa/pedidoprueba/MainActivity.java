@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
        List<Fragment> fragments = new ArrayList<>();
 
        fragments.add(TestFragment.newInstance("Inventario", "Ver el inventario"));
-       fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
+       fragments.add(ClientsFragment.newInstance(getClientsForTest(15)));
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
        fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
 
@@ -211,14 +212,18 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             client.setId(String.valueOf(random.nextInt(5000)));
             client.setName("Cliente de Prueba #"+(i+1));
-            client.setCreditLimit(5000.00);
-            client.setDistance(random.nextDouble()* 100.00 * 50.00);
+            client.setCreditLimit(random.nextDouble() * 5000.00);
+            client.setDistance(random.nextDouble() * 100.00 * 5.00);
             client.setAddress("Calle #"+(i+1)+" Santiago de los Caballeros");
             client.setIdentityCard("402-2570666-8");
+
+            int id = (client.getDistance() < 300)? (R.drawable.photo ): (R.drawable.photo2);
+
+            Log.d("resourceId", "idResource="+id);
+            Uri path = Uri.parse("android.resource://"+getPackageName()+"/"+ id);
+            client.setProfilePhoto(path);
             clients.add(client);
-
         }
-
 
         return clients;
    }
@@ -227,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         List<Actividad> actividads = new ArrayList<>();
 
        Random random = new Random();
-
 
        int visitas = random.nextInt(50);
        int visitasCompletas = random.nextInt(visitas);
