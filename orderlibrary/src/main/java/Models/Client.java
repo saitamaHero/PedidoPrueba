@@ -128,9 +128,9 @@ public class Client extends Person implements Parcelable {
     public String toString() {
         return "Client{" +
                 "creditLimit=" + creditLimit +
-                "name=" + getName() +
-                "id="   + getId() +
-                "identityCard=" + getIdentityCard() +
+                ", name=" + getName() +
+                ", id="   + getId() +
+                ", identityCard=" + getIdentityCard() +
                 '}';
     }
 }
