@@ -1,24 +1,29 @@
 package com.mobile.proisa.pedidoprueba.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.R;
@@ -34,6 +39,7 @@ public class ClientsFragment extends Fragment {
 
     private List<Client> clients;
     private RecyclerView recyclerView;
+    private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
 
     public ClientsFragment() {
@@ -59,7 +65,8 @@ public class ClientsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        getActivity().invalidateOptionsMenu();
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_clients, container, false);
     }
 
@@ -68,38 +75,31 @@ public class ClientsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        fab = view.findViewById(R.id.fab);
         recyclerView = view.findViewById(R.id.recycler_view);
-        /*Toolbar toolbar = view.findViewById(R.id.toolbar);
 
-
-        toolbar.inflateMenu(R.menu.menu_search);
-
-
-
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                switch (newState){
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        fab.show();
+                        break;
 
-                SearchView searchView = (SearchView) item;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                        fab.hide();
+                        break;
 
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return false;
-                    }
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        fab.hide();
+                        break;
+                }
 
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-
-                        setAdapter(clients.size() - newText.length());
-
-                        return true;
-                    }
-                });
-
-                return true;
             }
-        });*/
+
+        });
+
 
         setAdapter();
     }
@@ -115,7 +115,13 @@ public class ClientsFragment extends Fragment {
         clientAdapter.setClientListener(new ClientAdapter.OnClientListener() {
             @Override
             public void onClientMoreClick(Client client) {
-                Toast.makeText(getActivity(), "Ver mas: "+client.toString(),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "Ver mas: "+client.toString(),Toast.LENGTH_SHORT).show();
+                Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
+                seeMoreIntent.putExtra("client", client);
+                getActivity().startActivity(seeMoreIntent);
+
+
+
             }
 
             @Override
@@ -144,5 +150,40 @@ public class ClientsFragment extends Fragment {
                 Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
             }
         });*/
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_search, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem  item = menu.findItem(R.id.app_bar_search);
+
+        SearchView searchView = (SearchView) item.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                int pos = clients.size() - 1;
+
+                if(pos >= 0){
+                    clients.remove(pos);
+                    clientAdapter.notifyItemRemoved(pos);
+                    clientAdapter.notifyItemRangeChanged(pos, clients.size());
+                }
+
+                return true;
+            }
+        });
     }
 }

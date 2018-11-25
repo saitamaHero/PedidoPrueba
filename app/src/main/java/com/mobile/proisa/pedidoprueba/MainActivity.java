@@ -4,13 +4,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -40,13 +37,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         navigationView = findViewById(R.id.nav_bottom);
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int positon = item.getOrder() - 1;
-                viewPager.setCurrentItem(positon, true);
+                int position = item.getOrder() - 1;
+                viewPager.setCurrentItem(position, true);
                 /*switch (item.getItemId()){
                     case R.id.stock:
                         viewPager.setCurrentItem(0, true);
@@ -75,10 +74,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 Toast.makeText(getApplicationContext(), "Reselected: "+item.toString().trim(), Toast.LENGTH_SHORT).show();
+
             }
         });
 
-        setUpViewPager(2);
+        setUpViewPager(1);
         /*products = createListItem(3, 0);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
        List<Fragment> fragments = new ArrayList<>();
 
        fragments.add(TestFragment.newInstance("Inventario", "Ver el inventario"));
-       fragments.add(ClientsFragment.newInstance(getClientsForTest(15)));
+       fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
        fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
 
@@ -255,8 +255,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             );
         }
 
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50), NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100), NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos", "Hola soy goku"));
+        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50),
+                NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
+        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100),
+                NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos",
+                "Articulos devueltos por los clientes :'(", false));
 
 
         return actividads;
@@ -276,21 +279,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public void onPageSelected(int position) {
         MenuItem menuItem = navigationView.getMenu().getItem(position);
         navigationView.setSelectedItemId(menuItem.getItemId());
-        /*switch (position){
-            case 0:
-                navigationView.setSelectedItemId(R.id.stock);
-                break;
-            case 1:
-                navigationView.setSelectedItemId(R.id.clients);
-                break;
-
-            case 2:
-                navigationView.setSelectedItemId(R.id.vendor_activity);
-                break;
-            case 3:
-                navigationView.setSelectedItemId(R.id.vendor_profile);
-                break;
-        }*/
 
     }
 
