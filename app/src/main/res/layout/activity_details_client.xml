@@ -116,13 +116,17 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_margin="2dp"
-                            android:background="@color/cardview_dark_background" />
+                            android:background="@color/cardview_dark_background"
+                            android:elevation="1dp"
+                            />
 
                         <GridView
                             android:id="@+id/action_menu"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:numColumns="auto_fit">
+                            android:numColumns="auto_fit"
+                            android:padding="5dp"
+                            >
 
                         </GridView>
 
@@ -130,7 +134,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_margin="2dp"
-                            android:background="@color/cardview_dark_background" />
+                            android:background="@color/cardview_dark_background"
+                            android:elevation="1dp"
+                            />
 
                         <include layout="@layout/client_data_layout"/>
                     </LinearLayout>

@@ -131,27 +131,6 @@ public class ClientsFragment extends Fragment {
         });
     }
 
-    private void setAdapter(int max) {
-        this.clients = this.clients.subList(0, max);
-        clientAdapter.notifyDataSetChanged();/*
-        ClientAdapter clientAdapter = new ClientAdapter(this.clients.subList(0, max), R.layout.cliente_card_layout);
-        recyclerView.setAdapter(clientAdapter);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        clientAdapter.setClientListener(new ClientAdapter.OnClientListener() {
-            @Override
-            public void onClientMoreClick(Client client) {
-                Toast.makeText(getActivity(), "Ver mas: "+client.toString(),Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onClientVisitClick(Client client) {
-                Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
-            }
-        });*/
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -174,6 +153,8 @@ public class ClientsFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                //Solo probando
+
                 int pos = clients.size() - 1;
 
                 if(pos >= 0){

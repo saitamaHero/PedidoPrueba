@@ -18,11 +18,16 @@ import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import Models.Client;
+import Models.Diary;
+import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -37,8 +42,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Date date = DateUtils.convertToDate("29-11-2018", DateUtils.DD_MM_YYYY);
+        Diary diary = new Diary(date, "Hola oo");
 
-
+        Log.d("dateDiff", "days are: " + String.valueOf(diary.getDays(Calendar.getInstance().getTime())));
+        Log.d("dateDiff", "horas are: " + String.valueOf(diary.getHours(Calendar.getInstance().getTime())));
         navigationView = findViewById(R.id.nav_bottom);
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
