@@ -113,7 +113,7 @@ public class Person implements Parcelable{
         this.email = email;
     }
 
-    private boolean addPhone(String phone){
+    public boolean addPhone(String phone){
         if(!this.phoneNumbers.contains(phone)){
             return this.phoneNumbers.add(phone);
         }
