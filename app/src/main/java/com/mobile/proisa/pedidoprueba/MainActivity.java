@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setContentView(R.layout.activity_main);
 
         Date date = DateUtils.convertToDate("29-11-2018", DateUtils.DD_MM_YYYY);
-        Diary diary = new Diary(date, "Hola oo");
+        Diary diary = new Diary(1,date, "Hola oo");
 
         Log.d("dateDiff", "days are: " + String.valueOf(diary.getDays(Calendar.getInstance().getTime())));
         Log.d("dateDiff", "horas are: " + String.valueOf(diary.getHours(Calendar.getInstance().getTime())));
@@ -224,6 +224,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             client.setDistance(random.nextDouble() * 100.00 * 5.00);
             client.setAddress("Calle #"+(i+1)+" Santiago de los Caballeros");
             client.setIdentityCard("402-2570666-8");
+            client.addPhone("8098608075");
+            client.setEmail("tec.dionicioacevedo@gmail.com");
 
             int id = (client.getDistance() < 300)? (R.drawable.photo ): (R.drawable.photo2);
 

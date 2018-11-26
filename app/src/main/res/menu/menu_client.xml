@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_order"
+        android:icon="@drawable/ic_create_new"
+        android:title="@string/order"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/action_payment"
+        android:icon="@drawable/ic_money_symbol"
+        android:title="@string/payment"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/action_take_photo"
+        android:icon="@drawable/ic_camera"
+        android:title="@string/photo"
+        app:showAsAction="always"
+
+        />
+
+    <item
+        android:id="@+id/action_diary"
+        android:icon="@drawable/ic_events"
+        android:title="@string/diary"
+        
+        app:showAsAction="always"
+
+        />
+
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_person_edit"
+        android:title="@string/edit"
+        app:showAsAction="always"
+
+        />
+
+    <item
+        android:id="@+id/action_change_location"
+        android:icon="@drawable/ic_location"
+        android:title="@string/change_location"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/action_comment"
+        android:icon="@drawable/ic_comment_2"
+        android:title="@string/comment"
+        app:showAsAction="always"
+        />
+</menu>

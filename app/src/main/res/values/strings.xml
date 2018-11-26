@@ -16,4 +16,13 @@
     <string name="visit">Visita</string>
     <string name="search">Buscar</string>
     <string name="empty_string" />
+    <string name="order">Pedido</string>
+    <string name="payment">Cobro</string>
+    <string name="photo">Foto</string>
+    <string name="diary">Agendar</string>
+    <string name="edit">Editar</string>
+    <string name="comment">Comentarios</string>
+    <string name="change_location">Reubicar</string>
+    <string name="balance">Saldo: </string>
+    <string name="credit">Crédito: </string>
 </resources>

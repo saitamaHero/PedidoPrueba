@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:orientation="vertical"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,14 +13,82 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:gravity="center_vertical|center_horizontal"
+            android:src="@drawable/ic_owner" />
 
         <TextView
+            android:id="@+id/owner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="(datos)"
+            android:paddingLeft="5dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:src="@drawable/ic_place" />
+
+        <TextView
+            android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight=".9"
+            android:gravity="center_vertical"
+            android:text="(datos)"
+            android:paddingLeft="5dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:gravity="center_vertical"
+            android:src="@drawable/ic_msg" />
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="(datos)"
+            android:paddingLeft="5dp"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:src="@drawable/ic_phone" />
+
+        <TextView
+            android:id="@+id/phone"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="5dp"
             android:gravity="center_vertical"
             android:text="(datos)" />
     </LinearLayout>
@@ -34,100 +102,14 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:gravity="center_vertical|center_horizontal"
+            android:src="@drawable/ic_rnc" />
 
         <TextView
+            android:id="@+id/identity_card"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
+            android:paddingLeft="5dp"
             android:gravity="center_vertical"
             android:text="(datos)" />
     </LinearLayout>
@@ -142,56 +124,14 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
             android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:src="@drawable/ic_money" />
 
         <TextView
+            android:id="@+id/balance"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
+            android:paddingLeft="5dp"
             android:gravity="center_vertical"
             android:text="(datos)" />
     </LinearLayout>
@@ -206,59 +146,124 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:gravity="center_vertical|center_horizontal"
+            android:src="@drawable/ic_money" />
 
         <TextView
+            android:id="@+id/credit_limit"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight=".9"
+            android:paddingLeft="5dp"
             android:gravity="center_vertical"
             android:text="(datos)" />
     </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
+    <!--
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:orientation="horizontal"
+            android:padding="5dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:src="@drawable/ic_location" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:text="(datos)" />
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:gravity="center_vertical"
-            android:src="@drawable/ic_location" />
+            android:orientation="horizontal"
+            android:padding="5dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight=".9"
-            android:gravity="center_vertical"
-            android:text="(datos)" />
-    </LinearLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:text="(datos)" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:text="(datos)" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:text="(datos)" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                
+               android:gravity="center_vertical|center_horizontal"
+                android:text="(datos)" />
+        </LinearLayout>
+    -->
 </LinearLayout>

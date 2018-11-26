@@ -3,4 +3,6 @@
     <dimen name="text_size_titles">18sp</dimen>
     <dimen name="text_size_subtitles">16sp</dimen>
 
+    <dimen name="detail_backdrop_height">512dp</dimen>
+
 </resources>
