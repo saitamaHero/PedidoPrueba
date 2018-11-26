@@ -46,4 +46,14 @@ public class NumberUtils {
 
         return decimalFormat;
     }
+
+    public static int getPercent(float value, float sum){
+        float p = ( value / sum) * 100.00f;
+        return Math.round(p);
+    }
+
+    public static float getFloatPercent(float value, float sum){
+        float p = ( value / sum) * 100.00f;
+        return p;
+    }
 }

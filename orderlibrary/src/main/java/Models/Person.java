@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Representa una persona, clase base para cualquier derivado
+ * Representa una persona, es clase base para cualquier derivado
  */
 public class Person implements Parcelable{
     private String id;
@@ -25,6 +25,8 @@ public class Person implements Parcelable{
     private Date enteredDate;
     private String email;
     private Uri profilePhoto;
+    private Date lastModification;
+
 
     public Person() {
         phoneNumbers = new ArrayList<>();
@@ -118,6 +120,14 @@ public class Person implements Parcelable{
         return false;
     }
 
+    public List<String> getPhoneNumbers() {
+        return phoneNumbers;
+    }
+
+    public String getPhone(int index) throws IndexOutOfBoundsException{
+        return phoneNumbers.get(index);
+    }
+
     public Uri getProfilePhoto() {
         return profilePhoto;
     }
@@ -134,12 +144,25 @@ public class Person implements Parcelable{
         this.latlng = latlng;
     }
 
+    public void setLatlng(float lat, float lng) {
+        this.latlng = new PointF(lat, lng);
+    }
+
+    public Date getLastModification() {
+        return lastModification;
+    }
+
+    public void setLastModification(Date lastModification) {
+        this.lastModification = lastModification;
+    }
+
     @Override
     public int hashCode() {
         int result = 17;
 
         result = result * 31 + this.id.hashCode();
         result = result * 31 + this.name.hashCode();
+
 
         return result;
     }

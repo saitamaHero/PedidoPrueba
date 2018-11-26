@@ -3,9 +3,12 @@ package Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class SimpleElement implements Parcelable{
     private String id;
     private String name;
+    private Date lastModification;
 
     public SimpleElement() {
     }
@@ -18,8 +21,16 @@ public class SimpleElement implements Parcelable{
     protected SimpleElement(Parcel in) {
         id = in.readString();
         name = in.readString();
+        lastModification = (Date) in.readSerializable();
     }
 
+    public Date getLastModification() {
+        return lastModification;
+    }
+
+    public void setLastModification(Date lastModification) {
+        this.lastModification = lastModification;
+    }
     public static final Creator<SimpleElement> CREATOR = new Creator<SimpleElement>() {
         @Override
         public SimpleElement createFromParcel(Parcel in) {
@@ -57,6 +68,7 @@ public class SimpleElement implements Parcelable{
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(this.id);
         parcel.writeString(this.name);
+        parcel.writeSerializable(this.lastModification);
     }
 
 

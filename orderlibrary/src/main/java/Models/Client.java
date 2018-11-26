@@ -10,7 +10,9 @@ import java.util.GregorianCalendar;
 
 import Utils.DateUtils;
 
-public class Client extends Person implements Parcelable {
+import static Models.ColumnsSqlite.*;
+
+public class Client extends Person implements Parcelable, ColumnsClient {
     private double creditLimit;
     private double distance;
     private Date visitDate;

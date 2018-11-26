@@ -6,7 +6,9 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
-public class Item extends SimpleElement implements ITotal, Parcelable{
+import Models.ColumnsSqlite.ColumnsItem;
+
+public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsItem{
     private String barcode;
     private double stock;
     private double quantity;
@@ -15,11 +17,12 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
     private Category category;
     private Unit unit;
     private Uri photo;
-    private Date lastModification;
+
 
     public Item() {
         category = Category.UNKNOWN_CATEGORY;
         unit = Unit.UNKNOWN_UNIT;
+
     }
 
     public Item(String id, String name) {
@@ -36,6 +39,8 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
         category = in.readParcelable(Category.class.getClassLoader());
         unit = in.readParcelable(Unit.class.getClassLoader());
         cost = in.readDouble();
+        photo = in.readParcelable(Uri.class.getClassLoader());
+
     }
 
     @Override
@@ -47,6 +52,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
         dest.writeParcelable(category, flags);
         dest.writeParcelable(unit, flags);
         dest.writeDouble(cost);
+        dest.writeParcelable(photo, flags);
     }
 
     @Override
@@ -130,14 +136,6 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
         this.photo = photo;
     }
 
-    public Date getLastModification() {
-        return lastModification;
-    }
-
-    public void setLastModification(Date lastModification) {
-        this.lastModification = lastModification;
-    }
-
     @Override
     public double getTotal() {
         return this.price * this.quantity;
@@ -164,11 +162,6 @@ public class Item extends SimpleElement implements ITotal, Parcelable{
 
         return getId().compareTo(item.getId()) == 0 && getName().compareTo(item.getName()) == 0;
     }
-
-   /* @Override
-    public String toString() {
-        return "Item{" + "id='" + getId() + '\'' + ", name='" + getName() + '\'' + ", stock=" + stock + ", quantity=" + quantity + ", price=" + price + '}';
-    }*/
 
     @Override
     public String toString() {
