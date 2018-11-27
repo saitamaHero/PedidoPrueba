@@ -115,18 +115,17 @@ public class ClientsFragment extends Fragment {
         clientAdapter.setClientListener(new ClientAdapter.OnClientListener() {
             @Override
             public void onClientMoreClick(Client client) {
-                //Toast.makeText(getActivity(), "Ver mas: "+client.toString(),Toast.LENGTH_SHORT).show();
                 Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
                 seeMoreIntent.putExtra("client", client);
                 getActivity().startActivity(seeMoreIntent);
-
-
-
             }
 
             @Override
             public void onClientVisitClick(Client client) {
-                Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
+                if(client.getDistance() < 300.00){
+                    Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }

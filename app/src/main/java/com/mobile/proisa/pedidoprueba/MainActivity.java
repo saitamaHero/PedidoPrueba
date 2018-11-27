@@ -229,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             int id = (client.getDistance() < 300)? (R.drawable.photo ): (R.drawable.photo2);
 
-            Log.d("resourceId", "idResource="+id);
             Uri path = Uri.parse("android.resource://"+getPackageName()+"/"+ id);
             client.setProfilePhoto(path);
             clients.add(client);

@@ -34,7 +34,8 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".Activities.EditClientActivity"></activity>
+        <activity android:name=".Activities.EditClientActivity" />
+        <activity android:name=".Activities.SeeCommentsActivity"></activity>
     </application>
 
 </manifest>

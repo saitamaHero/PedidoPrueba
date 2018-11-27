@@ -6,32 +6,25 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.AdapterView;
-import android.widget.Checkable;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.BuildConfig;
 import com.mobile.proisa.pedidoprueba.Clases.ClientOptionsAdapter;
@@ -40,7 +33,6 @@ import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 import Models.Client;
@@ -48,7 +40,7 @@ import Utils.FileUtils;
 
 
 
-public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener {
+public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_CLIENT = "client";
     private static final int CAMERA_INTENT_RESULT = 1;
     private static final int EDIT_INTENT_RESULT = 2;
@@ -85,11 +77,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     }
 
     private void loadBackdrop(Uri uri) {
-        final ImageView imageView = findViewById(R.id.backdrop);
+        ImageView imageView = findViewById(R.id.backdrop);
         Glide.with(this)
                 .load(uri)
-                //.apply(RequestOptions.centerCropTransform())
+                .thumbnail(0.1f)
+                .apply(RequestOptions.centerCropTransform())
                 .into(imageView);
+
     }
 
     private void loadInfo(Client client){
@@ -133,40 +127,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         gvMenuOption.setAdapter(new ClientOptionsAdapter(this, myMenu,
                 R.layout.client_option_grid_item));
 
-        gvMenuOption.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MenuItem menuItem = (MenuItem) adapterView.getItemAtPosition(i);
-
-                switch (menuItem.getItemId()){
-                    case R.id.action_take_photo:
-                        PhotoActionDialog dialog = new PhotoActionDialog();
-                        dialog.setOnActionPressedListener(new PhotoActionDialog.OnActionPressedListener() {
-                            @Override
-                            public void onActionPressed(int action) {
-                                switch (action){
-                                    case PhotoActionDialog.TAKE_PHOTO:
-                                        startCameraToTakePhoto(Environment.getExternalStorageDirectory(), true);
-                                        break;
-                                }
-                            }
-                        });
-
-                        dialog.show(getSupportFragmentManager(), "");
-                        break;
-
-                    case R.id.action_edit:
-                        startActivityForResult(new Intent(getApplicationContext(),EditClientActivity.class)
-                                .putExtra(EditClientActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
-                        break;
-
-                    case R.id.action_comment:
-                        Toast.makeText(getApplicationContext(), "Ver los comentarios de las visitas", Toast.LENGTH_SHORT).show();
-                        break;
-
-                }
-            }
-        });
+        gvMenuOption.setOnItemClickListener(this);
     }
 
     @Override
@@ -231,6 +192,40 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     loadInfo(client);
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        MenuItem menuItem = (MenuItem) adapterView.getItemAtPosition(i);
+
+        switch (menuItem.getItemId()){
+            case R.id.action_take_photo:
+                PhotoActionDialog dialog = new PhotoActionDialog();
+                dialog.setOnActionPressedListener(new PhotoActionDialog.OnActionPressedListener() {
+                    @Override
+                    public void onActionPressed(int action) {
+                        switch (action){
+                            case PhotoActionDialog.TAKE_PHOTO:
+                                startCameraToTakePhoto(Environment.getExternalStorageDirectory(), true);
+                                break;
+                        }
+                    }
+                });
+
+                dialog.show(getSupportFragmentManager(), "");
+                break;
+
+            case R.id.action_edit:
+                startActivityForResult(new Intent(getApplicationContext(),EditClientActivity.class)
+                        .putExtra(EditClientActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
+                break;
+
+            case R.id.action_comment:
+                startActivityForResult(new Intent(getApplicationContext(),SeeCommentsActivity.class)
+                        .putExtra(SeeCommentsActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
+                break;
+
         }
     }
 }

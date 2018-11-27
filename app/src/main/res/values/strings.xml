@@ -35,4 +35,15 @@
         <item>Tomar Foto</item>
         <item>Abrir galería</item>
     </string-array>
+
+
+    <string name="lorem_ipsum" translatable="false">
+        Lorem ipsum dolor amet la croix edison bulb helvetica jianbing selvage tofu disrupt chartreuse 
+        vexillologist thundercats kickstarter wolf freegan live-edge. Aesthetic hammock butcher next 
+        level mumblecore before they sold out poke. Keffiyeh tattooed pork belly, mumblecore air plant 
+        brooklyn asymmetrical austin helvetica normcore blue bottle affogato hexagon hot chicken prism. 
+        Chicharrones distillery small batch actually yr jianbing, mustache ugh four loko occupy pinterest 
+        selfies messenger bag. Typewriter try-hard brooklyn synth selfies.
+    </string>
+    <string name="comment_activity">Comentarios</string>
 </resources>
