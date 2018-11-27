@@ -54,7 +54,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         holder.toolbar.setOnMenuItemClickListener(new MyMenuClickListener(position, new OnNotifyNeededListener() {
 
             @Override
-            public void onUpdate(int position, double newQuantity) {
+            public void update(int position, double newQuantity) {
                 Log.d(TAG, "postion to update: "+position + " with value "+newQuantity);
                 Item item = itemList.get(position);
                 item.setQuantity(item.getQuantity() + newQuantity);
@@ -127,11 +127,11 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
 
             switch (menuItem.getItemId()){
                 case R.id.action_add:
-                   notifyNeededListener.onUpdate(position, 1);
+                   notifyNeededListener.update(position, 1);
                     break;
 
                 case R.id.action_remove:
-                    notifyNeededListener.onUpdate(position, -1);
+                    notifyNeededListener.update(position, -1);
                     break;
 
                 case R.id.action_delete:
@@ -145,7 +145,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.MyHolder>{
         }
 
         public interface OnNotifyNeededListener{
-            public void onUpdate(int position, double newQuantity);
+            public void update(int position, double newQuantity);
             public void onDelete(int position);
 
         }
