@@ -12,7 +12,7 @@ import Utils.DateUtils;
 
 import static Models.ColumnsSqlite.*;
 
-public class Client extends Person implements Parcelable, ColumnsClient {
+public class Client extends Person implements Parcelable, ColumnsClient, Updatable<Client> {
     private double creditLimit;
     private double distance;
     private Date visitDate;
@@ -134,5 +134,18 @@ public class Client extends Person implements Parcelable, ColumnsClient {
                 ", id="   + getId() +
                 ", identityCard=" + getIdentityCard() +
                 '}';
+    }
+
+    @Override
+    public boolean update(Client item) {
+
+        if(item == null) return  false;
+
+
+        setName(item.getName());
+        setEmail(item.getEmail());
+        setPhoneNumbers(item.getPhoneNumbers());
+
+        return true;
     }
 }

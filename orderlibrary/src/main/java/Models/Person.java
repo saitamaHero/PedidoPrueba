@@ -128,6 +128,10 @@ public class Person implements Parcelable{
         return phoneNumbers.get(index);
     }
 
+    public void setPhoneNumbers(List<String> phoneNumbers) {
+        this.phoneNumbers = phoneNumbers;
+    }
+
     public Uri getProfilePhoto() {
         return profilePhoto;
     }
@@ -162,7 +166,6 @@ public class Person implements Parcelable{
 
         result = result * 31 + this.id.hashCode();
         result = result * 31 + this.name.hashCode();
-
 
         return result;
     }
