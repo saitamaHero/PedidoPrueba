@@ -3,6 +3,7 @@ package Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -108,6 +109,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         return TimeUnit.HOURS.convert(diffTime, TimeUnit.MILLISECONDS);
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -120,5 +122,14 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         parcel.writeParcelable(clientToVisit, i);
         parcel.writeSerializable(dateEvent);
         parcel.writeSerializable(lastModification);
+    }
+
+
+    public static class SortByDateDesc implements Comparator<Diary>{
+
+        @Override
+        public int compare(Diary diary, Diary t1) {
+            return t1.getDateEvent().compareTo(diary.getDateEvent());
+        }
     }
 }
