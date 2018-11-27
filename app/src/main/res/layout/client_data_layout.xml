@@ -45,6 +45,9 @@
             android:gravity="center_vertical"
             android:text="(datos)"
             android:paddingLeft="5dp"
+            android:linksClickable="true"
+            android:textColorLink="@color/colorPrimaryDark"
+            android:autoLink="map"
             />
     </LinearLayout>
 
@@ -68,6 +71,9 @@
             android:gravity="center_vertical"
             android:text="(datos)"
             android:paddingLeft="5dp"
+            android:linksClickable="true"
+            android:textColorLink="@color/colorPrimaryDark"
+            android:autoLink="email"
             />
     </LinearLayout>
 
@@ -90,7 +96,11 @@
             android:layout_height="match_parent"
             android:paddingLeft="5dp"
             android:gravity="center_vertical"
-            android:text="(datos)" />
+            android:text="(datos)"
+            android:linksClickable="true"
+            android:textColorLink="@color/colorPrimaryDark"
+            android:autoLink="phone"
+            />
     </LinearLayout>
 
     <LinearLayout
@@ -157,6 +167,7 @@
             android:gravity="center_vertical"
             android:text="(datos)" />
     </LinearLayout>
+
     <!--
         <LinearLayout
             android:layout_width="match_parent"

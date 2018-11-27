@@ -21,11 +21,15 @@
     <string name="photo">Foto</string>
     <string name="diary">Agendar</string>
     <string name="edit">Editar</string>
-    <string name="comment">Comentarios</string>
+    <string name="comment">Coment.</string>
     <string name="change_location">Reubicar</string>
     <string name="balance">Saldo: </string>
     <string name="credit">Crédito: </string>
     <string name="cancel">Cancelar</string>
+    <string name="apply">Confirmar</string>
+    <string name="name">Nombre</string>
+    <string name="phone">Teléfono</string>
+    <string name="email">Correo electrónico</string>
 
     <string-array name="photo_action">
         <item>Tomar Foto</item>
