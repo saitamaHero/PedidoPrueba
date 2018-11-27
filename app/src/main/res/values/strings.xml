@@ -25,4 +25,10 @@
     <string name="change_location">Reubicar</string>
     <string name="balance">Saldo: </string>
     <string name="credit">Crédito: </string>
+    <string name="cancel">Cancelar</string>
+
+    <string-array name="photo_action">
+        <item>Tomar Foto</item>
+        <item>Abrir galería</item>
+    </string-array>
 </resources>

@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.Clases.ClientOptionsAdapter;
+import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
@@ -126,6 +127,16 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     case R.id.action_take_photo:
                         client.setProfilePhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
                         loadBackdrop(client.getProfilePhoto());
+
+                        PhotoActionDialog dialog = new PhotoActionDialog();
+                        dialog.setOnActionPressedListener(new PhotoActionDialog.OnActionPressedListener() {
+                            @Override
+                            public void onActionPressed(int action) {
+                                Toast.makeText(getApplicationContext(), String.valueOf(action), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        dialog.show(getSupportFragmentManager(), "");
 
                         break;
 
