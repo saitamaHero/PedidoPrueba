@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,13 +56,14 @@ import Utils.FileUtils;
 
 
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
-        AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener, TimePickerDialog.OnTimeSetListener {
+        AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
+        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
     public static final String EXTRA_CLIENT = "client";
     private static final int CAMERA_INTENT_RESULT = 1;
     private static final int EDIT_INTENT_RESULT = 2;
+    private static final int GALLERY_INTENT_RESULT = 3;
     private static final int PERMISO_MEMORIA_REQUEST = 1000;
     private static final int PERMISO_CAMERA_REQUEST = 2000;
-
 
 
     private boolean mPermissionStorage;
@@ -172,7 +174,9 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.fab_start_visit:
-                Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
+                if(client.getDistance() < 300){
+                    Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
         }
@@ -200,10 +204,21 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         intentCamera.putExtra(MediaStore.EXTRA_OUTPUT,currentPhotoItem);
-
         startActivityForResult(intentCamera, CAMERA_INTENT_RESULT);
     }
 
+    private void openGallery(){
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,false);
+
+        if(intent.resolveActivity(getPackageManager())!= null){
+            startActivityForResult(intent, GALLERY_INTENT_RESULT);
+        }else{
+            Toast.makeText(this, "Android no permite seleccionar", Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -222,7 +237,21 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     client = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
                     loadBackdrop(client.getProfilePhoto());
                     loadInfo(client);
+
+                    //Guardar direccion de foto automaticamente
                 }
+                break;
+
+            case GALLERY_INTENT_RESULT:
+                if(resultCode == RESULT_OK){
+                    Uri realUri = getRealUriFromGallery(data.getData());
+                    client.setProfilePhoto(realUri);
+                    loadBackdrop(client.getProfilePhoto());
+
+                    Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
+                    Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
+                }
+
                 break;
         }
     }
@@ -234,19 +263,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (menuItem.getItemId()){
             case R.id.action_take_photo:
                 PhotoActionDialog dialog = new PhotoActionDialog();
-                dialog.setOnActionPressedListener(new PhotoActionDialog.OnActionPressedListener() {
-                    @Override
-                    public void onActionPressed(int action) {
-                        switch (action){
-                            case PhotoActionDialog.TAKE_PHOTO:
-                                if(mPermissionCamera && mPermissionStorage){
-                                    startCameraToTakePhoto(Environment.getExternalStorageDirectory(), true);
-                                }
-                                break;
-                        }
-                    }
-                });
-
+                dialog.setOnActionPressedListener(this);
                 dialog.show(getSupportFragmentManager(), "");
                 break;
 
@@ -289,6 +306,20 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }else{
             mPermissionCamera = true;
         }
+    }
+
+    private  Uri getRealUriFromGallery(Uri selectedImage){
+        String[] projection = { android.provider.MediaStore.Images.Media.DATA };
+        Cursor cursor;
+
+        cursor = managedQuery(selectedImage, projection, null, null, null);
+
+        int column_index = cursor.getColumnIndexOrThrow(projection[0]);
+        cursor.moveToFirst();
+
+        String path = cursor.getString(column_index);
+
+        return Uri.fromFile(new File(path));
     }
 
     @Override
@@ -357,9 +388,26 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         nextVisit.setDateEvent(mCalendar.getTime());
 
-        Log.d("timePreview","H:"+hourOfDay + " m:"+minute);
-        Log.d("timePreview",nextVisit.toString());
+        Log.d("nextVisit",nextVisit.toString());
 
         //Guardar datos en la base de datos tanto local como remota
+        Toast.makeText(getApplicationContext(), "Visita Creada!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onActionPressed(int action) {
+        switch (action){
+            case PhotoActionDialog.TAKE_PHOTO:
+                if(mPermissionCamera && mPermissionStorage){
+                    startCameraToTakePhoto(Environment.getExternalStorageDirectory(), true);
+                }
+                break;
+
+            case PhotoActionDialog.PICK_PHOTO:
+                if(mPermissionStorage){
+                    openGallery();
+                }
+                break;
+        }
     }
 }
