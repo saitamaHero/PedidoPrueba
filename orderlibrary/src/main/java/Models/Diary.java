@@ -11,14 +11,15 @@ import java.util.concurrent.TimeUnit;
  * Created by dionicio on 25/11/18.
  * Representa la agenda de el usuario Actual
  */
-
 public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     public final long NEW_DIARY_ENTRY = -1;
+    public final static int ONE_HOUR = 60;
     private long id;
     private Date dateEvent;
     private String comment;
     private Client clientToVisit;
     private Date lastModification;
+    private int duration;
 
     public Diary() {
         this.id = NEW_DIARY_ENTRY;
@@ -36,6 +37,16 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         clientToVisit = in.readParcelable(Client.class.getClassLoader());
         dateEvent = (Date) in.readSerializable();
         lastModification = (Date) in.readSerializable();
+        duration = in.readInt();
+
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public static final Creator<Diary> CREATOR = new Creator<Diary>() {
@@ -109,6 +120,11 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         return TimeUnit.HOURS.convert(diffTime, TimeUnit.MILLISECONDS);
     }
 
+    @Override
+    public String toString() {
+        return "Diary{" + "id=" + id + ", dateEvent=" + dateEvent + ", comment='" + comment + '\''
+                + ", clientToVisit=" + clientToVisit + ", duration=" + duration + '}';
+    }
 
     @Override
     public int describeContents() {
@@ -122,6 +138,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         parcel.writeParcelable(clientToVisit, i);
         parcel.writeSerializable(dateEvent);
         parcel.writeSerializable(lastModification);
+        parcel.writeInt(duration);
     }
 
 
