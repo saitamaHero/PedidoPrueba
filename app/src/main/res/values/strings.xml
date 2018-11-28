@@ -46,4 +46,7 @@
         selfies messenger bag. Typewriter try-hard brooklyn synth selfies.
     </string>
     <string name="comment_activity">Comentarios</string>
+    <string name="time_of_visit">Minutos que durarás</string>
+    <string name="minutes">minutos</string>
+    <string name="ok">Aceptar</string>
 </resources>
