@@ -111,6 +111,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
+        imageView.setOnClickListener(this);
 
         Glide.with(this)
                 .load(uri)
@@ -177,6 +178,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 if(client.getDistance() < 300){
                     Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
                 }
+                break;
+
+            case R.id.backdrop:
+                startActivity(new Intent(this, ShowPhotoActivity.class)
+                .putExtra(Intent.EXTRA_STREAM, client.getProfilePhoto()));
                 break;
 
         }

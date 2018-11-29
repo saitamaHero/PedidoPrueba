@@ -104,8 +104,6 @@ public class ClientsFragment extends Fragment {
         setAdapter();
     }
 
-
-
     private void setAdapter() {
         clientAdapter = new ClientAdapter(this.clients, R.layout.cliente_card_layout);
         recyclerView.setAdapter(clientAdapter);

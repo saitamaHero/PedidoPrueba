@@ -36,6 +36,7 @@
 
         <activity android:name=".Activities.EditClientActivity" />
         <activity android:name=".Activities.SeeCommentsActivity"></activity>
+        <activity android:name=".Activities.ShowPhotoActivity"></activity>
     </application>
 
 </manifest>

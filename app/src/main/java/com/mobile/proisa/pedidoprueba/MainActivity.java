@@ -15,6 +15,7 @@ import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
+import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
@@ -119,29 +120,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
 /*
-    private static Item getItem(String id, String name){
-        Item item = new Item(id, name);
-        Random random = new Random();
 
-
-        item.setId("COD-".concat(String.valueOf(random.nextInt(1000) * (1 +random.nextInt(99))) ));
-        item.setPrice(random.nextDouble() * 100.00 + 100.00);
-        item.setQuantity(random.nextInt(10) * random.nextInt(10));
-        item.setStock(random.nextInt(100) * random.nextInt(5));
-
-        return item;
-    }
-
-
-    public static List<Item> createListItem(int count, int startPosition){
-        List<Item> items = new ArrayList<>(count);
-
-        for(int i = startPosition; i < startPosition + count; i++){
-            items.add(getItem("","PRODUCTO DE PRUEBA " + i));
-        }
-
-        return items;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -203,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
    {
        List<Fragment> fragments = new ArrayList<>();
 
-       fragments.add(TestFragment.newInstance("Inventario", "Ver el inventario"));
+       fragments.add(ItemListFragment.newInstance());
        fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
        fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
