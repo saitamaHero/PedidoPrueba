@@ -9,7 +9,6 @@ import java.util.Date;
 import Models.ColumnsSqlite.ColumnsItem;
 
 public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsItem{
-    private String barcode;
     private double stock;
     private double quantity;
     private double cost;
@@ -17,7 +16,6 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
     private Category category;
     private Unit unit;
     private Uri photo;
-
 
     public Item() {
         category = Category.UNKNOWN_CATEGORY;
@@ -120,14 +118,6 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
         this.cost = cost;
     }
 
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
     public Uri getPhoto() {
         return photo;
     }
@@ -147,7 +137,6 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
 
         result = result * 31 + this.getId().hashCode();
         result = result * 31 + this.getName().hashCode();
-        result = result * 31 + this.getBarcode().hashCode();
         result = result * 31 + this.getCategory().hashCode();
         result = result * 31 + this.getUnit().hashCode();
 
