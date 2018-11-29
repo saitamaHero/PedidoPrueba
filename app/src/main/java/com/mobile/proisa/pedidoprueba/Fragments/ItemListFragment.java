@@ -2,35 +2,36 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
-import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
+import com.mobile.proisa.pedidoprueba.Activities.DetailsItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
 import com.mobile.proisa.pedidoprueba.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import Models.Client;
 import Models.Item;
 
-public class ItemListFragment extends Fragment {
-    private static final String PARAM_ITEMS = "";
+public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener{
+    private static final String PARAM_ITEMS = "param_items";
     private List<Item> items;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
@@ -70,12 +71,7 @@ public class ItemListFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        itemListAdapter.setOnItemClickListener(new ItemListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Item item) {
-                Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        itemListAdapter.setOnItemClickListener(this);
     }
 
     @Override
@@ -114,6 +110,7 @@ public class ItemListFragment extends Fragment {
         item.setPrice(random.nextDouble() * 100.00 + 100.00);
         item.setQuantity(random.nextInt(10) * random.nextInt(10));
         item.setStock(random.nextInt(100) * random.nextInt(5));
+        item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
 
         return item;
     }
@@ -127,5 +124,18 @@ public class ItemListFragment extends Fragment {
         }
 
         return items;
+    }
+
+    @Override
+    public void onItemClick(Item item) {
+        Bundle mBundle = new Bundle();
+        mBundle.putParcelable(DetailsItemActivity.EXTRA_ITEM_DATA, item);
+        
+        Log.d("bundleSize",String.valueOf(mBundle.size()));
+        Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsItemActivity.class);
+        seeMoreIntent.putExtras(mBundle);
+        getActivity().startActivity(seeMoreIntent);
+      /*  getActivity().startActivity(new Intent(getActivity().getApplicationContext(),
+                DetailsItemActivity.class));*/
     }
 }

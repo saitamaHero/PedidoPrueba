@@ -35,8 +35,11 @@
         </provider>
 
         <activity android:name=".Activities.EditClientActivity" />
-        <activity android:name=".Activities.SeeCommentsActivity"></activity>
-        <activity android:name=".Activities.ShowPhotoActivity"></activity>
+        <activity android:name=".Activities.SeeCommentsActivity" />
+        <activity android:name=".Activities.ShowPhotoActivity" />
+        <activity android:name=".Activities.DetailsItemActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            ></activity>
     </application>
 
 </manifest>

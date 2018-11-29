@@ -8,10 +8,9 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:selectableItemBackground"
-    app:cardCornerRadius="@dimen/cardview_default_radius"
     app:cardElevation="@dimen/card_elevation"
     app:cardPreventCornerOverlap="true"
-    android:layout_margin="5dp"
+    android:layout_margin="2dp"
     >
 
     <LinearLayout
