@@ -37,9 +37,10 @@
         <activity android:name=".Activities.EditClientActivity" />
         <activity android:name=".Activities.SeeCommentsActivity" />
         <activity android:name=".Activities.ShowPhotoActivity" />
-        <activity android:name=".Activities.DetailsItemActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            ></activity>
+        <activity
+            android:name=".Activities.DetailsItemActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.SelectorItemActivity"></activity>
     </application>
 
 </manifest>

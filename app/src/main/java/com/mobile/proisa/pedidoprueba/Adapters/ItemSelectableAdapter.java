@@ -64,9 +64,7 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
 
     @Override
     public void onItemSelected(ItemSelectable itemSelectable) {
-        if(!multiSelectionEnabled){
             onItemSelectedListener.onItemSelected(itemSelectable);
-        }
     }
 
     public static class SelectableViewHolder extends RecyclerView.ViewHolder{

@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.mobile.proisa.pedidoprueba.Activities.SelectorItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
@@ -28,6 +30,7 @@ import java.util.Random;
 
 import Models.Client;
 import Models.Diary;
+import Models.Item;
 import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -88,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         });
 
         setUpViewPager(1);
+
+        startActivity(new Intent(getApplicationContext(), SelectorItemActivity.class));
         /*products = createListItem(3, 0);
 
         recyclerView = findViewById(R.id.recycler_view);

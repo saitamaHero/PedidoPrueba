@@ -74,22 +74,15 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     }
 
     private void setAdapter() {
-        /*itemListAdapter = new ItemListAdapter(this.items, R.layout.item_basic_card);
+        itemListAdapter = new ItemListAdapter(this.items, R.layout.item_basic_card);
         recyclerView.setAdapter(itemListAdapter);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        itemListAdapter.setOnItemClickListener(this);*/
-
-        ItemSelectableAdapter itemSelectableAdapter =
-                new ItemSelectableAdapter(getSelectableList(this.items), R.layout.item_selectable_card,
-                true);
-        recyclerView.setAdapter(itemSelectableAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+        itemListAdapter.setOnItemClickListener(this);
     }
 
-    private static List<ItemSelectable> getSelectableList(List<Item> items){
+    public static List<ItemSelectable> getSelectableList(List<Item> items){
         List<ItemSelectable> selectables = new ArrayList<>();
 
         for(Item i : items){
