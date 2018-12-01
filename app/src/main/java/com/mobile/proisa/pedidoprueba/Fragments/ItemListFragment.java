@@ -21,6 +21,8 @@ import android.view.ViewGroup;
 
 import com.mobile.proisa.pedidoprueba.Activities.DetailsItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
+import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
+import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.io.File;
@@ -28,13 +30,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import Models.Category;
 import Models.Item;
+import Models.Unit;
 
 public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener{
     private static final String PARAM_ITEMS = "param_items";
     private List<Item> items;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
+
+
+    public static final String[] CATEGORIES = {"Bebidas", "Alimentos", "Limpieza", "Dulces"};
+
 
     public ItemListFragment() { }
 
@@ -66,12 +74,29 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     }
 
     private void setAdapter() {
-        itemListAdapter = new ItemListAdapter(this.items, R.layout.item_basic_card);
+        /*itemListAdapter = new ItemListAdapter(this.items, R.layout.item_basic_card);
         recyclerView.setAdapter(itemListAdapter);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        itemListAdapter.setOnItemClickListener(this);
+        itemListAdapter.setOnItemClickListener(this);*/
+
+        ItemSelectableAdapter itemSelectableAdapter =
+                new ItemSelectableAdapter(getSelectableList(this.items), R.layout.item_selectable_card,
+                true);
+        recyclerView.setAdapter(itemSelectableAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+    }
+
+    private static List<ItemSelectable> getSelectableList(List<Item> items){
+        List<ItemSelectable> selectables = new ArrayList<>();
+
+        for(Item i : items){
+            selectables.add(new ItemSelectable(i, false));
+        }
+
+        return selectables;
     }
 
     @Override
@@ -111,6 +136,8 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         item.setQuantity(random.nextInt(10) * random.nextInt(10));
         item.setStock(random.nextInt(100) * random.nextInt(5));
         item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
+        item.setCategory(getRandomCategory());
+        item.setUnit(new Unit("UD","UNIDAD"));
 
         return item;
     }
@@ -126,16 +153,19 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         return items;
     }
 
+    public static Category getRandomCategory(){
+        Random random = new Random();
+
+        return new Category("CAT-"+random.nextInt(50), CATEGORIES[random.nextInt(CATEGORIES.length)]);
+    }
+
     @Override
     public void onItemClick(Item item) {
         Bundle mBundle = new Bundle();
         mBundle.putParcelable(DetailsItemActivity.EXTRA_ITEM_DATA, item);
-        
-        Log.d("bundleSize",String.valueOf(mBundle.size()));
+
         Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsItemActivity.class);
         seeMoreIntent.putExtras(mBundle);
         getActivity().startActivity(seeMoreIntent);
-      /*  getActivity().startActivity(new Intent(getActivity().getApplicationContext(),
-                DetailsItemActivity.class));*/
     }
 }

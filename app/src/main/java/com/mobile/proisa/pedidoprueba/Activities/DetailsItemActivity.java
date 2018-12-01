@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
@@ -54,10 +55,6 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
-
-        loadBackdrop(item.getPhoto());
-        loadInfo(item);
-
         checkPermissionStorage();
     }
 
@@ -68,9 +65,19 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         Glide.with(this)
                 .load(uri)
                 .thumbnail(0.1f)
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                .apply(RequestOptions.skipMemoryCacheOf(true))
                 .apply(RequestOptions.centerCropTransform())
                 .into(imageView);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        loadInfo(item);
+        loadBackdrop(item.getPhoto());
     }
 
     private void loadInfo(Item item){

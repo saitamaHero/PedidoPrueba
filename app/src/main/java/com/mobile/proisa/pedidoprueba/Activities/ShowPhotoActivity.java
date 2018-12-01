@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.R;
 
 public class ShowPhotoActivity extends AppCompatActivity {
@@ -19,18 +21,27 @@ public class ShowPhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_photo_acitivity);
 
-        final ImageView imageView = findViewById(R.id.imageView);
-
         mUri = getIntent().getExtras().getParcelable(Intent.EXTRA_STREAM);
 
         if (mUri == null) finish();
 
+        showHomeButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadPicture();
+    }
+
+    private void loadPicture() {
+        ImageView imageView = findViewById(R.id.imageView);
+
         Glide.with(this)
                 .load(mUri)
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                .apply(RequestOptions.skipMemoryCacheOf(true))
                 .into(imageView);
-
-        showHomeButton();
-
     }
 
     private void showHomeButton(){
