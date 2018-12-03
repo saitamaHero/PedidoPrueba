@@ -19,6 +19,14 @@ public class ItemSelectable extends Item implements Parcelable {
 
     public ItemSelectable(Item item, boolean selected){
         super(item.getId(), item.getName());
+        this.setCategory(item.getCategory());
+        this.setPhoto(item.getPhoto());
+        this.setLastModification(item.getLastModification());
+        this.setPrice(item.getPrice());
+        this.setStock(item.getStock());
+        this.setQuantity(item.getQuantity());
+        this.setUnit(item.getUnit());
+        this.setCost(item.getCost());
         this.selected = selected;
     }
 

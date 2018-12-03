@@ -10,11 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.List;
+
+import Models.Item;
 
 public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAdapter.SelectableViewHolder>
         implements MyOnItemSelectedListener {
@@ -46,6 +50,13 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
     public void onBindViewHolder(@NonNull SelectableViewHolder holder, int position) {
         holder.itemSelectable = selectableList.get(position);
         holder.renderSelection(holder.itemSelectable.isSelected());
+
+        Item item = selectableList.get(position);
+
+        holder.txtId.setText(item.getId());
+        holder.txtName.setText(item.getName());
+        holder.txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        holder.txtStock.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
     }
 
     @Override
@@ -68,16 +79,21 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
     }
 
     public static class SelectableViewHolder extends RecyclerView.ViewHolder{
-        public CardView cardView;
-        public ItemSelectable itemSelectable;
-        public CheckBox check;
         private MyOnItemSelectedListener onItemSelectedListener;
+        public ItemSelectable itemSelectable;
+        public CardView cardView;
+        public CheckBox check;
+        public TextView txtId;
+        public TextView txtName;
+        public TextView txtPrice;
+        public TextView txtStock;
+
 
         public SelectableViewHolder(View itemView, MyOnItemSelectedListener onItemSelectedListener) {
             super(itemView);
 
             cardView = itemView.findViewById(R.id.card);
-            this.onItemSelectedListener = onItemSelectedListener;
+
             check = itemView.findViewById(R.id.view_check);
 
             cardView.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +112,13 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
                     SelectableViewHolder.this.onItemSelectedListener.onItemSelected(itemSelectable);
                 }
             });
+
+            txtId = itemView.findViewById(R.id.id);
+            txtName = itemView.findViewById(R.id.name);
+            txtStock = itemView.findViewById(R.id.stock);
+            txtPrice = itemView.findViewById(R.id.price);
+
+            this.onItemSelectedListener = onItemSelectedListener;
         }
 
         private void renderSelection(boolean selected) {

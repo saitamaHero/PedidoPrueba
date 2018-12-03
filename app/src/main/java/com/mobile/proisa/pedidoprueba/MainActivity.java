@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         setUpViewPager(1);
 
-        startActivity(new Intent(getApplicationContext(), SelectorItemActivity.class));
+        startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
         /*products = createListItem(3, 0);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -278,6 +278,19 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK){
+            List<Item> items = data.getParcelableArrayListExtra(SelectorItemActivity.EXTRA_ITEMS);
+
+            for(Item i : items){
+                Log.d("selectedItems", i.toString());
+            }
+        }
     }
 }
 

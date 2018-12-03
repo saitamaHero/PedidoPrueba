@@ -126,17 +126,17 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         switch (requestCode){
             case PERMISO_MEMORIA_REQUEST:
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(getApplicationContext(),
-                            String.format("Gracias por conceder permisos a %s!", getString(R.string.app_name)),
-                            Toast.LENGTH_SHORT).show();
-
                     mPermissionStorage = true;
                 }else{
-                    Toast.makeText(getApplicationContext(),
-                            String.format("Estamos apenados de tu desicion :("),
-                            Toast.LENGTH_SHORT).show();
+                   mPermissionStorage = false;
                 }
                 break;
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }
