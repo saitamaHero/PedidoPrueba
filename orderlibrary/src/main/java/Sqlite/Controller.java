@@ -31,6 +31,19 @@ public abstract class Controller<T> {
     public abstract boolean insertAll(List<T> item);
     public abstract boolean deleteAll(List<T> item);
 
+
+
+    public interface OnResultListener{
+        int ACTION_INSERT_SINGLE = 1;
+        int ACTION_INSERT_MULTIPLE = 2;
+        int ACTION_UPDATE = 3;
+        int ACTION_DELETE_SINGLE = 4;
+        int ACTION_DELETE_MULTIPLE = 5;
+
+        void onSuccessfull(int actionType, int rows);
+        void onError(int actionType, int errorCode);
+    }
+
     public static class ConditionCreator{
         private List<Condition> conditions;
 
