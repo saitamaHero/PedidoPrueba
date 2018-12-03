@@ -16,4 +16,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="MyButtonColoredPositive" parent="Base.TextAppearance.AppCompat.Widget.Button.Colored">
+        <item name="android:background">@color/goodStatus</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="MyButtonColoredNegative" parent="Base.TextAppearance.AppCompat.Widget.Button.Colored">
+        <item name="android:background">@color/badStatus</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+
 </resources>

@@ -51,4 +51,9 @@
     <string name="ok">Aceptar</string>
     <string name="share">Compartir</string>
     <string name="select">Seleccionar</string>
+    <string name="add">Agregar productos</string>
+    <string name="save">Guardar</string>
+    <string name="delete">Borrar</string>
+    <string name="add_quantity">Agregar</string>
+    <string name="less">Quitar</string>
 </resources>

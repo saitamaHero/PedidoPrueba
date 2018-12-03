@@ -289,6 +289,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 dialogDurationPicker.show(getSupportFragmentManager(), "");
                 break;
 
+
+            case R.id.action_order:
+                startActivity(new Intent(this, VentaActivity.class)
+                .putExtra(VentaActivity.EXTRA_CLIENT, this.client));
+                break;
+
         }
     }
 

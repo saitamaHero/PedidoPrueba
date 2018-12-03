@@ -43,9 +43,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         loadAdapter();
     }
 
-
-    private void loadAdapter()
-    {
+    private void loadAdapter() {
          itemSelectableAdapter =
                 new ItemSelectableAdapter(ItemListFragment.getSelectableList(
                         ItemListFragment.createListItem(5,0)),

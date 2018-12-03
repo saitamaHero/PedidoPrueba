@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         setUpViewPager(1);
 
-        startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
+       // startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
         /*products = createListItem(3, 0);
 
         recyclerView = findViewById(R.id.recycler_view);
