@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba.Adapters;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import java.util.List;
 import Models.Item;
 import Utils.NumberUtils;
 
-public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAdapter.MyHolder> {
+public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAdapter.MyHolder> implements OnActionListener {
     private List<Item> itemList;
     private int layoutResource;
 
@@ -30,12 +31,12 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false);
-        return new MyHolder(v);
+        return new MyHolder(v, this);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        Item item = itemList.get(position);
+    public void onBindViewHolder(@NonNull MyHolder holder, final int position) {
+        final Item item = itemList.get(position);
 
         holder.txtNombre.setText(item.getName());
         holder.txtId.setText(item.getId());
@@ -49,6 +50,10 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
         holder.txtSubtotal.setText(NumberUtils.formatNumber(item.getTotal(),
                 NumberUtils.FORMAT_NUMER_DOUBLE));
 
+
+
+
+
     }
 
     @Override
@@ -56,7 +61,18 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
         return this.itemList.size();
     }
 
-    public class MyHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void actionOcurred(int action, int position) {
+        if(action == ACTION_ADD){
+            Log.d("ActionOcurred", "Agregar cantidad "+this.itemList.get(position).toString());
+        }else if(action == ACTION_LESS){
+            Log.d("ActionOcurred", "Quitar cantidad "+this.itemList.get(position).toString());
+        }else if(action == ACTION_REMOVED){
+            Log.d("ActionOcurred", "Remover "+this.itemList.get(position).toString());
+        }
+    }
+
+    public class MyHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView txtNombre;
         public TextView txtId;
         public TextView txtCantidad;
@@ -67,8 +83,9 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
         public Button btnAdd;
         public Button btnLess;
         public Button btnDelete;
+        private OnActionListener actionListener;
 
-        public MyHolder(View itemView) {
+        public MyHolder(View itemView, OnActionListener actionListener) {
             super(itemView);
 
             txtNombre = itemView.findViewById(R.id.name);
@@ -82,6 +99,33 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
             btnAdd = itemView.findViewById(R.id.agregar);
             btnLess = itemView.findViewById(R.id.quitar);
             btnDelete = itemView.findViewById(R.id.borrar);
+            this.actionListener = actionListener;
         }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.borrar:
+                    actionListener.actionOcurred(OnActionListener.ACTION_REMOVED,
+                            getAdapterPosition());
+                    break;
+
+                case R.id.agregar:
+                    actionListener.actionOcurred(OnActionListener.ACTION_ADD,
+                            getAdapterPosition());
+                    break;
+
+                case R.id.quitar:
+                    actionListener.actionOcurred(OnActionListener.ACTION_LESS,
+                            getAdapterPosition());
+                    break;
+            }
+
+        }
+
+
     }
+
+
+
 }
