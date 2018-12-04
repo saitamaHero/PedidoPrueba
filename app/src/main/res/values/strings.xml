@@ -54,8 +54,10 @@
     <string name="add">Agregar productos</string>
     <string name="save">Guardar</string>
     <string name="delete">Borrar</string>
-    <string name="add_quantity">Agregar</string>
-    <string name="less">Sacar</string>
+    <string name="add_quantity">+</string>
+    <string name="less">-</string>
+    <string name="msg_exit_sale">¿Está seguro que desea salir  sin guardar?</string>
+    <string name="msg_exit_no_save">No se guardará ningún dato.</string>
 
     <plurals name="items_selected">
         <item quantity="one">%d producto seleccionado</item>

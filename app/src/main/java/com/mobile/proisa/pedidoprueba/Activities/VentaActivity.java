@@ -1,6 +1,8 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,9 +50,6 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerView.getItemAnimator();
-        itemAnimator.setSupportsChangeAnimations(false);
-
         adapter = new ItemsListSalesAdapter(this.itemList, R.layout.item_card_view);
         ((ItemsListSalesAdapter)adapter).setOnListChangedListener(this);
         recyclerView.setAdapter(adapter);
@@ -58,6 +57,10 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new FadeInRightAnimator());
 
+
+        SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerView.getItemAnimator();
+        itemAnimator.setSupportsChangeAnimations(false);
+        itemAnimator.setChangeDuration(0L);
     }
 
     private Client getClient(){
@@ -97,7 +100,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save:
-                Log.d(VentaActivity.class.getSimpleName(),
+                Log.d("VentaActivity",
                         String.format("guardar %s articulos a nombre de %s",
                         NumberUtils.formatNumber(itemList.size(), NumberUtils.FORMAT_NUMER_INTEGER),
                         this.client.toString()));
@@ -141,5 +144,31 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     @Override
     public void onListChange(List<Item> list) {
         invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+
+        builder.setTitle(R.string.msg_exit_sale);
+        builder.setTitle(R.string.msg_exit_no_save);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+
+        builder.create().show();
+
     }
 }

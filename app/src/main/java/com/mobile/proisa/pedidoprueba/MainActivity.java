@@ -1,6 +1,7 @@
 package com.mobile.proisa.pedidoprueba;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,6 +32,7 @@ import java.util.Random;
 import Models.Client;
 import Models.Diary;
 import Models.Item;
+import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -92,86 +94,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         setUpViewPager(1);
 
-       // startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
-        /*products = createListItem(3, 0);
 
-        recyclerView = findViewById(R.id.recycler_view);
+        // startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
 
-        //Create de adapter for items
-        adapter = new ItemsAdapter(products, R.layout.item_card_view);
-        adapter.setMyItemClick(new ItemsAdapter.MyItemClick() {
-            @Override
-            public void onItemClickListener(Object item, int position) {
-                Item i = (Item) item;
-
-                Toast.makeText(getApplicationContext(), i.toString() + " in the position: "+position, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        recyclerView.setAdapter(adapter);
-
-        recyclerView.setItemAnimator(new ScaleInBottomAnimator());
-
-        //recyclerView.setItemAnimator(new ScaleInBottomAnimator());//new ScaleInBottomAnimator()
-        //((DefaultItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-        recyclerView.getItemAnimator().setChangeDuration(0);
-
-
-        //set the layout manager
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        //adapter.notifyDataSetChanged();*/
     }
-
-/*
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int currSize;
-
-        switch (item.getItemId()){
-            case R.id.action_add:
-                currSize = adapter.getItemCount();
-
-                products.addAll(createListItem(5, adapter.getItemCount()));
-
-                adapter.notifyItemRangeInserted(currSize, products.size());
-                //recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-                Log.d("ItemCount", String.format("Hay %s productos", NumberUtils.formatNumber(products.size(), NumberUtils.FORMAT_NUMER_INTEGER)));
-                break;
-
-            case R.id.action_add_one:
-                currSize = adapter.getItemCount();
-
-                products.addAll(createListItem(1, adapter.getItemCount()));
-
-                adapter.notifyItemRangeInserted(currSize, products.size());
-                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-
-                Log.d("ItemCount", String.format("Hay %s productos", NumberUtils.formatNumber(products.size(), NumberUtils.FORMAT_NUMER_DOUBLE)));
-                break;
-
-            case R.id.action_clear:
-                int currSz = adapter.getItemCount();
-                products.clear();
-                adapter.notifyItemRangeRemoved(0, currSz);
-                break;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-        return true;
-    }
-*/
 
     private void setUpViewPager(int positionForStart){
         viewPager = findViewById(R.id.view_pager);
@@ -183,10 +109,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-   private List<Fragment> getFragmentsForViewPager()
-   {
+   private List<Fragment> getFragmentsForViewPager() {
        List<Fragment> fragments = new ArrayList<>();
-
        fragments.add(ItemListFragment.newInstance());
        fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));

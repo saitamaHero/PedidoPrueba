@@ -2,6 +2,7 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,6 +34,8 @@ import java.util.Random;
 import Models.Category;
 import Models.Item;
 import Models.Unit;
+import Sqlite.ItemController;
+import Sqlite.MySqliteOpenHelper;
 
 public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener{
     private static final String PARAM_ITEMS = "param_items";
@@ -71,6 +74,23 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         }
 
         setAdapter();
+/*
+        MySqliteOpenHelper openHelper = new MySqliteOpenHelper(getActivity(),
+        "PRUEBA.db", null, MySqliteOpenHelper.VERSION);
+
+
+        SQLiteDatabase database = openHelper.getWritableDatabase();
+
+       ItemController controller = new ItemController(database);
+
+
+        for(Item  i : items){
+            if(controller.insert(i)){
+                Log.d("SqlitePrueba", "Se insertó correctamente: "+i.getName());
+            }else{
+                Log.d("SqlitePrueba", "Falló: "+i.getName());
+            }
+        }*/
     }
 
     private void setAdapter() {

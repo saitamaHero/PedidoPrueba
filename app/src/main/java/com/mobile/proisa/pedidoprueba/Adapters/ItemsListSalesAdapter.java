@@ -42,7 +42,7 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, final int position) {
-        final Item item = itemList.get(position);
+        Item item = itemList.get(position);
 
         holder.txtNombre.setText(item.getName());
         holder.txtId.setText(item.getId());
@@ -76,7 +76,7 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
             selectedItem.setQuantity(itemQuantity + 1);
             notifyItemChanged(position);
         }else if(action == ACTION_LESS){
-            if((itemQuantity - 1) > 1){
+            if((itemQuantity - 1) > 0){
                 selectedItem.setQuantity(itemQuantity - 1);
                 notifyItemChanged(position);
             }
