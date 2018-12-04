@@ -108,15 +108,11 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     public void onItemSelected(ItemSelectable itemSelectable) {
         if(!itemList.contains(itemSelectable)){
             itemList.add(itemSelectable);
-
-            Log.d("itemAdded", itemSelectable.toString());
         }else{
             itemList.remove(itemSelectable);
         }
 
-
-
-        setTitle(String.format(Locale.getDefault(), "%s %s", itemList.size(), itemList.size() == 1? "producto" : "productos"));
+        setTitle(getResources().getQuantityString(R.plurals.items_selected,this.itemList.size(), this.itemList.size()));
         invalidateOptionsMenu();
     }
 

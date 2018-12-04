@@ -20,11 +20,17 @@ import Utils.NumberUtils;
 public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAdapter.MyHolder> implements OnActionListener {
     private List<Item> itemList;
     private int layoutResource;
+    private OnListChangedListener onListChangedListener;
 
     public ItemsListSalesAdapter(List<Item> itemList, int layoutResource) {
         super();
         this.itemList = itemList;
         this.layoutResource = layoutResource;
+        setHasStableIds(true);
+    }
+
+    public void setOnListChangedListener(OnListChangedListener onListChangedListener) {
+        this.onListChangedListener = onListChangedListener;
     }
 
     @NonNull
@@ -49,11 +55,6 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
                 NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtSubtotal.setText(NumberUtils.formatNumber(item.getTotal(),
                 NumberUtils.FORMAT_NUMER_DOUBLE));
-
-
-
-
-
     }
 
     @Override
@@ -62,14 +63,30 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
     }
 
     @Override
+    public long getItemId(int position) {
+        return this.itemList.get(position).hashCode();
+    }
+
+    @Override
     public void actionOcurred(int action, int position) {
+        Item selectedItem = this.itemList.get(position);
+        double itemQuantity = selectedItem.getQuantity();
+
         if(action == ACTION_ADD){
-            Log.d("ActionOcurred", "Agregar cantidad "+this.itemList.get(position).toString());
+            selectedItem.setQuantity(itemQuantity + 1);
+            notifyItemChanged(position);
         }else if(action == ACTION_LESS){
-            Log.d("ActionOcurred", "Quitar cantidad "+this.itemList.get(position).toString());
+            if((itemQuantity - 1) > 1){
+                selectedItem.setQuantity(itemQuantity - 1);
+                notifyItemChanged(position);
+            }
         }else if(action == ACTION_REMOVED){
-            Log.d("ActionOcurred", "Remover "+this.itemList.get(position).toString());
+            this.itemList.remove(position);
+            notifyItemRemoved(position);
         }
+
+        if(onListChangedListener != null)
+            onListChangedListener.onListChange(this.itemList);
     }
 
     public class MyHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -97,8 +114,14 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
             cardView = itemView.findViewById(R.id.card);
 
             btnAdd = itemView.findViewById(R.id.agregar);
+            btnAdd.setOnClickListener(this);
+
             btnLess = itemView.findViewById(R.id.quitar);
+            btnLess.setOnClickListener(this);
+
             btnDelete = itemView.findViewById(R.id.borrar);
+            btnDelete.setOnClickListener(this);
+
             this.actionListener = actionListener;
         }
 
@@ -126,6 +149,8 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
 
     }
 
-
+    public interface OnListChangedListener{
+        void onListChange(List<Item> list );
+    }
 
 }

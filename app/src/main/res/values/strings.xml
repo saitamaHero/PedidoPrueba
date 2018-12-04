@@ -55,5 +55,10 @@
     <string name="save">Guardar</string>
     <string name="delete">Borrar</string>
     <string name="add_quantity">Agregar</string>
-    <string name="less">Quitar</string>
+    <string name="less">Sacar</string>
+
+    <plurals name="items_selected">
+        <item quantity="one">%d producto seleccionado</item>
+        <item quantity="other">%d productos seleccionados</item>
+    </plurals>
 </resources>

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
     @Override
     public SelectableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false);
+
         return new SelectableViewHolder(v, this);
     }
 
@@ -78,7 +80,7 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
             onItemSelectedListener.onItemSelected(itemSelectable);
     }
 
-    public static class SelectableViewHolder extends RecyclerView.ViewHolder{
+    public static class SelectableViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private MyOnItemSelectedListener onItemSelectedListener;
         public ItemSelectable itemSelectable;
         public CardView cardView;
@@ -95,23 +97,8 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
             cardView = itemView.findViewById(R.id.card);
 
             check = itemView.findViewById(R.id.view_check);
-
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    //Deshacer seleccion
-                    if(itemSelectable.isSelected() && getItemViewType() == MULTI_SELECTION){
-                        renderSelection(false);
-                        itemSelectable.setSelected(false);
-                    }else{
-                        renderSelection(true);
-                        itemSelectable.setSelected(true);
-                    }
-
-                    SelectableViewHolder.this.onItemSelectedListener.onItemSelected(itemSelectable);
-                }
-            });
+            check.setOnClickListener(this);
+            cardView.setOnClickListener(this);
 
             txtId = itemView.findViewById(R.id.id);
             txtName = itemView.findViewById(R.id.name);
@@ -126,6 +113,26 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
         }
 
 
+        @Override
+        public void onClick(View view) {
+            run();
+        }
+
+        private void run()
+        {
+            //Deshacer seleccion
+            if(itemSelectable.isSelected() && getItemViewType() == MULTI_SELECTION){
+                renderSelection(false);
+                itemSelectable.setSelected(false);
+            }else{
+                renderSelection(true);
+                itemSelectable.setSelected(true);
+            }
+
+            SelectableViewHolder.this.onItemSelectedListener.onItemSelected(itemSelectable);
+        }
     }
+
+
 
 }

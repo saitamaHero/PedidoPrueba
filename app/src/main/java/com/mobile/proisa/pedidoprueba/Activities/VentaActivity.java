@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,8 +22,9 @@ import java.util.List;
 
 import Models.Client;
 import Models.Item;
+import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 
-public class VentaActivity extends AppCompatActivity {
+public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener {
     public static final String EXTRA_CLIENT = "extra_client";
     private static final int MY_REQUEST_CODE_ITEMS = 1000;
     //public static final String EXTRA_XXX = "";
@@ -40,16 +42,21 @@ public class VentaActivity extends AppCompatActivity {
         client = getClient();
 
         this.itemList = new ArrayList<>();
-        this.itemList.addAll(ItemListFragment.createListItem(1,100));
-
 
         setTitle(client.getName());
 
         recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+
+        SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerView.getItemAnimator();
+        itemAnimator.setSupportsChangeAnimations(false);
+
         adapter = new ItemsListSalesAdapter(this.itemList, R.layout.item_card_view);
+        ((ItemsListSalesAdapter)adapter).setOnListChangedListener(this);
         recyclerView.setAdapter(adapter);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new FadeInRightAnimator());
 
     }
 
@@ -123,12 +130,16 @@ public class VentaActivity extends AppCompatActivity {
 
                     //notify Adapter
                     adapter.notifyItemRangeInserted(count , adapter.getItemCount());
-                    //adapter.notifyDataSetChanged();
 
                     //Invalidar el menu de opciones para que se redibuje
                     invalidateOptionsMenu();
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onListChange(List<Item> list) {
+        invalidateOptionsMenu();
     }
 }
