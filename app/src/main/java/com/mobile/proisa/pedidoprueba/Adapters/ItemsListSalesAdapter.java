@@ -21,6 +21,7 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
     private List<Item> itemList;
     private int layoutResource;
     private OnListChangedListener onListChangedListener;
+    private NotificationListener notificationListener;
 
     public ItemsListSalesAdapter(List<Item> itemList, int layoutResource) {
         super();
@@ -31,6 +32,10 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
 
     public void setOnListChangedListener(OnListChangedListener onListChangedListener) {
         this.onListChangedListener = onListChangedListener;
+    }
+
+    public void setNotificationListener(NotificationListener notificationListener) {
+        this.notificationListener = notificationListener;
     }
 
     @NonNull
@@ -73,10 +78,14 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
         double itemQuantity = selectedItem.getQuantity();
 
         if(action == ACTION_ADD){
-            selectedItem.setQuantity(itemQuantity + 1);
-            notifyItemChanged(position);
+            if(itemQuantity < selectedItem.getStock()){
+                selectedItem.setQuantity(itemQuantity + 1);
+                notifyItemChanged(position);
+            }else{
+                notificationListener.onNotificationRequired(NotificationListener.ITEM_STOCK_EXCEEDED);
+            }
         }else if(action == ACTION_LESS){
-            if((itemQuantity - 1) > 0){
+            if(itemQuantity  > 1){
                 selectedItem.setQuantity(itemQuantity - 1);
                 notifyItemChanged(position);
             }
@@ -113,12 +122,13 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
             txtSubtotal = itemView.findViewById(R.id.total);
             cardView = itemView.findViewById(R.id.card);
 
+            //Agregar Cantidad +
             btnAdd = itemView.findViewById(R.id.agregar);
             btnAdd.setOnClickListener(this);
-
+            //Quitar cantidad -
             btnLess = itemView.findViewById(R.id.quitar);
             btnLess.setOnClickListener(this);
-
+            //Borrar
             btnDelete = itemView.findViewById(R.id.borrar);
             btnDelete.setOnClickListener(this);
 
@@ -151,6 +161,13 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
 
     public interface OnListChangedListener{
         void onListChange(List<Item> list );
+    }
+
+    public interface NotificationListener{
+        int ITEM_STOCK_EXCEEDED = -1;
+
+        void onNotificationRequired(int notificationType);
+
     }
 
 }
