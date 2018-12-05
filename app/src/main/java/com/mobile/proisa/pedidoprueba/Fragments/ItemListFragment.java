@@ -34,6 +34,7 @@ import java.util.Random;
 import Models.Category;
 import Models.Item;
 import Models.Unit;
+import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 
@@ -71,6 +72,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
         if(this.items == null){
             items = createListItem(10,0);
+            this.items = getItems(10);
         }
 
         setAdapter();
@@ -91,6 +93,15 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
                 Log.d("SqlitePrueba", "Falló: "+i.getName());
             }
         }*/
+    }
+
+    private List<Item> getItems(int count) {
+        ItemController controller = new ItemController(
+                new MySqliteOpenHelper(getActivity(), "PRUEBA.db", null,
+                        MySqliteOpenHelper.VERSION).getWritableDatabase());
+
+
+        return controller.getAll();
     }
 
     private void setAdapter() {
