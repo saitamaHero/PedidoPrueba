@@ -16,6 +16,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
     private Category category;
     private Unit unit;
     private Uri photo;
+    private double taxRate;
 
     public Item() {
         category = Category.UNKNOWN_CATEGORY;
@@ -38,7 +39,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
         unit = in.readParcelable(Unit.class.getClassLoader());
         cost = in.readDouble();
         photo = in.readParcelable(Uri.class.getClassLoader());
-
+        taxRate = in.readDouble();
     }
 
     @Override
@@ -51,6 +52,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
         dest.writeParcelable(unit, flags);
         dest.writeDouble(cost);
         dest.writeParcelable(photo, flags);
+        dest.writeDouble(taxRate);
     }
 
     @Override
@@ -124,6 +126,14 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
 
     public void setPhoto(Uri photo) {
         this.photo = photo;
+    }
+
+    public double getTaxRate() {
+        return taxRate > 1 ? taxRate / 100.00 : taxRate;
+    }
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate = taxRate;
     }
 
     @Override

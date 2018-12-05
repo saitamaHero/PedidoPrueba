@@ -24,6 +24,7 @@ public interface ColumnsSqlite {
         String _CAT = "_category";
         String _UNIT = "_unit";
         String _STOCK = "_stock";
+        String _TAX_RATE = "_tax_rate";
         //String _BCODE = "_barcode";
     }
 

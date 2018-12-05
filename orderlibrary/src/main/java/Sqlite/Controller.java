@@ -21,7 +21,17 @@ public abstract class Controller<T> {
     }
 
     public abstract List<T> getAll();
+
+    public List<T> getAll(int count){
+        return null;
+    }
+
+    public List<T> getAllLike(String likeStr){
+        return null;
+    }
+
     public abstract T getById(Object id);
+
     /*Operations with single item*/
     public abstract boolean update(T item);
     public abstract boolean insert(T item);

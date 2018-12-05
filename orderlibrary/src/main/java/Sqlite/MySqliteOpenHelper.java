@@ -8,6 +8,7 @@ import android.util.Log;
 import Models.Item;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
+    public static final String DBNAME = "contapro_ruteros.db";
     public static final int VERSION = 1;
 
     private static final String CREATE_TABLE_ARTICULOS
@@ -30,14 +31,13 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        Log.d("SqlitePrueba",  CREATE_TABLE_ARTICULOS);
         sqLiteDatabase.execSQL(CREATE_TABLE_ARTICULOS);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
-        if(newVersion  > oldVersion){
+        if(newVersion > oldVersion){
             sqLiteDatabase.rawQuery("DROP TABLE IF EXISTS "+Item.TABLE_NAME, null);
         }
     }
