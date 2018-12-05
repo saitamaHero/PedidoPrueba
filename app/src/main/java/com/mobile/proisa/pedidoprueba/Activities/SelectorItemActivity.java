@@ -1,15 +1,22 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
@@ -23,11 +30,14 @@ import java.util.List;
 import java.util.Locale;
 
 import Models.Item;
+import Sqlite.ItemController;
+import Sqlite.MySqliteOpenHelper;
 
 public class SelectorItemActivity extends AppCompatActivity implements MyOnItemSelectedListener, SearchView.OnQueryTextListener {
     public static final String EXTRA_ITEMS = "EXTRA_ITEMS";
 
     public List<Item> itemList;
+    public List<ItemSelectable> searchItemList;
     private RecyclerView recyclerView;
     private ItemSelectableAdapter itemSelectableAdapter;
 
@@ -37,6 +47,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         setContentView(R.layout.activity_selector_item);
 
         itemList = new ArrayList<>();
+        searchItemList = new ArrayList<>();
 
         recyclerView = findViewById(R.id.recycler_view);
 
@@ -45,8 +56,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     private void loadAdapter() {
          itemSelectableAdapter =
-                new ItemSelectableAdapter(ItemListFragment.getSelectableList(
-                        ItemListFragment.createListItem(5,0)),
+                new ItemSelectableAdapter(searchItemList,
                         R.layout.item_selectable_card,
                         true);
 
@@ -68,15 +78,22 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
         MenuItem menuItem = menu.findItem(R.id.action_select_items);
 
-        if(itemList.size() == 0){
+        /*if(itemList.size() == 0){
             menuItem.setVisible(false);
         }else{
             menuItem.setVisible(true);
-        }
+        }*/
 
         menuItem = menu.findItem(R.id.app_bar_search);
         SearchView searchView = (SearchView) menuItem.getActionView();
         searchView.setOnQueryTextListener(this);
+
+
+        //searchView.
+
+       // final MenuItem finalMenuItem = menuItem;
+
+        //searchView.set
 
 
         return true;
@@ -87,10 +104,11 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
         switch (item.getItemId()){
             case R.id.action_select_items:
-                Toast.makeText(getApplicationContext(), "Enviar elementos seleccionados",
-                        Toast.LENGTH_SHORT).show();
-
-                sendData();
+                if(!this.itemList.isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Enviar elementos seleccionados",
+                            Toast.LENGTH_SHORT).show();
+                    sendData();
+                }
                 break;
         }
 
@@ -113,16 +131,44 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         }
 
         setTitle(getResources().getQuantityString(R.plurals.items_selected,this.itemList.size(), this.itemList.size()));
-        invalidateOptionsMenu();
+        //invalidateOptionsMenu();
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
+
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        return false;
+        searchItemList.removeAll(searchItemList);
+
+        if(TextUtils.isEmpty(newText)){
+            List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
+            searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
+        }else{
+            List<ItemSelectable> list = ItemSelectable.getItemSelectableList(getItems(newText));
+            searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+        }
+
+        itemSelectableAdapter.notifyDataSetChanged();
+
+        return true;
+    }
+
+    private List<Item> getItems(String str) {
+        ItemController controller = new ItemController(
+                new MySqliteOpenHelper(this, "PRUEBA.db", null,
+                        MySqliteOpenHelper.VERSION).getWritableDatabase());
+
+
+        return controller.getAllLike(str);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
     }
 }

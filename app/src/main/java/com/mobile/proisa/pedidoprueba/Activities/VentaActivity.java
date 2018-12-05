@@ -31,6 +31,8 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     private static final int MY_REQUEST_CODE_ITEMS = 1000;
     //public static final String EXTRA_XXX = "";
 
+    private boolean mVentaSaved;
+
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private Client client;
@@ -100,10 +102,12 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save:
-                Log.d("VentaActivity",
-                        String.format("guardar %s articulos a nombre de %s",
-                        NumberUtils.formatNumber(itemList.size(), NumberUtils.FORMAT_NUMER_INTEGER),
-                        this.client.toString()));
+                if(!this.itemList.isEmpty()){
+                    Log.d("VentaActivity",
+                            String.format("guardar %s articulos a nombre de %s",
+                                    NumberUtils.formatNumber(itemList.size(), NumberUtils.FORMAT_NUMER_INTEGER),
+                                    this.client.toString()));
+                }
                 return true;
 
             case R.id.add_items:
@@ -148,7 +152,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(R.string.msg_exit_sale);
         builder.setTitle(R.string.msg_exit_no_save);
@@ -169,6 +173,8 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
 
 
         builder.create().show();
+
+
 
     }
 }

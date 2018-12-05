@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_screen"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="asdfasdafsd" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="sdfasdfasdfas" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:onClick="slideUpDown"
+        android:text="Slide up / down" />
+
+    <RelativeLayout
+        android:id="@+id/hidden_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/holo_purple"
+        android:visibility="gone" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:layout_centerInParent="true"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

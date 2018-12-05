@@ -3,6 +3,9 @@ package com.mobile.proisa.pedidoprueba.Clases;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import Models.Item;
 
 public class ItemSelectable extends Item implements Parcelable {
@@ -74,5 +77,23 @@ public class ItemSelectable extends Item implements Parcelable {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public static List<ItemSelectable> getItemSelectableList(List<Item> items){
+        List<ItemSelectable> selectables = new ArrayList<>();
+
+        for (Item i : items) {
+            selectables.add(new ItemSelectable(i, false));
+        }
+
+        return selectables;
+    }
+
+    public static List<ItemSelectable> checkItemsInTheList(List<ItemSelectable> selectables, List<Item> items){
+        for (ItemSelectable i : selectables) {
+            i.setSelected(items.contains(i));
+        }
+
+        return selectables;
     }
 }
