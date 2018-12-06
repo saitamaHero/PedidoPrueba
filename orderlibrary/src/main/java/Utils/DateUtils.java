@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utilidades para la presentacion y conversion de fechas
@@ -90,5 +91,76 @@ public class DateUtils {
     public static Date convertToDate(Timestamp timestamp){
         Date d = timestamp;
         return d;
+    }
+
+
+    public long getDays(Date starDate, Date endDate){
+        long startTime = starDate.getTime();
+        long endTime = endDate.getTime();
+
+        long diffTime = endTime - startTime;
+
+        return TimeUnit.DAYS.convert(diffTime, TimeUnit.MILLISECONDS);
+    }
+
+    public static class DateConverter{
+        private Date startDate;
+        private Date endDate;
+
+        private long days;
+        private long hours;
+        private long minutes;
+        private long seconds;
+
+        public DateConverter(Date startDate, Date endDate) {
+            this.startDate = startDate;
+            this.endDate = endDate;
+            //Swap dates
+           /* if(startDate.after(endDate)){
+                Date tmp = this.endDate;
+                this.endDate = this.startDate;
+                this.startDate = tmp;
+            }*/
+
+            runCalcs();
+        }
+
+        public long getDays() {
+            return Math.abs(days);
+        }
+
+        public long getHours() {
+            return Math.abs(hours);
+        }
+
+        public long getMinutes() {
+            return Math.abs(minutes);
+        }
+
+        public long getSeconds() {
+            return Math.abs(seconds);
+        }
+
+
+        public void runCalcs(){
+            long startTime = startDate.getTime();
+            long endTime = endDate.getTime();
+
+            long diffTime = endTime - startTime;
+
+            days =  TimeUnit.DAYS.convert(diffTime, TimeUnit.MILLISECONDS);
+
+            diffTime -= TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS);
+
+            hours = TimeUnit.HOURS.convert(diffTime, TimeUnit.MILLISECONDS);
+
+            diffTime -=TimeUnit.MILLISECONDS.convert(hours, TimeUnit.HOURS);
+
+            minutes =  TimeUnit.MINUTES.convert(diffTime, TimeUnit.MILLISECONDS);
+
+            diffTime -=TimeUnit.MILLISECONDS.convert(minutes, TimeUnit.MINUTES);
+
+            seconds = TimeUnit.SECONDS.convert(diffTime, TimeUnit.MILLISECONDS);
+        }
     }
 }

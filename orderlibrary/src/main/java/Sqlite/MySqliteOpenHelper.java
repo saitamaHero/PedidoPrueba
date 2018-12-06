@@ -10,7 +10,8 @@ import Models.Item;
 import Models.Unit;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
-    private static final String PREFIX_TRIGGER = "update_lastmod_";
+    private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
+    private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
     public static final int VERSION = 1;
 
@@ -53,9 +54,9 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Client._ADDRESS   + " TEXT DEFAULT '',"
             + Client._PHOTO     + " TEXT DEFAULT '',"
             + Client._EMAIL     + " TEXT DEFAULT '',"
-            + Client._LAT       + " REAL,"
-            + Client._LNG       + " REAL,"
-            + Client._CR_LIMIT  + " NUMERIC DEFAULT 0"
+            + Client._LAT       + " REAL DEFAULT 0,"
+            + Client._LNG       + " REAL DEFAULT 0,"
+            + Client._CR_LIMIT  + " NUMERIC DEFAULT 0,"
             + Client._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Client._ID + ")"
             + ");";
@@ -69,10 +70,19 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE_ARTICULOS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
+
         sqLiteDatabase.execSQL(CREATE_TABLE_DEPARTAMENTOS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Category.TABLE_NAME, Category._LASTMOD, Category._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Category.TABLE_NAME, Category._LASTMOD, Category._ID));
+
         sqLiteDatabase.execSQL(CREATE_TABLE_UNIDADES);
         sqLiteDatabase.execSQL(createTriggerUpdate(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_CLIENTES);
+        sqLiteDatabase.execSQL(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
     }
 
     @Override
@@ -80,20 +90,30 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
 
         if(newVersion > oldVersion){
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Item.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+PREFIX_TRIGGER.concat(Item.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
 
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Category.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+PREFIX_TRIGGER.concat(Category.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
 
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Unit.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+PREFIX_TRIGGER.concat(Unit.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
             onCreate(sqLiteDatabase);
         }
     }
 
     private String createTriggerUpdate(String table, String fieldUpdate, String pk){
-        String trigger = "CREATE TRIGGER {name} AFTER UPDATE ON {table} BEGIN update {table} SET {fu} = current_timestamp where {pk}=NEW.{pk}; END";
-        trigger = trigger.replace("{name}",PREFIX_TRIGGER.concat(table));
+        String trigger = "CREATE TRIGGER {name} AFTER UPDATE ON {table} BEGIN update {table} SET {fu} = datetime('now', 'localtime') where {pk}=NEW.{pk}; END";
+        trigger = trigger.replace("{name}", PREFIX_TRIGGER_UPDATE_LM.concat(table));
+        trigger = trigger.replace("{table}", table);
+        trigger = trigger.replace("{fu}", fieldUpdate);
+        trigger = trigger.replace("{pk}", pk);
+
+        return trigger;
+    }
+
+    private String createTriggerInsert(String table, String fieldUpdate, String pk){
+        String trigger = "CREATE TRIGGER {name} AFTER INSERT ON {table} BEGIN update {table} SET {fu} = datetime('now', 'localtime') where {pk}=NEW.{pk}; END";
+        trigger = trigger.replace("{name}", PREFIX_TRIGGER_INSERT_LM.concat(table));
         trigger = trigger.replace("{table}", table);
         trigger = trigger.replace("{fu}", fieldUpdate);
         trigger = trigger.replace("{pk}", pk);
