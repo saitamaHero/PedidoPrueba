@@ -30,6 +30,8 @@ public abstract class Controller<T> {
         return null;
     }
 
+    public List<T> getAllById(Object id){return null;}
+
     public abstract T getById(Object id);
 
     /*Operations with single item*/

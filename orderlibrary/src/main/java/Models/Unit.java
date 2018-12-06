@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Clase que representa la unidad de un {@link Item}
  * para más detalle vea {@link SimpleElement}
  */
-public class Unit extends SimpleElement implements Parcelable{
+public class Unit extends SimpleElement implements Parcelable, ColumnsSqlite.ColumnsUnit{
     public static final Unit UNKNOWN_UNIT = new Unit("","Desconocida");
 
 

@@ -51,7 +51,7 @@ public interface ColumnsSqlite {
      * Columnas base para tabla con campos de persona por ejemplo
      * {@link ColumnsClient}
      */
-    public interface ColumnsPerson extends ColumnModification{
+    public interface ColumnsPerson extends ColumnModification, ColumnPhoto{
         String _ID = "_id";
         String _NAME = "_name";
         String _IDCARD = "_id_card"; /*Cedula o RNC*/

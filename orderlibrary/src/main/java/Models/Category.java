@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Clase que representa la categoría de un {@link Item}
  * para más detalle vea {@link SimpleElement}
  */
-public class Category extends SimpleElement implements Parcelable {
+public class Category extends SimpleElement implements Parcelable, ColumnsSqlite.ColumnsCategory {
     public static final Category UNKNOWN_CATEGORY = new Category("","Desconocido");
 
     public Category() {
