@@ -26,12 +26,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 
 import Models.Client;
 import Models.Diary;
 import Models.Item;
+import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 
@@ -97,6 +99,27 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         // startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
 
+        Calendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.YEAR,2018);
+        calendar.set(Calendar.MONTH,Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH,6);
+        calendar.set(Calendar.HOUR_OF_DAY,15);
+        calendar.set(Calendar.MINUTE,35);
+        calendar.set(Calendar.SECOND,0);
+
+
+        /*DateUtils.DateConverter converter = new DateUtils.DateConverter(calendar.getTime(), Calendar.getInstance().getTime());
+
+        Log.d(
+                "tiempoDiff",
+                String.format("%d dias, %d horas, %d minutos, %d segundos",
+                        converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
+        );*/
+
+
+       /* Item item = ItemListFragment.getItem("COD-9799", "YUCA DEL CAMPO 1LB");
+        ItemController controller = new ItemController(new MySqliteOpenHelper(this, "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
+        controller.insert(item);*/
     }
 
     private void setUpViewPager(int positionForStart){

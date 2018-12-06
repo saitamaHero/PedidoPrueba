@@ -151,7 +151,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         });
     }
 
-    private static Item getItem(String id, String name) {
+    public static Item getItem(String id, String name) {
         Item item = new Item(id, name);
         Random random = new Random();
 

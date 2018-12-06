@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
@@ -22,7 +23,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
+import java.util.Calendar;
+
 import Models.Item;
+import Utils.DateUtils;
 
 public class DetailsItemActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String EXTRA_ITEM_DATA = "extra_item_data";
@@ -39,7 +43,6 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
         Bundle intent = getIntent().getExtras();
 
-        Log.d("bundleKeys", intent.keySet().toString());
         item = getIntent().getExtras().getParcelable(EXTRA_ITEM_DATA);
 
         if(item == null){
@@ -95,7 +98,37 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
         TextView txtEmail = findViewById(R.id.price);
         txtEmail.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
+
+        updateLasModifcation(item);
+
     }
+
+    private void updateLasModifcation(Item item){
+        TextView txtLastUpdate = findViewById(R.id.last_update);
+        DateUtils.DateConverter converter = new DateUtils.DateConverter(item.getLastModification(), Calendar.getInstance().getTime());
+
+        if(converter.getDays() > 0){
+            txtLastUpdate.setText(getString(R.string.days_formateable,converter.getDays()));
+        }else if(converter.getHours() > 0 && converter.getMinutes() == 0){
+            txtLastUpdate.setText(getString(R.string.hours_formateable,converter.getHours()));
+        }else if(converter.getHours() > 0 ){
+            txtLastUpdate.setText(getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
+        }else if(converter.getMinutes() > 0){
+            txtLastUpdate.setText(getString(R.string.minutes_formateable,converter.getMinutes()));
+        }else if(converter.getSeconds() > 0){
+            txtLastUpdate.setText(getString(R.string.moments_ago));
+        }else{
+            txtLastUpdate.setText(getString(R.string.time_unknow));
+        }
+
+        Log.d(
+                "tiempoDiff",
+                String.format("%d dias, %d horas, %d minutos, %d segundos",
+                        converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
+        );
+    }
+
+
 
     private void checkPermissionStorage(){
         if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){

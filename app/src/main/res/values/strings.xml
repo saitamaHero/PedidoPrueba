@@ -63,4 +63,12 @@
         <item quantity="one">%d producto seleccionado</item>
         <item quantity="other">%d productos seleccionados</item>
     </plurals>
+
+    <string name="days_formateable">Hace %d días</string>
+    <string name="hours_formateable">Hace %d horas</string>
+    <string name="minutes_formateable">Hace %d minutos</string>
+    <string name="moments_ago">Hace un momento</string>
+    <string name="time_unknow">Desconocido</string>
+
+    <string name="hours_minutes_formateable">Hace %d horas y %d minutos</string>
 </resources>
