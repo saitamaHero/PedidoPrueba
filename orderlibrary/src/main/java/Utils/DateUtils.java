@@ -4,7 +4,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -94,14 +96,19 @@ public class DateUtils {
     }
 
 
-    public long getDays(Date starDate, Date endDate){
-        long startTime = starDate.getTime();
-        long endTime = endDate.getTime();
+    public static Date deleteTime(Date date){
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
 
-        long diffTime = endTime - startTime;
+        calendar.set(Calendar.HOUR,0);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+        calendar.set(Calendar.HOUR_OF_DAY,24);
 
-        return TimeUnit.DAYS.convert(diffTime, TimeUnit.MILLISECONDS);
+        return calendar.getTime();
     }
+
 
     public static class DateConverter{
         private Date startDate;
@@ -116,11 +123,11 @@ public class DateUtils {
             this.startDate = startDate;
             this.endDate = endDate;
             //Swap dates
-           /* if(startDate.after(endDate)){
+           if(startDate.after(endDate)){
                 Date tmp = this.endDate;
                 this.endDate = this.startDate;
                 this.startDate = tmp;
-            }*/
+            }
 
             runCalcs();
         }

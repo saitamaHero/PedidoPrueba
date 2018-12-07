@@ -15,15 +15,14 @@ import static Models.ColumnsSqlite.*;
 public class Client extends Person implements Parcelable, ColumnsClient, Updatable<Client> {
     private double creditLimit;
     private double distance;
-    private Date visitDate;
+    private Diary visitDate;
 
     public Client() {
         super();
-        visitDate = Calendar.getInstance().getTime();
         distance = 0.0;
 
 
-        Calendar calendar = new GregorianCalendar();
+        /*Calendar calendar = new GregorianCalendar();
         calendar.setTime(visitDate);
 
         calendar.set(Calendar.HOUR,0);
@@ -33,13 +32,13 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         calendar.set(Calendar.HOUR_OF_DAY,24);
 
 
-        visitDate = calendar.getTime();
+        visitDate = calendar.getTime();*/
     }
 
     protected Client(Parcel in) {
         super(in);
         creditLimit = in.readDouble();
-        visitDate = (Date) in.readSerializable();
+        visitDate = in.readParcelable(Diary.class.getClassLoader());
         distance = in.readDouble();
     }
 
@@ -59,42 +58,33 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         this.creditLimit = creditLimit;
     }
 
-    public Date getVisitDate() {
+    public Diary getVisitDate() {
         return visitDate;
     }
 
-    public void setVisitDate(Date visitDate) {
+    public void setVisitDate(Diary visitDate) {
         this.visitDate = visitDate;
     }
 
 
     public boolean isDayOfTheVisit(){
-        Date date =  Calendar.getInstance().getTime();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
+        if(this.visitDate == null) return false;
 
-        calendar.set(Calendar.HOUR,0);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-        calendar.set(Calendar.MILLISECOND,0);
-        calendar.set(Calendar.HOUR_OF_DAY,24);
-
-
-        date = calendar.getTime();
-
-        Log.d("tiempoActual", DateUtils.formatDate(date, DateUtils.DD_MM_YYYY_hh_mm_ss) + "visitDate: "+DateUtils.formatDate(visitDate, DateUtils.DD_MM_YYYY_hh_mm_ss));
-
-        return this.visitDate.compareTo(date) == 0;
+        Date date =  DateUtils.deleteTime(Calendar.getInstance().getTime());
+        return this.visitDate.getDateEvent().compareTo(date) == 0;
     }
 
+    public DateUtils.DateConverter getTimeToVisit(){
+        if(visitDate == null) return null;
 
-
+        return new DateUtils.DateConverter(this.visitDate.getDateEvent(), Calendar.getInstance().getTime());
+    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeDouble(creditLimit);
-        dest.writeSerializable(visitDate);
+        dest.writeParcelable(visitDate, flags);
         dest.writeDouble(distance);
     }
 
