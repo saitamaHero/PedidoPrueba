@@ -59,16 +59,36 @@
     <string name="msg_exit_sale">¿Está seguro que desea salir  sin guardar?</string>
     <string name="msg_exit_no_save">No se guardará ningún dato.</string>
 
+    <string name="two_stirng_format">%s %s</string>
+
     <plurals name="items_selected">
         <item quantity="one">%d producto seleccionado</item>
         <item quantity="other">%d productos seleccionados</item>
     </plurals>
 
-    <string name="days_formateable">Hace %d días</string>
-    <string name="hours_formateable">Hace %d horas</string>
+    <plurals name="days_formateable">
+        <item quantity="one">Ayer</item>
+        <item quantity="other">Hace %d días</item>
+    </plurals>
+
+    <plurals name="visit_formateable">
+        <item quantity="zero">Hoy</item>
+        <item quantity="one">Mañana</item>
+        <item quantity="other">En %d días</item>
+    </plurals>
+
+    <plurals name="hours_formateable">
+            <item quantity="one">Hace %d hora</item>
+            <item quantity="other">Hace %d horas</item>
+    </plurals>
+
+
     <string name="minutes_formateable">Hace %d minutos</string>
     <string name="moments_ago">Hace un momento</string>
     <string name="time_unknow">Desconocido</string>
 
     <string name="hours_minutes_formateable">Hace %d horas y %d minutos</string>
+    <string name="credit_limit">Límite de crédito</string>
+    <string name="date_birth">Fecha de nacimiento</string>
+    <string name="id_card">RNC/Cédula</string>
 </resources>

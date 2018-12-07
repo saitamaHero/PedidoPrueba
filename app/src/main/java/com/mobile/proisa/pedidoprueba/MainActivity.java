@@ -162,10 +162,27 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             Uri path = Uri.parse("android.resource://"+getPackageName()+"/"+ id);
             client.setProfilePhoto(path);
+
+            client.setVisitDate(new Diary(1, getRandomDate(Calendar.getInstance().getTime()),""));
             clients.add(client);
         }
 
         return clients;
+   }
+
+   private Date getRandomDate(Date dateBase){
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(DateUtils.deleteTime(dateBase));
+
+        int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        /*Random random = new Random();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));*/
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH));
+
+        return calendar.getTime();
    }
 
    private List<Actividad> getActividadesDePrueba(){
@@ -186,8 +203,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     "Visitas Completas", String.format("%d%% de las visitas",getPercent(visitasCompletas, visitas))
             ));
         }
-
-
 
         if(visitanIncompletas > 0){
             actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER),

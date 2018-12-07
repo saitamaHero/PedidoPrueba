@@ -1,9 +1,11 @@
 package com.mobile.proisa.pedidoprueba.Adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import java.util.Locale;
 import java.util.Random;
 
 import Models.Client;
+import Utils.DateUtils;
 
 public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHolder> {
     private List<Client> clientList;
@@ -50,7 +53,22 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
 
         holder.txtId.setText(client.getId());
         holder.txtName.setText(client.getName());
-        holder.txtVisitEvent.setText(client.isDayOfTheVisit() ? "Programado" : "No Programado");
+
+        Resources resources = holder.txtVisitEvent.getContext().getResources();
+
+        DateUtils.DateConverter converter = client.getTimeToVisit();
+
+        if(converter != null){
+            holder.txtVisitEvent.setText(
+                    resources.getQuantityString(R.plurals.visit_formateable,
+                                    (int)converter.getDays(), (int)converter.getDays()));
+        }else{
+            holder.txtVisitEvent.setText(resources.getString(R.string.time_unknow));
+        }
+
+
+        Log.d("diaryVisit", client.getVisitDate().getDateEvent().toString());
+
         holder.txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
         holder.txtAddress.setText(client.getAddress());
 

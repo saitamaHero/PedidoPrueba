@@ -78,29 +78,76 @@
                 />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
-<!--
+
     <LinearLayout
         android:layout_width="match_parent" android:padding="10dp"
         android:layout_height="wrap_content" android:orientation="horizontal">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_msg"
+            android:src="@drawable/ic_money"
             android:layout_gravity="center"
             />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/app_name"
+            android:hint="@string/credit_limit"
             >
             <android.support.design.widget.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
+                android:inputType="numberDecimal"
                 />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
-    -->
+    <LinearLayout
+        android:layout_width="match_parent" android:padding="10dp"
+        android:layout_height="wrap_content" android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_date_birth"
+            android:layout_gravity="center"
+            />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/date_birth"
+            >
+            <android.support.design.widget.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent" android:padding="10dp"
+        android:layout_height="wrap_content" android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_rnc"
+            android:layout_gravity="center"
+            />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/id_card"
+            >
+            <android.support.design.widget.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+
 </LinearLayout>

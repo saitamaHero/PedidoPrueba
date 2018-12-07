@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -41,8 +42,6 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_item);
 
-        Bundle intent = getIntent().getExtras();
-
         item = getIntent().getExtras().getParcelable(EXTRA_ITEM_DATA);
 
         if(item == null){
@@ -51,7 +50,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         }
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.empty_string);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -90,27 +89,29 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         TextView txtId = findViewById(R.id.id);
         txtId.setText(item.getId());
 
-        TextView txtOwner = findViewById(R.id.stock);
-        txtOwner.setText(String.format("%s %s",NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE), item.getUnit().getId()));
+        TextView txtStock = findViewById(R.id.stock);
+        txtStock.setText(getString(R.string.two_stirng_format,
+                NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE),item.getUnit().getId()));
 
-        TextView txtAddress = findViewById(R.id.category);
-        txtAddress.setText(item.getCategory().getName());
+        TextView txtCatetgory = findViewById(R.id.category);
+        txtCatetgory.setText(item.getCategory().getName());
 
-        TextView txtEmail = findViewById(R.id.price);
-        txtEmail.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        TextView txtPrice = findViewById(R.id.price);
+        txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
 
         updateLasModifcation(item);
-
     }
 
     private void updateLasModifcation(Item item){
         TextView txtLastUpdate = findViewById(R.id.last_update);
         DateUtils.DateConverter converter = new DateUtils.DateConverter(item.getLastModification(), Calendar.getInstance().getTime());
 
+        Resources resources = getResources();
+
         if(converter.getDays() > 0){
-            txtLastUpdate.setText(getString(R.string.days_formateable,converter.getDays()));
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.days_formateable,(int)converter.getDays(),converter.getDays()));
         }else if(converter.getHours() > 0 && converter.getMinutes() == 0){
-            txtLastUpdate.setText(getString(R.string.hours_formateable,converter.getHours()));
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.hours_formateable,(int)converter.getHours(),converter.getDays()));
         }else if(converter.getHours() > 0 ){
             txtLastUpdate.setText(getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
         }else if(converter.getMinutes() > 0){
