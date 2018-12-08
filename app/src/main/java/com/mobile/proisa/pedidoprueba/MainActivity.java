@@ -163,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             Uri path = Uri.parse("android.resource://"+getPackageName()+"/"+ id);
             client.setProfilePhoto(path);
 
+            client.setBirthDate(getRandomDate(Calendar.getInstance().getTime(), 1997));
+
             client.setVisitDate(new Diary(1, getRandomDate(Calendar.getInstance().getTime()),""));
             clients.add(client);
         }
@@ -176,15 +178,30 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        /*Random random = new Random();
-
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));*/
-
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH));
+        Random random = new Random();
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));
 
         return calendar.getTime();
    }
 
+    private Date getRandomDate(Date dateBase, int year){
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(DateUtils.deleteTime(dateBase));
+        calendar.set(Calendar.YEAR, year);
+
+        Random random = new Random();
+
+        calendar.set(Calendar.MONTH, random.nextInt(11));
+
+        int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));
+
+
+
+        return calendar.getTime();
+    }
    private List<Actividad> getActividadesDePrueba(){
         List<Actividad> actividads = new ArrayList<>();
 

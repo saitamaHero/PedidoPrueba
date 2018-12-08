@@ -80,7 +80,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             if(this.items.size() == 0){
                 ItemController controller = new ItemController(new MySqliteOpenHelper(getActivity(), "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
 
-                List<Item> items = createListItem(100, 2000);
+                List<Item> items = createListItem(2000, 0);
 
                if(controller.insertAll(items))
                {

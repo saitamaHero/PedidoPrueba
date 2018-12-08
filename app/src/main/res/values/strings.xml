@@ -72,10 +72,11 @@
     </plurals>
 
     <plurals name="visit_formateable">
-        <item quantity="zero">Hoy</item>
         <item quantity="one">Mañana</item>
         <item quantity="other">En %d días</item>
     </plurals>
+
+    <string name="today">Hoy</string>
 
     <plurals name="hours_formateable">
             <item quantity="one">Hace %d hora</item>

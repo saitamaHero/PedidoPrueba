@@ -8,8 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import Models.Client;
+import Utils.DateUtils;
 
 public class EditClientActivity extends AppCompatActivity {
     public static String EXTRA_INFO = "extra_info";
@@ -43,6 +45,16 @@ public class EditClientActivity extends AppCompatActivity {
 
         TextInputEditText edtEmail = findViewById(R.id.email);
         edtEmail.setText(client.getEmail());
+
+        TextInputEditText edtCreditLimit = findViewById(R.id.credit_limit);
+        edtCreditLimit.setText(NumberUtils.formatNumber(client.getCreditLimit(), NumberUtils.FORMAT_NUMER_DOUBLE));
+
+        TextInputEditText edtFechaNacimiento = findViewById(R.id.birth_date);
+        edtFechaNacimiento.setText(DateUtils.formatDate(client.getBirthDate(), DateUtils.DD_MM_YYYY));
+
+        TextInputEditText edtCardClient = findViewById(R.id.card_client);
+        edtCardClient.setText(client.getIdentityCard());
+
     }
 
     private Client getInfo(){
@@ -57,6 +69,12 @@ public class EditClientActivity extends AppCompatActivity {
         TextInputEditText edtEmail = findViewById(R.id.email);
         client.setEmail(edtEmail.getText().toString().trim());
 
+
+       /* TextInputEditText edtCreditLimit = findViewById(R.id.email);
+        client.setEmail(edtEmail.getText().toString().trim());
+
+        TextInputEditText edtEmail = findViewById(R.id.email);
+        client.setEmail(edtEmail.getText().toString().trim());*/
 
         return client;
     }

@@ -54,16 +54,22 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         holder.txtId.setText(client.getId());
         holder.txtName.setText(client.getName());
 
-        Resources resources = holder.txtVisitEvent.getContext().getResources();
+        Resources res = holder.txtVisitEvent.getContext().getResources();
 
         DateUtils.DateConverter converter = client.getTimeToVisit();
 
         if(converter != null){
-            holder.txtVisitEvent.setText(
-                    resources.getQuantityString(R.plurals.visit_formateable,
-                                    (int)converter.getDays(), (int)converter.getDays()));
+            int daysCount = (int)converter.getDays();
+            if (daysCount == 0) {
+                holder.txtVisitEvent.setText(res.getString(R.string.today));
+            } else {
+                holder.txtVisitEvent.setText(
+                        res.getQuantityString(R.plurals.visit_formateable,
+                                (int)converter.getDays(), (int)converter.getDays()));
+            }
+
         }else{
-            holder.txtVisitEvent.setText(resources.getString(R.string.time_unknow));
+            holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
         }
 
 
