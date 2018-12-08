@@ -13,7 +13,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -37,7 +37,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_UNIDADES
-            = "CREATE TABLE "+ Category.TABLE_NAME
+            = "CREATE TABLE "+ Unit.TABLE_NAME
             + "("+ Unit._ID + " TEXT NOT NULL,"
             + Unit._NAME    + " TEXT NOT NULL,"
             + Unit._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
@@ -91,12 +91,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         if(newVersion > oldVersion){
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Item.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Item.TABLE_NAME));
 
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Category.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Category.TABLE_NAME));
 
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Unit.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Unit.TABLE_NAME));
             onCreate(sqLiteDatabase);
         }
     }

@@ -43,6 +43,7 @@ public class Person implements Parcelable{
         email = in.readString();
         profilePhoto = in.readParcelable(Uri.class.getClassLoader());
         latlng = in.readParcelable(PointF.class.getClassLoader());
+        birthDate = (Date) in.readSerializable();
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {
@@ -202,6 +203,7 @@ public class Person implements Parcelable{
         parcel.writeString(email);
         parcel.writeParcelable(profilePhoto, i);
         parcel.writeParcelable(latlng, i);
+        parcel.writeSerializable(birthDate);
     }
 }
 

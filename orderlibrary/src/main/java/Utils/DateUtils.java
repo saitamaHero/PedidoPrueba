@@ -62,6 +62,8 @@ public class DateUtils {
      * @return un string formateado
      */
     public static String formatDate(Date date, String format){
+        if(date == null || format == null) return "";
+
         DateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(date);
     }

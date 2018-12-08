@@ -20,19 +20,6 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     public Client() {
         super();
         distance = 0.0;
-
-
-        /*Calendar calendar = new GregorianCalendar();
-        calendar.setTime(visitDate);
-
-        calendar.set(Calendar.HOUR,0);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-        calendar.set(Calendar.MILLISECOND,0);
-        calendar.set(Calendar.HOUR_OF_DAY,24);
-
-
-        visitDate = calendar.getTime();*/
     }
 
     protected Client(Parcel in) {
