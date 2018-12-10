@@ -136,6 +136,10 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
         this.taxRate = taxRate;
     }
 
+    public double getTaxes(){
+        return getTotal() * getTaxRate();
+    }
+
     @Override
     public double getTotal() {
         return this.price * this.quantity;

@@ -100,26 +100,6 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     public void setLastModification(Date lastModification) {
         this.lastModification = lastModification;
     }
-
-    //Probando estos métodos para el calculo de fechas
-    public long getDays(Date currentDate){
-        long startTime = this.dateEvent.getTime();
-        long endTime = currentDate.getTime();
-
-        long diffTime = endTime - startTime;
-
-        return TimeUnit.DAYS.convert(diffTime, TimeUnit.MILLISECONDS);
-    }
-
-    public long getHours(Date currentDate){
-        long startTime = this.dateEvent.getTime();
-        long endTime = currentDate.getTime();
-
-        long diffTime = endTime - startTime;
-
-        return TimeUnit.HOURS.convert(diffTime, TimeUnit.MILLISECONDS);
-    }
-
     @Override
     public String toString() {
         return "Diary{" + "id=" + id + ", dateEvent=" + dateEvent + ", comment='" + comment + '\''

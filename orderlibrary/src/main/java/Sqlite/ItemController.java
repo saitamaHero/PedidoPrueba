@@ -39,6 +39,7 @@ public class ItemController extends Controller<Item> {
             item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
             item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
             item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
+            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
             item.setQuantity(1);
 
             //Fecha de la ultima modificacion del archivo
@@ -73,6 +74,7 @@ public class ItemController extends Controller<Item> {
             item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
             item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
             item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
+            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
             item.setQuantity(1);
 
             //Fecha de la ultima modificacion del archivo
@@ -107,6 +109,7 @@ public class ItemController extends Controller<Item> {
             item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
             item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
             item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
+            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
             item.setQuantity(1);
 
             //Fecha de la ultima modificacion del archivo
@@ -139,6 +142,7 @@ public class ItemController extends Controller<Item> {
             item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
             item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
             item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
+            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
             item.setQuantity(1);
 
             //Fecha de la ultima modificacion del archivo
@@ -164,6 +168,7 @@ public class ItemController extends Controller<Item> {
         cv.put(Item._PRICE, item.getPrice());
         cv.put(Item._PHOTO, item.getPhoto().getPath());
         cv.put(Item._STOCK, item.getStock());
+        cv.put(Item._TAX_RATE, item.getTaxRate());
 
         if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
             cv.put(Item._CAT, item.getCategory().getId());
@@ -189,6 +194,7 @@ public class ItemController extends Controller<Item> {
         cv.put(Item._PRICE, item.getPrice());
         cv.put(Item._PHOTO, item.getPhoto().getPath());
         cv.put(Item._STOCK, item.getStock());
+        cv.put(Item._TAX_RATE, item.getTaxRate());
 
         if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
             cv.put(Item._CAT, item.getCategory().getId());

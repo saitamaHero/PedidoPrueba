@@ -1,5 +1,6 @@
 package Models;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
@@ -16,14 +17,14 @@ import java.util.List;
  * Para más información vea {@link SimpleElement}
  */
 public class Invoice extends SimpleElement implements ITotal, Parcelable{
-    public static final int CREDIT = 0000000;
-    public static final int CASH = 1111;
+    public enum InvoicePayment{CREDIT, CASH}
     private Date date;
     private List<Item> items;
     private Client client;
-    private int balance;
+    private double balance;
     private double discount;
-    private int invoiceType;
+    private InvoicePayment invoiceType;
+    private String comment;
 
     public Invoice(Date date, List<Item> items) {
         this.date = date;
@@ -35,6 +36,44 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
         this.date = date;
         this.items = new ArrayList<>();
     }
+
+    protected Invoice(Parcel in) {
+        super(in);
+        items = in.createTypedArrayList(Item.CREATOR);
+        client = in.readParcelable(Client.class.getClassLoader());
+        balance = in.readDouble();
+        discount = in.readDouble();
+        invoiceType = InvoicePayment.values()[in.readInt()];
+        comment = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeTypedList(items);
+        dest.writeParcelable(client, flags);
+        dest.writeDouble(balance);
+        dest.writeDouble(discount);
+        dest.writeInt(invoiceType.ordinal());
+        dest.writeString(comment);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Invoice> CREATOR = new Creator<Invoice>() {
+        @Override
+        public Invoice createFromParcel(Parcel in) {
+            return new Invoice(in);
+        }
+
+        @Override
+        public Invoice[] newArray(int size) {
+            return new Invoice[size];
+        }
+    };
 
     public List<Item> getItems() {
         return items;
@@ -61,13 +100,40 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
     }
 
     public boolean isCredit(){
-        return this.invoiceType == CREDIT;
+        return this.invoiceType == InvoicePayment.CREDIT;
     }
 
     public boolean isCash(){
-        return this.invoiceType == CASH;
+        return this.invoiceType == InvoicePayment.CASH;
     }
 
+    public Client getClient() {
+        return client;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    public InvoicePayment getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(InvoicePayment invoiceType) {
+        this.invoiceType = invoiceType;
+    }
 
     @Override
     public double getTotal() {
@@ -87,5 +153,13 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
         result = result + date.hashCode();
 
         return result;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

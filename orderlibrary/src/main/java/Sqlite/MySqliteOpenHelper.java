@@ -13,18 +13,19 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 2;
+    public static final int VERSION = 4;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
-            + "("+ Item._ID + " TEXT NOT NULL,"
-            + Item._NAME    + " TEXT NOT NULL,"
-            + Item._PRICE   + " NUMERIC DEFAULT 0,"
-            + Item._CAT     + " TEXT,"
-            + Item._UNIT    + " TEXT,"
-            + Item._STOCK   + " NUMERIC DEFAULT 0,"
-            + Item._PHOTO   + " TEXT,"
-            + Item._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + "("+ Item._ID  + " TEXT NOT NULL,"
+            + Item._NAME     + " TEXT NOT NULL,"
+            + Item._PRICE    + " NUMERIC DEFAULT 0,"
+            + Item._TAX_RATE + " NUMERIC DEFAULT 0,"
+            + Item._CAT      + " TEXT,"
+            + Item._UNIT     + " TEXT,"
+            + Item._STOCK    + " NUMERIC DEFAULT 0,"
+            + Item._PHOTO    + " TEXT,"
+            + Item._LASTMOD  + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Item._ID + ")"
             + ");";
 
@@ -66,6 +67,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         super(context, name, factory, version);
     }
 
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE_ARTICULOS);
@@ -100,6 +102,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Unit.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Unit.TABLE_NAME));
+
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  +Client.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Client.TABLE_NAME));
             onCreate(sqLiteDatabase);
         }
     }
@@ -122,6 +128,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         trigger = trigger.replace("{pk}", pk);
 
         return trigger;
+    }
+
+    public static MySqliteOpenHelper getInstance(Context context){
+        return new MySqliteOpenHelper(context, "PRUEBA.db", null, MySqliteOpenHelper.VERSION);
     }
 
 }

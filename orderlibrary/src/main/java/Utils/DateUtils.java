@@ -171,5 +171,10 @@ public class DateUtils {
 
             seconds = TimeUnit.SECONDS.convert(diffTime, TimeUnit.MILLISECONDS);
         }
+
+        @Override
+        public String toString() {
+            return "DateConverter{" + "startDate=" + startDate + ", endDate=" + endDate + ", days=" + days + ", hours=" + hours + ", minutes=" + minutes + ", seconds=" + seconds + '}';
+        }
     }
 }
