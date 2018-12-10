@@ -46,12 +46,31 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selector_item);
 
-        itemList = new ArrayList<>();
+        itemList = getExtraItems();
         searchItemList = new ArrayList<>();
 
         recyclerView = findViewById(R.id.recycler_view);
 
+
         loadAdapter();
+
+        if(itemList == null || itemList.isEmpty()){
+            searchItemList.addAll(ItemSelectable.checkItemsInTheList(ItemSelectable.getItemSelectableList(getItems(50)), this.itemList));
+            itemSelectableAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private List<Item> getExtraItems() {
+        Intent intent = getIntent();
+
+        try{
+            Bundle bundle = intent.getExtras();
+            return bundle.getParcelableArrayList(EXTRA_ITEMS);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
     }
 
     private void loadAdapter() {
@@ -75,26 +94,11 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        MenuItem menuItem = menu.findItem(R.id.action_select_items);
-
-        /*if(itemList.size() == 0){
-            menuItem.setVisible(false);
-        }else{
-            menuItem.setVisible(true);
-        }*/
+        MenuItem menuItem;
 
         menuItem = menu.findItem(R.id.app_bar_search);
         SearchView searchView = (SearchView) menuItem.getActionView();
         searchView.setOnQueryTextListener(this);
-
-
-        //searchView.
-
-       // final MenuItem finalMenuItem = menuItem;
-
-        //searchView.set
-
 
         return true;
     }
@@ -158,17 +162,18 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     }
 
     private List<Item> getItems(String str) {
-        ItemController controller = new ItemController(
-                new MySqliteOpenHelper(this, "PRUEBA.db", null,
-                        MySqliteOpenHelper.VERSION).getWritableDatabase());
-
-
+        ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(this)
+                .getReadableDatabase());
         return controller.getAllLike(str);
     }
 
+    private List<Item> getItems(int count) {
+        ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(this)
+                .getReadableDatabase());
+        return controller.getAll(count);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
     }
 }

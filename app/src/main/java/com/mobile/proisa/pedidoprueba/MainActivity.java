@@ -39,12 +39,8 @@ import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
-    //private List<Item> products;
-    //private ItemsAdapter adapter;
-    //private RecyclerView recyclerView;
-
-    ViewPager viewPager;
-    BottomNavigationView navigationView;
+    private ViewPager viewPager;
+    private BottomNavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         Date date = DateUtils.convertToDate("29-11-2018", DateUtils.DD_MM_YYYY);
         Diary diary = new Diary(1,date, "Hola oo");
 
-        Log.d("dateDiff", "days are: " + String.valueOf(diary.getDays(Calendar.getInstance().getTime())));
-        Log.d("dateDiff", "horas are: " + String.valueOf(diary.getHours(Calendar.getInstance().getTime())));
         navigationView = findViewById(R.id.nav_bottom);
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -108,14 +102,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         calendar.set(Calendar.SECOND,0);
 
 
-        /*DateUtils.DateConverter converter = new DateUtils.DateConverter(calendar.getTime(), Calendar.getInstance().getTime());
-
-        Log.d(
-                "tiempoDiff",
-                String.format("%d dias, %d horas, %d minutos, %d segundos",
-                        converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
-        );*/
-
 
        /* Item item = ItemListFragment.getItem("COD-9799", "YUCA DEL CAMPO 1LB");
         ItemController controller = new ItemController(new MySqliteOpenHelper(this, "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
@@ -127,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), getFragmentsForViewPager());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(this);
+
 
         viewPager.setCurrentItem(positionForStart);
 

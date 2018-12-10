@@ -30,6 +30,8 @@ import com.mobile.proisa.pedidoprueba.R;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +41,7 @@ import Models.Unit;
 import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
+import Utils.DateUtils;
 
 public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener {
     private static final String PARAM_ITEMS = "param_items";
@@ -78,7 +81,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             this.items = getItems(ITEMS_COUNT_DEFAULT);
 
             if(this.items.size() == 0){
-                ItemController controller = new ItemController(new MySqliteOpenHelper(getActivity(), "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
+                ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
 
                 List<Item> items = createListItem(2000, 0);
 
@@ -87,20 +90,32 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
                   this.items = getItems(ITEMS_COUNT_DEFAULT);
                }
             }
+
+            printTime(this.items);
         }
 
         setAdapter();
     }
 
     private List<Item> getItems(int count) {
-        ItemController controller = new ItemController(new MySqliteOpenHelper(getActivity(), "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
+        ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase());
         return controller.getAll(count);
     }
 
     private List<Item> getItems(String str) {
-        ItemController controller = new ItemController(new MySqliteOpenHelper(getActivity(), "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
+        ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase());
         return controller.getAllLike(str);
     }
+
+    private void printTime(List<Item> items){
+        Date currentDate = Calendar.getInstance().getTime();
+
+        for(Item i : items){
+            DateUtils.DateConverter converter = new DateUtils.DateConverter(i.getLastModification(), currentDate);
+            Log.d("itemDiffTime", converter.toString());
+        }
+    }
+
 
     private void setAdapter() {
         itemListAdapter = new ItemListAdapter(this.items, R.layout.item_basic_card);
@@ -180,7 +195,6 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
     public static Category getRandomCategory() {
         Random random = new Random();
-
         return new Category("CAT-" + random.nextInt(50), CATEGORIES[random.nextInt(CATEGORIES.length)]);
     }
 

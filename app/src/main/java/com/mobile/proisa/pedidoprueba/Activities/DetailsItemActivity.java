@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -80,6 +79,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
         loadInfo(item);
         loadBackdrop(item.getPhoto());
+        startTimerThread();
     }
 
     private void loadInfo(Item item){
@@ -90,7 +90,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         txtId.setText(item.getId());
 
         TextView txtStock = findViewById(R.id.stock);
-        txtStock.setText(getString(R.string.two_stirng_format,
+        txtStock.setText(getString(R.string.two_string_format,
                 NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE),item.getUnit().getId()));
 
         TextView txtCatetgory = findViewById(R.id.category);
@@ -108,12 +108,14 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
         Resources resources = getResources();
 
-        if(converter.getDays() > 0){
+        if(converter.getDays() > 0 && converter.getHours() == 0){
             txtLastUpdate.setText(resources.getQuantityString(R.plurals.days_formateable,(int)converter.getDays(),converter.getDays()));
+        }else if(converter.getDays() > 0 && converter.getHours() > 0){
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.days_hours_formateable,(int)converter.getDays(),converter.getDays(), converter.getHours()));
         }else if(converter.getHours() > 0 && converter.getMinutes() == 0){
             txtLastUpdate.setText(resources.getQuantityString(R.plurals.hours_formateable,(int)converter.getHours(),converter.getDays()));
         }else if(converter.getHours() > 0 ){
-            txtLastUpdate.setText(getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
+            txtLastUpdate.setText(resources.getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
         }else if(converter.getMinutes() > 0){
             txtLastUpdate.setText(getString(R.string.minutes_formateable,converter.getMinutes()));
         }else if(converter.getSeconds() > 0){
@@ -127,6 +129,29 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
                 String.format("%d dias, %d horas, %d minutos, %d segundos",
                         converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
         );
+
+
+    }
+
+    private void startTimerThread() {
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                handler.post(new Runnable(){
+                    public void run() {
+                        updateLasModifcation(item);
+                    }
+                });
+            }
+        };
+        new Thread(runnable).start();
     }
 
 

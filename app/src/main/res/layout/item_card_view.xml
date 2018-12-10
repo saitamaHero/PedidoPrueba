@@ -62,6 +62,15 @@
                 android:text="@string/less"
                 />
 
+            <TextView
+                android:id="@+id/quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_titles"
+                android:text="1,000.00"
+                android:textColor="@color/colorText"
+                />
+
             <Button
                 android:id="@+id/agregar"
                 style="@style/Base.Widget.AppCompat.Button.Colored"

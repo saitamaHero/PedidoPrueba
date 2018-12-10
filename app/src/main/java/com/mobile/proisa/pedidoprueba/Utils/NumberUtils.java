@@ -2,6 +2,10 @@ package com.mobile.proisa.pedidoprueba.Utils;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.List;
+
+import Models.ITotal;
+import Models.Item;
 
 public class NumberUtils {
     /**
@@ -25,5 +29,14 @@ public class NumberUtils {
         DecimalFormat format = new DecimalFormat(pattern);
 
         return formatNumber(number, format);
+    }
+
+    public static double getTotal(List<ITotal> totals) {
+        double total = 0.0;
+
+        for(ITotal t : totals){
+            total += t.getTotal();
+        }
+        return total;
     }
 }

@@ -82,12 +82,16 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
                 selectedItem.setQuantity(itemQuantity + 1);
                 notifyItemChanged(position);
             }else{
-                notificationListener.onNotificationRequired(NotificationListener.ITEM_STOCK_EXCEEDED);
+                if(notificationListener != null)
+                    notificationListener.onNotificationRequired(NotificationListener.ITEM_STOCK_EXCEEDED);
             }
         }else if(action == ACTION_LESS){
             if(itemQuantity  > 1){
                 selectedItem.setQuantity(itemQuantity - 1);
                 notifyItemChanged(position);
+            }else{
+                if(notificationListener != null)
+                    notificationListener.onNotificationRequired(NotificationListener.ITEM_QUANTITY_ZERO);
             }
         }else if(action == ACTION_REMOVED){
             this.itemList.remove(position);
@@ -165,6 +169,7 @@ public class ItemsListSalesAdapter extends RecyclerView.Adapter<ItemsListSalesAd
 
     public interface NotificationListener{
         int ITEM_STOCK_EXCEEDED = -1;
+        int ITEM_QUANTITY_ZERO = 0;
 
         void onNotificationRequired(int notificationType);
 

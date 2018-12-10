@@ -2,9 +2,9 @@ package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -12,10 +12,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsListSalesAdapter;
-import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Models.Client;
+import Models.ITotal;
+import Models.Invoice;
 import Models.Item;
 import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 
-public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener {
+public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener, ItemsListSalesAdapter.NotificationListener {
     public static final String EXTRA_CLIENT = "extra_client";
     private static final int MY_REQUEST_CODE_ITEMS = 1000;
     //public static final String EXTRA_XXX = "";
@@ -37,6 +39,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     private RecyclerView.Adapter adapter;
     private Client client;
     private List<Item> itemList;
+    private Invoice mInvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
 
         client = getClient();
 
+
         this.itemList = new ArrayList<>();
 
         setTitle(client.getName());
@@ -52,13 +56,18 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
+        loadAdapter();
+        loadData();
+    }
+
+    private void loadAdapter(){
         adapter = new ItemsListSalesAdapter(this.itemList, R.layout.item_card_view);
         ((ItemsListSalesAdapter)adapter).setOnListChangedListener(this);
+        ((ItemsListSalesAdapter)adapter).setNotificationListener(this);
         recyclerView.setAdapter(adapter);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new FadeInRightAnimator());
-
 
         SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerView.getItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
@@ -76,6 +85,13 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         }
 
         return null;
+    }
+
+    private void loadData(){
+        TextView txtClient = findViewById(R.id.client_name);
+        txtClient.setText(client.getName());
+        TextView txtTotal = findViewById(R.id.total);
+        txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(itemList)),NumberUtils.FORMAT_NUMER_DOUBLE));
     }
 
     @Override
@@ -103,16 +119,20 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         switch (item.getItemId()){
             case R.id.action_save:
                 if(!this.itemList.isEmpty()){
-                    Log.d("VentaActivity",
+                    startActivity(new Intent(this, PaymentActivity.class));
+
+
+                    /*Log.d("VentaActivity",
                             String.format("guardar %s articulos a nombre de %s",
                                     NumberUtils.formatNumber(itemList.size(), NumberUtils.FORMAT_NUMER_INTEGER),
-                                    this.client.toString()));
+                                    this.client.toString()));*/
                 }
                 return true;
 
             case R.id.add_items:
-                startActivityForResult(new Intent(this, SelectorItemActivity.class),
-                        MY_REQUEST_CODE_ITEMS);
+                startActivityForResult(new Intent(this, SelectorItemActivity.class)
+                        //.putParcelableArrayListExtra(SelectorItemActivity.EXTRA_ITEMS,new ArrayList<>(this.itemList)),
+                        ,MY_REQUEST_CODE_ITEMS);
                 return true;
 
             default:
@@ -127,6 +147,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
 
         switch (requestCode){
             case MY_REQUEST_CODE_ITEMS:
+
                 if(resultCode == RESULT_OK
                         && data.getExtras().containsKey(SelectorItemActivity.EXTRA_ITEMS)){
 
@@ -138,8 +159,10 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
                     //notify Adapter
                     adapter.notifyItemRangeInserted(count , adapter.getItemCount());
 
-                    //Invalidar el menu de opciones para que se redibuje
+                    //Invalidar el menu de opciones para que se re-dibuje
                     invalidateOptionsMenu();
+
+                    loadData();
                 }
                 break;
         }
@@ -148,6 +171,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     @Override
     public void onListChange(List<Item> list) {
         invalidateOptionsMenu();
+        loadData();
     }
 
     @Override
@@ -171,10 +195,19 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
             }
         });
 
-
         builder.create().show();
+    }
 
+    @Override
+    public void onNotificationRequired(int notificationType) {
+        switch (notificationType){
+            case ItemsListSalesAdapter.NotificationListener.ITEM_STOCK_EXCEEDED:
+                Toast.makeText(getApplicationContext(), R.string.stock_exceeded, Toast.LENGTH_LONG).show();
+                break;
 
-
+            case ItemsListSalesAdapter.NotificationListener.ITEM_QUANTITY_ZERO:
+                Toast.makeText(getApplicationContext(), R.string.quantity_no_zero, Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 }

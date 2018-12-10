@@ -59,37 +59,72 @@
     <string name="msg_exit_sale">¿Está seguro que desea salir  sin guardar?</string>
     <string name="msg_exit_no_save">No se guardará ningún dato.</string>
 
-    <string name="two_stirng_format">%s %s</string>
+    <string name="two_string_format">%s %s</string>
+
 
     <plurals name="items_selected">
         <item quantity="one">%d producto seleccionado</item>
         <item quantity="other">%d productos seleccionados</item>
     </plurals>
 
+
+    <!--
+    Formato para días
+    -->
     <plurals name="days_formateable">
         <item quantity="one">Ayer</item>
         <item quantity="other">Hace %d días</item>
     </plurals>
 
+    <!--
+    Formato para días y horas
+    -->
+    <plurals name="days_hours_formateable">
+        <item quantity="one">Hace %d día y %d horas</item>
+        <item quantity="other">Hace %d días y %d horas</item>
+    </plurals>
+
+    <!--
+    Formato para representacion del tiempo que queda para las visitas.
+    -->
     <plurals name="visit_formateable">
         <item quantity="one">Mañana</item>
         <item quantity="other">En %d días</item>
     </plurals>
 
+    <!--
+    Cadena que representa hoy
+    -->
     <string name="today">Hoy</string>
 
+    <!--
+      Formato para horas
+    -->
     <plurals name="hours_formateable">
-            <item quantity="one">Hace %d hora</item>
-            <item quantity="other">Hace %d horas</item>
+        <item quantity="one">Hace %d hora</item>
+        <item quantity="other">Hace %d horas</item>
     </plurals>
 
-
+    <!--
+    Formato de minutos y cortos periodos de tiempo
+    -->
     <string name="minutes_formateable">Hace %d minutos</string>
     <string name="moments_ago">Hace un momento</string>
     <string name="time_unknow">Desconocido</string>
 
+
     <string name="hours_minutes_formateable">Hace %d horas y %d minutos</string>
+
+
     <string name="credit_limit">Límite de crédito</string>
     <string name="date_birth">Fecha de nacimiento</string>
     <string name="id_card">RNC/Cédula</string>
+    <string name="stock_exceeded">No puedes exceder la cantidad en inventario</string>
+    <string name="quantity_no_zero">La cantidad no puede ser cero. (Presione borrar para quitar de la lista).</string>
+
+    <string name="credit_type">Crédito</string>
+    <string name="cash_type">Al contado</string>
+    <string name="close_payment">Cobrar</string>
+    <string name="total_payment">Total Neto</string>
+    <string name="client">Cliente</string>
 </resources>
