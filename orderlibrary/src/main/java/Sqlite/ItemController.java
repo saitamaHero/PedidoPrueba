@@ -100,7 +100,8 @@ public class ItemController extends Controller<Item> {
         List<Item> items = new ArrayList<>();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Item.TABLE_NAME, null, Item._NAME.concat(" LIKE ?"), new String[]{"%" + likeStr + "%"}, null, null, null);
+        cursor = sqLiteDatabase.query(Item.TABLE_NAME, null, Item._NAME.concat(" LIKE ?"),
+                new String[]{"%" + likeStr + "%"}, null, null, null);//.concat(" AND ").concat(Item._STOCK).concat(">?"),String.valueOf(0.00)
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {

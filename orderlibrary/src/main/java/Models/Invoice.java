@@ -26,15 +26,24 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
     private InvoicePayment invoiceType;
     private String comment;
 
+    public Invoice() {
+        super();
+        this.items = new ArrayList<>();
+        this.invoiceType = InvoicePayment.CREDIT;
+
+    }
+
     public Invoice(Date date, List<Item> items) {
         this.date = date;
         this.items = items;
+        this.invoiceType = InvoicePayment.CREDIT;
     }
 
     public Invoice(String id, String name, Date date) {
         super(id, name);
         this.date = date;
         this.items = new ArrayList<>();
+        this.invoiceType = InvoicePayment.CREDIT;
     }
 
     protected Invoice(Parcel in) {
