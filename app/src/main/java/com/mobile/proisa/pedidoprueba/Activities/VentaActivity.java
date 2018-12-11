@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,10 +47,22 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_venta);
 
-        client = getClient();
+        if(savedInstanceState == null){
+            mInvoice = new Invoice();
+            client = getClient();
+            mInvoice.setClient(client);
+
+            this.itemList = new ArrayList<>();
+            mInvoice.setItems(this.itemList);
+        }else{
+            mInvoice = savedInstanceState.getParcelable("mInvoice");
+            client = savedInstanceState.getParcelable("client");
+            itemList =savedInstanceState.getParcelable("list");
 
 
-        this.itemList = new ArrayList<>();
+            mInvoice.setClient(client);
+            mInvoice.setItems(this.itemList);
+        }
 
         setTitle(client.getName());
 
@@ -119,13 +132,9 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         switch (item.getItemId()){
             case R.id.action_save:
                 if(!this.itemList.isEmpty()){
+
                     startActivity(new Intent(this, PaymentActivity.class));
 
-
-                    /*Log.d("VentaActivity",
-                            String.format("guardar %s articulos a nombre de %s",
-                                    NumberUtils.formatNumber(itemList.size(), NumberUtils.FORMAT_NUMER_INTEGER),
-                                    this.client.toString()));*/
                 }
                 return true;
 
@@ -210,4 +219,14 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
                 break;
         }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("list", new ArrayList<>(this.itemList));
+        outState.putParcelable("client",client);
+        outState.putParcelable("mInvoice", mInvoice);
+    }
+
+
 }

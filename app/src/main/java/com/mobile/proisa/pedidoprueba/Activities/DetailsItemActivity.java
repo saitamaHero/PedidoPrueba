@@ -35,6 +35,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
     private boolean mPermissionStorage;
 
     private Item item;
+    private UpdateLastModificationProccessor update;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +118,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
         }else if(converter.getHours() > 0 ){
             txtLastUpdate.setText(resources.getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
         }else if(converter.getMinutes() > 0){
-            txtLastUpdate.setText(getString(R.string.minutes_formateable,converter.getMinutes()));
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.minutes_formateable,(int)converter.getMinutes(), converter.getMinutes()));
         }else if(converter.getSeconds() > 0){
             txtLastUpdate.setText(getString(R.string.moments_ago));
         }else{
@@ -134,27 +135,18 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void startTimerThread() {
-        final Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-
+        Runnable postAction = new Runnable() {
+            @Override
             public void run() {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                handler.post(new Runnable(){
-                    public void run() {
-                        updateLasModifcation(item);
-                    }
-                });
+                updateLasModifcation(item);
             }
         };
-        new Thread(runnable).start();
+
+        update = new UpdateLastModificationProccessor(postAction);
+
+
+        new Thread(update).start();
     }
-
-
 
     private void checkPermissionStorage(){
         if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -197,5 +189,43 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(update != null)
+            update.terminate();
+
+    }
+
+    private static class UpdateLastModificationProccessor implements Runnable{
+        private volatile boolean running;
+        private Handler handler;
+        private Runnable postAction;
+
+        public UpdateLastModificationProccessor(Runnable postAction) {
+            running = true;
+            handler = new Handler();
+            this.postAction = postAction;
+        }
+
+        @Override
+        public void run() {
+            while (running){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+
+                handler.post(postAction);
+            }
+        }
+
+        public void terminate(){
+            running = false;
+        }
     }
 }

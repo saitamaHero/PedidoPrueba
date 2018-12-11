@@ -106,9 +106,13 @@
     </plurals>
 
     <!--
-    Formato de minutos y cortos periodos de tiempo
+    Formato de minutos y cortos periodos de tiempo\
     -->
-    <string name="minutes_formateable">Hace %d minutos</string>
+    <plurals name="minutes_formateable">
+        <item quantity="one">Hace %d minuto</item>
+        <item quantity="other">Hace %d minutos</item>
+    </plurals>
+
     <string name="moments_ago">Hace un momento</string>
     <string name="time_unknow">Desconocido</string>
 
@@ -127,4 +131,5 @@
     <string name="close_payment">Cobrar</string>
     <string name="total_payment">Total Neto</string>
     <string name="client">Cliente</string>
+    <string name="invoice_payment">Tipo de pago</string>
 </resources>
