@@ -17,7 +17,7 @@ import java.util.List;
  * Para más información vea {@link SimpleElement}
  */
 public class Invoice extends SimpleElement implements ITotal, Parcelable{
-    public enum InvoicePayment{CREDIT, CASH}
+    public enum InvoicePayment {CREDIT, CASH}
     private Date date;
     private List<Item> items;
     private Client client;
@@ -48,22 +48,22 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
 
     protected Invoice(Parcel in) {
         super(in);
-        items = in.createTypedArrayList(Item.CREATOR);
+        items = in.readArrayList(Item.class.getClassLoader());
         client = in.readParcelable(Client.class.getClassLoader());
         balance = in.readDouble();
         discount = in.readDouble();
-        invoiceType = InvoicePayment.values()[in.readInt()];
+        invoiceType = InvoicePayment.valueOf(in.readString());
         comment = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeTypedList(items);
+        dest.writeList(items);
         dest.writeParcelable(client, flags);
         dest.writeDouble(balance);
         dest.writeDouble(discount);
-        dest.writeInt(invoiceType.ordinal());
+        dest.writeString(invoiceType.name());
         dest.writeString(comment);
     }
 
@@ -162,6 +162,12 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable{
         result = result + date.hashCode();
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Invoice{"+ "id=" + getId() + "date=" + date + ", client=" + client + ", discount=" + discount + ", itemsCount=" + this.items.size() +
+                ", invoicePayment=" +invoiceType.name() +'}';
     }
 
     public String getComment() {
