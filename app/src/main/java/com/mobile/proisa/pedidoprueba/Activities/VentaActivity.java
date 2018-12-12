@@ -34,37 +34,26 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     private static final int MY_REQUEST_CODE_ITEMS = 1000;
     //public static final String EXTRA_XXX = "";
 
-    private boolean mVentaSaved;
-
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private Client client;
     private List<Item> itemList;
-    private Invoice mInvoice;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_venta);
 
+        client = getClient();
+
         if(savedInstanceState == null){
-            mInvoice = new Invoice();
-            client = getClient();
-            mInvoice.setClient(client);
-
             this.itemList = new ArrayList<>();
-            mInvoice.setItems(this.itemList);
         }else{
-            mInvoice = savedInstanceState.getParcelable("mInvoice");
-            client = savedInstanceState.getParcelable("client");
-            itemList =savedInstanceState.getParcelable("list");
-
-
-            mInvoice.setClient(client);
-            mInvoice.setItems(this.itemList);
+            itemList =savedInstanceState.getParcelableArrayList("list");
         }
 
-        setTitle(client.getName());
+        //setTitle(client.getName());
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -104,7 +93,13 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         TextView txtClient = findViewById(R.id.client_name);
         txtClient.setText(client.getName());
         TextView txtTotal = findViewById(R.id.total);
-        txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(itemList)),NumberUtils.FORMAT_NUMER_DOUBLE));
+
+        if(itemList != null){
+            txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(itemList)),NumberUtils.FORMAT_NUMER_DOUBLE));
+        }else{
+            txtTotal.setText(NumberUtils.formatNumber(0.00,NumberUtils.FORMAT_NUMER_DOUBLE));
+        }
+
     }
 
     @Override
@@ -132,9 +127,11 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         switch (item.getItemId()){
             case R.id.action_save:
                 if(!this.itemList.isEmpty()){
+                    Invoice mInvoice = getInvoice();
 
-                    startActivity(new Intent(this, PaymentActivity.class));
-
+                    Intent paymentActivity = new Intent(this, PaymentActivity.class);
+                    paymentActivity.putExtra(PaymentActivity.EXTRA_INVOICE, mInvoice);
+                    startActivity(paymentActivity);
                 }
                 return true;
 
@@ -147,6 +144,15 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private Invoice getInvoice() {
+        Invoice invoice = new Invoice();
+
+        invoice.setItems(this.itemList);
+        invoice.setClient(this.client);
+
+        return invoice;
     }
 
 
@@ -223,9 +229,8 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("list", new ArrayList<>(this.itemList));
-        outState.putParcelable("client",client);
-        outState.putParcelable("mInvoice", mInvoice);
+        outState.putParcelableArrayList("list", new ArrayList<Item>(this.itemList));
+        //outState.putParcelable("mInvoice", mInvoice);
     }
 
 

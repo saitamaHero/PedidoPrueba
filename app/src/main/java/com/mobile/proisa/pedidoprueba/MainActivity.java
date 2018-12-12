@@ -194,7 +194,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
        Random random = new Random();
 
-       int visitas = random.nextInt(50);
+       int visitas = 1 + random.nextInt(50);
+       //visitas = visitas == 0 ? 2 : visitas;
        int visitasCompletas = random.nextInt(visitas);
        int visitanIncompletas = visitas - visitasCompletas;
 

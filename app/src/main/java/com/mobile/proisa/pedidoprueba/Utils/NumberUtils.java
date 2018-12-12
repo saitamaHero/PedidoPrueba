@@ -32,6 +32,8 @@ public class NumberUtils {
     }
 
     public static double getTotal(List<ITotal> totals) {
+        if(totals == null) return 0.0;
+
         double total = 0.0;
 
         for(ITotal t : totals){
