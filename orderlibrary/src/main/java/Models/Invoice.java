@@ -16,7 +16,7 @@ import java.util.List;
  *
  * Para más información vea {@link SimpleElement}
  */
-public class Invoice extends SimpleElement implements ITotal, Parcelable{
+public class Invoice extends SimpleElement implements ITotal, Parcelable, ColumnsSqlite.ColumnsInvoice{
     public enum InvoicePayment {CREDIT, CASH}
     private Date date;
     private List<Item> items;

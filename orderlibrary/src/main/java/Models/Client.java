@@ -1,5 +1,6 @@
 package Models;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -7,12 +8,14 @@ import android.util.Log;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import Utils.DateUtils;
 
 import static Models.ColumnsSqlite.*;
 
 public class Client extends Person implements Parcelable, ColumnsClient, Updatable<Client> {
+    private List<Invoice> invoices;
     private double creditLimit;
     private double distance;
     private Diary visitDate;
@@ -20,6 +23,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     public Client() {
         super();
         distance = 0.0;
+
     }
 
     protected Client(Parcel in) {
@@ -27,6 +31,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         creditLimit = in.readDouble();
         visitDate = in.readParcelable(Diary.class.getClassLoader());
         distance = in.readDouble();
+        invoices = in.readArrayList(Invoice.class.getClassLoader());
     }
 
     public double getDistance() {
@@ -53,7 +58,6 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         this.visitDate = visitDate;
     }
 
-
     public boolean isDayOfTheVisit(){
         if(this.visitDate == null) return false;
 
@@ -67,12 +71,25 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         return new DateUtils.DateConverter(this.visitDate.getDateEvent(), Calendar.getInstance().getTime());
     }
 
+    public boolean hasInvoices(){
+        return this.invoices != null || !(this.invoices.isEmpty());
+    }
+
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(List<Invoice> invoices) {
+        this.invoices = invoices;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeDouble(creditLimit);
         dest.writeParcelable(visitDate, flags);
         dest.writeDouble(distance);
+        dest.writeList(invoices);
     }
 
     @Override
@@ -122,6 +139,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         setName(item.getName());
         setEmail(item.getEmail());
         setPhoneNumbers(item.getPhoneNumbers());
+
 
         return true;
     }

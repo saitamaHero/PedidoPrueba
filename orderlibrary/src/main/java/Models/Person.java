@@ -30,8 +30,10 @@ public class Person implements Parcelable{
 
     public Person() {
         phoneNumbers = new ArrayList<>();
+        profilePhoto = Uri.EMPTY;
         birthDate = Calendar.getInstance().getTime();
         enteredDate = Calendar.getInstance().getTime();
+        latlng = new PointF(19.453280f, -70.698085f);
     }
 
     protected Person(Parcel in) {
@@ -44,6 +46,8 @@ public class Person implements Parcelable{
         profilePhoto = in.readParcelable(Uri.class.getClassLoader());
         latlng = in.readParcelable(PointF.class.getClassLoader());
         birthDate = (Date) in.readSerializable();
+        enteredDate = (Date) in.readSerializable();
+        lastModification = (Date) in.readSerializable();
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {
@@ -204,6 +208,8 @@ public class Person implements Parcelable{
         parcel.writeParcelable(profilePhoto, i);
         parcel.writeParcelable(latlng, i);
         parcel.writeSerializable(birthDate);
+        parcel.writeSerializable(enteredDate);
+        parcel.writeSerializable(lastModification);
     }
 }
 

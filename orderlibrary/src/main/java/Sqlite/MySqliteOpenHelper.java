@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import Models.Category;
 import Models.Client;
+import Models.Diary;
+import Models.Invoice;
 import Models.Item;
 import Models.Unit;
 
@@ -13,7 +15,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -62,6 +64,34 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "PRIMARY KEY(" + Client._ID + ")"
             + ");";
 
+    private static final String CREATE_TABLE_FACTURAS
+            = "CREATE TABLE "+ Invoice.TABLE_NAME
+            + "("+ Invoice._ID   + " TEXT NOT NULL,"
+            + Invoice._CLIENT    + " TEXT NOT NULL,"
+            + Invoice._COMMENT   + " TEXT NOT NULL,"
+            + Invoice._INV_TYPE  + " INTEGER NOT NULL,"
+            + Invoice._DATE      + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Invoice._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + "PRIMARY KEY(" + Invoice._ID + ")"
+            + ");";
+
+    private static final String CREATE_TABLE_FACTURAS_DETALLE
+            = "CREATE TABLE "+ Invoice.TABLE_NAME_DETAILS
+            + "("+ Invoice._ID   + " TEXT NOT NULL,"
+            + Invoice.ITEM_ID    + " TEXT NOT NULL,"
+            + Invoice._QTY       + " NUMERIC DEFAULT 1,"
+            + Invoice._PRICE     + " NUMERIC DEFAULT 1,"
+            + Invoice._TAX_RATE  + " NUMERIC DEFAULT 0,"
+            + "FOREIGN KEY("+Invoice._ID+") REFERENCES "+Invoice.TABLE_NAME+"("+Invoice._ID+")"
+            + ");";
+
+    private static final String CREATE_TABLE_VISITAS
+            = "CREATE TABLE "+ Diary.TABLE_NAME
+            + "("+ Diary._ID   + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+            + Diary._EVENT     + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Diary._COMMENT   + " TEXT NOT NULL DEFAULT '',"
+            + Diary._LASTMOD   + " TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            + ");";
 
     public MySqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -85,6 +115,17 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_CLIENTES);
         sqLiteDatabase.execSQL(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
+
+        //////////////////
+        sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS);
+        sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS_DETALLE);
+        sqLiteDatabase.execSQL(createTriggerUpdate(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
+
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_VISITAS);
+        sqLiteDatabase.execSQL(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
     }
 
     @Override
@@ -106,6 +147,16 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  +Client.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Client.TABLE_NAME));
+
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Invoice.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Invoice.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Invoice.TABLE_NAME));
+
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Invoice.TABLE_NAME_DETAILS);
+
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Diary.TABLE_NAME);
+
+
             onCreate(sqLiteDatabase);
         }
     }
