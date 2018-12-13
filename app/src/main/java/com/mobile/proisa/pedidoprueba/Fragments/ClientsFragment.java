@@ -32,9 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Models.Client;
+import Sqlite.ClientController;
+import Sqlite.MySqliteOpenHelper;
+import Utils.DateUtils;
 
 
-public class ClientsFragment extends Fragment {
+public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
 
     private List<Client> clients;
@@ -46,6 +49,13 @@ public class ClientsFragment extends Fragment {
         // Required empty public constructor
     }
 
+
+    public static ClientsFragment newInstance() {
+        Bundle args = new Bundle();
+        ClientsFragment fragment = new ClientsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public static ClientsFragment newInstance(List<Client> clients) {
         Bundle args = new Bundle();
@@ -101,6 +111,29 @@ public class ClientsFragment extends Fragment {
         });
 
 
+        clients = getClients(5);
+
+        if(clients == null || clients.isEmpty()){
+            ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+            Client client = new Client();
+
+            client.setId("CL-2100");
+            client.setName("Dionicio Acevedo Lebron");
+            client.setIdentityCard("40225706668");
+            client.setEmail("tec.dionicioacevedo@gmail.com");
+            client.setBirthDate(DateUtils.convertToDate("16-02-1997", DateUtils.DD_MM_YYYY));
+            client.setCreditLimit(5000.00);
+            client.setAddress("Los Buenos #12, Av. Bartolome Colon, Santiago");
+
+            boolean inserted = controller.insert(client);
+
+            if(inserted){
+                Toast.makeText(getActivity().getApplicationContext(),
+                        client.toString(), Toast.LENGTH_LONG).show();
+            }
+        }
+
+
         setAdapter();
     }
 
@@ -123,9 +156,19 @@ public class ClientsFragment extends Fragment {
                 if(client.getDistance() < 300.00){
                     Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
+    }
+
+    private List<Client> getClients(int count){
+        ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+
+        return  controller.getAll(count);
+    }
+
+    private List<Client> getClients(String str) {
+        ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+        return controller.getAllLike(str);
     }
 
     @Override
@@ -140,28 +183,22 @@ public class ClientsFragment extends Fragment {
 
         MenuItem  item = menu.findItem(R.id.app_bar_search);
 
+        item.collapseActionView();
+
         SearchView searchView = (SearchView) item.getActionView();
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+        searchView.setOnQueryTextListener(this);
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                //Solo probando
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
 
-                int pos = clients.size() - 1;
-
-                if(pos >= 0){
-                    clients.remove(pos);
-                    clientAdapter.notifyItemRemoved(pos);
-                    clientAdapter.notifyItemRangeChanged(pos, clients.size());
-                }
-
-                return true;
-            }
-        });
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        clients = getClients(newText);
+        setAdapter();
+        return true;
     }
 }

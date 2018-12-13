@@ -68,12 +68,11 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
                                 (int)converter.getDays(), (int)converter.getDays()));
             }
 
+            Log.d("diaryVisit", client.getVisitDate().getDateEvent().toString());
         }else{
             holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
         }
 
-
-        Log.d("diaryVisit", client.getVisitDate().getDateEvent().toString());
 
         holder.txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
         holder.txtAddress.setText(client.getAddress());

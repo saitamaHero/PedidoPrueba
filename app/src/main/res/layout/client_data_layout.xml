@@ -168,6 +168,8 @@
             android:text="(datos)" />
     </LinearLayout>
 
+    <include layout="@layout/lastmodification_layout"/>
+
     <!--
         <LinearLayout
             android:layout_width="match_parent"

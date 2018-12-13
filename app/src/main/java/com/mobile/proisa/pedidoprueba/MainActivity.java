@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
    private List<Fragment> getFragmentsForViewPager() {
        List<Fragment> fragments = new ArrayList<>();
        fragments.add(ItemListFragment.newInstance());
-       fragments.add(ClientsFragment.newInstance(getClientsForTest(5)));
+       fragments.add(ClientsFragment.newInstance());
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
        fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
 

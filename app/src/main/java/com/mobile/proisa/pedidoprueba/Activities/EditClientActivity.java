@@ -1,19 +1,28 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.DatePicker;
 
+import com.mobile.proisa.pedidoprueba.Dialogs.DatePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import Models.Client;
 import Utils.DateUtils;
 
-public class EditClientActivity extends AppCompatActivity {
+public class EditClientActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     public static String EXTRA_INFO = "extra_info";
     public static String EXTRA_DATA = "extra_data";
     private Client client;
@@ -40,16 +49,24 @@ public class EditClientActivity extends AppCompatActivity {
         TextInputEditText edtName = findViewById(R.id.client_name);
         edtName.setText(client.getName());
 
-        TextInputEditText edtPhone = findViewById(R.id.phone);
-        edtPhone.setText(client.getPhone(0));
+        try {
+            TextInputEditText edtPhone = findViewById(R.id.phone);
+            edtPhone.setText(client.getPhone(0));
+        }catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
+
 
         TextInputEditText edtEmail = findViewById(R.id.email);
         edtEmail.setText(client.getEmail());
 
         TextInputEditText edtCreditLimit = findViewById(R.id.credit_limit);
-        edtCreditLimit.setText(NumberUtils.formatNumber(client.getCreditLimit(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        edtCreditLimit.setText(String.valueOf(client.getCreditLimit()));
+                //NumberUtils.formatNumber(client.getCreditLimit(), NumberUtils.FORMAT_NUMER_DOUBLE));
 
         TextInputEditText edtFechaNacimiento = findViewById(R.id.birth_date);
+        edtFechaNacimiento.setInputType(InputType.TYPE_NULL);
+        edtFechaNacimiento.setOnClickListener(this);
         edtFechaNacimiento.setText(DateUtils.formatDate(client.getBirthDate(), DateUtils.DD_MM_YYYY));
 
         TextInputEditText edtCardClient = findViewById(R.id.card_client);
@@ -69,12 +86,16 @@ public class EditClientActivity extends AppCompatActivity {
         TextInputEditText edtEmail = findViewById(R.id.email);
         client.setEmail(edtEmail.getText().toString().trim());
 
+        TextInputEditText edtCreditLimit = findViewById(R.id.credit_limit);
+        client.setCreditLimit(Double.parseDouble(edtCreditLimit.getText().toString()));
 
-       /* TextInputEditText edtCreditLimit = findViewById(R.id.email);
-        client.setEmail(edtEmail.getText().toString().trim());
+        TextInputEditText edtFechaNacimiento = findViewById(R.id.birth_date);
+        Date fechaNacimiento = DateUtils.convertToDate(edtFechaNacimiento.getText().toString()
+                , DateUtils.DD_MM_YYYY);
+        client.setBirthDate(fechaNacimiento);
 
-        TextInputEditText edtEmail = findViewById(R.id.email);
-        client.setEmail(edtEmail.getText().toString().trim());*/
+        TextInputEditText edtCardClient = findViewById(R.id.card_client);
+        client.setIdentityCard(edtCardClient.getText().toString());
 
         return client;
     }
@@ -90,8 +111,8 @@ public class EditClientActivity extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.action_apply:
-                client.update(getInfo());
-                setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,client));
+                //-client.update(getInfo());
+                setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,getInfo()));
                 finish();
                 break;
         }
@@ -103,5 +124,25 @@ public class EditClientActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+
+
+        client.setBirthDate(calendar.getTime());
+        loadInfo(client);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == R.id.birth_date){
+            DatePickerFragment.newInstance(this, client.getBirthDate()).show(getFragmentManager(),
+                    "");
+        }
     }
 }

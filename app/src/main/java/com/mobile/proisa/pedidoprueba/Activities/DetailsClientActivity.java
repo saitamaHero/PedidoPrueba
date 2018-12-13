@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -51,6 +52,10 @@ import java.util.Locale;
 
 import Models.Client;
 import Models.Diary;
+import Models.Item;
+import Sqlite.ClientController;
+import Sqlite.MySqliteOpenHelper;
+import Utils.DateUtils;
 import Utils.FileUtils;
 
 
@@ -134,8 +139,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         TextView txtOwner = findViewById(R.id.owner);
         txtOwner.setText(client.getName());
 
-        TextView txtPhone = findViewById(R.id.phone);
-        txtPhone.setText(client.getPhone(0));
+        try{
+            TextView txtPhone = findViewById(R.id.phone);
+            txtPhone.setText(client.getPhone(0));
+        }catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
+
 
         TextView txtAddress = findViewById(R.id.address);
         txtAddress.setText(client.getAddress());
@@ -151,7 +161,41 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         TextView txtCreditLimit = findViewById(R.id.credit_limit);
         txtCreditLimit.setText(getString(R.string.credit).concat(NumberUtils.formatNumber(client.getCreditLimit(), NumberUtils.FORMAT_NUMER_DOUBLE)));
+
+        updateLasModifcation(client);
     }
+
+    private void updateLasModifcation(Client client){
+        TextView txtLastUpdate = findViewById(R.id.last_update);
+        DateUtils.DateConverter converter = new DateUtils.DateConverter(client.getLastModification(), Calendar.getInstance().getTime());
+
+        Resources resources = getResources();
+
+        if(converter.getDays() > 0 && converter.getHours() == 0){
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.days_formateable,(int)converter.getDays(),converter.getDays()));
+        }else if(converter.getDays() > 0 && converter.getHours() > 0){
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.days_hours_formateable,(int)converter.getDays(),converter.getDays(), converter.getHours()));
+        }else if(converter.getHours() > 0 && converter.getMinutes() == 0){
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.hours_formateable,(int)converter.getHours(),converter.getDays()));
+        }else if(converter.getHours() > 0 ){
+            txtLastUpdate.setText(resources.getString(R.string.hours_minutes_formateable,converter.getHours(), converter.getMinutes()));
+        }else if(converter.getMinutes() > 0){
+            txtLastUpdate.setText(resources.getQuantityString(R.plurals.minutes_formateable,(int)converter.getMinutes(), converter.getMinutes()));
+        }else if(converter.getSeconds() > 0){
+            txtLastUpdate.setText(getString(R.string.moments_ago));
+        }else{
+            txtLastUpdate.setText(getString(R.string.time_unknow));
+        }
+
+        Log.d(
+                "tiempoDiff",
+                String.format("%d dias, %d horas, %d minutos, %d segundos",
+                        converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
+        );
+
+
+    }
+
 
     private void loadMenuOption(){
         Menu myMenu = new PopupMenu(this, null).getMenu();
@@ -235,6 +279,17 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 if(resultCode == RESULT_OK){
                     client.setProfilePhoto(currentPhotoItem);
                     loadBackdrop(client.getProfilePhoto());
+
+
+                    ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
+                    if(controller.update(client)){
+                        Toast.makeText(getApplicationContext(),
+                                R.string.update_photo_success,
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    loadInfo(client);
                 }
                 break;
 
@@ -244,7 +299,14 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     loadBackdrop(client.getProfilePhoto());
                     loadInfo(client);
 
-                    //Guardar direccion de foto automaticamente
+                    //Actualizar
+                    ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
+                    if(controller.update(client)){
+                        Toast.makeText(getApplicationContext(),
+                                R.string.update_success,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
 
@@ -256,6 +318,16 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
                     Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
                     Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
+
+                    ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
+                    if(controller.update(client)){
+                        Toast.makeText(getApplicationContext(),
+                                R.string.update_photo_success,
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    loadInfo(client);
                 }
 
                 break;
