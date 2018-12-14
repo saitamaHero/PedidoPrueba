@@ -81,7 +81,9 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private Calendar mCalendar;
     private Diary nextVisit; /*Proxima Visita*/
 
+
     private int value = 60;
+    private DetailsItemActivity.UpdateLastModificationProccessor update;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,13 +107,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
 
-        loadBackdrop(client.getProfilePhoto());
-        loadMenuOption();
-        loadInfo(client);
-
-
-        checkPermissionStorage();
-        checkPermissionCamera();
     }
 
     private void loadBackdrop(Uri uri) {
@@ -210,6 +205,21 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        loadBackdrop(client.getProfilePhoto());
+        loadMenuOption();
+        loadInfo(client);
+
+
+        checkPermissionStorage();
+        checkPermissionCamera();
+
+        startTimerThread();
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
@@ -243,17 +253,18 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         foto = new File(route, FileUtils.createFileNameDate("IMG_","yyyyMMddHHmmss",FileUtils.JPG_EXT));
         foto.delete();
 
-        currentPhotoItem = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID.concat(".provider"), foto);
+        Uri uri =  FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID.concat(".provider"), foto);
         intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
+        currentPhotoItem =  Uri.fromFile(foto);
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                intentCamera.setClipData(ClipData.newRawUri("", currentPhotoItem));
+                intentCamera.setClipData(ClipData.newRawUri("", uri));
             }
         }
 
-        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT,currentPhotoItem);
+        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         startActivityForResult(intentCamera, CAMERA_INTENT_RESULT);
     }
 
@@ -277,9 +288,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (requestCode ){
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
+                    //Uri realUri = getRealUriFromGallery(currentPhotoItem);
                     client.setProfilePhoto(currentPhotoItem);
-                    loadBackdrop(client.getProfilePhoto());
-
 
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
@@ -287,8 +297,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         Toast.makeText(getApplicationContext(),
                                 R.string.update_photo_success,
                                 Toast.LENGTH_SHORT).show();
+
+                        client = controller.getById(client.getId());
                     }
 
+                    loadBackdrop(client.getProfilePhoto());
                     loadInfo(client);
                 }
                 break;
@@ -296,8 +309,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case EDIT_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
                     client = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
-                    loadBackdrop(client.getProfilePhoto());
-                    loadInfo(client);
 
                     //Actualizar
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
@@ -306,7 +317,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         Toast.makeText(getApplicationContext(),
                                 R.string.update_success,
                                 Toast.LENGTH_SHORT).show();
+
+                        client = controller.getById(client.getId());
                     }
+
+                    loadBackdrop(client.getProfilePhoto());
+                    loadInfo(client);
                 }
                 break;
 
@@ -314,7 +330,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 if(resultCode == RESULT_OK){
                     Uri realUri = getRealUriFromGallery(data.getData());
                     client.setProfilePhoto(realUri);
-                    loadBackdrop(client.getProfilePhoto());
+
 
                     Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
                     Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
@@ -325,8 +341,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         Toast.makeText(getApplicationContext(),
                                 R.string.update_photo_success,
                                 Toast.LENGTH_SHORT).show();
+
+                        client = controller.getById(client.getId());
                     }
 
+                    loadBackdrop(client.getProfilePhoto());
                     loadInfo(client);
                 }
 
@@ -406,6 +425,20 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         return Uri.fromFile(new File(path));
     }
 
+    private void startTimerThread() {
+        Runnable postAction = new Runnable() {
+            @Override
+            public void run() {
+                updateLasModifcation(client);
+            }
+        };
+
+        update = new DetailsItemActivity.UpdateLastModificationProccessor(postAction);
+
+        new Thread(update).start();
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -482,4 +515,16 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+
+        if(update != null)
+            update.terminate();
+
+    }
+
+
 }

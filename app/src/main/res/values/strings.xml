@@ -134,4 +134,6 @@
     <string name="invoice_payment">Tipo de pago</string>
     <string name="update_photo_success">¡Foto Actualizada Correctamente!.</string>
     <string name="update_success">¡Actualizado Correctamente!</string>
+    <string name="save_success">%s Guardado Exitosamente!</string>
+    <string name="error_to_save">Error al intentar guardar.</string>
 </resources>

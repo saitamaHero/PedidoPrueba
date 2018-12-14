@@ -32,16 +32,30 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_client);
 
-        client = getIntent().getExtras().getParcelable(EXTRA_INFO);
+        client = getClient();
 
         if(client == null){
-            finish();
-        }else{
-            loadInfo(client);
+            client = new Client();
         }
+
+        loadInfo(client);
+
 
         getSupportActionBar().setTitle(R.string.empty_string);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+
+    private Client getClient(){
+        Intent intent = getIntent();
+
+        try{
+            return intent.getExtras().getParcelable(EXTRA_INFO);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 
@@ -111,8 +125,12 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()){
             case R.id.action_apply:
-                //-client.update(getInfo());
-                setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,getInfo()));
+                if(client.update(getInfo())){
+                    setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,client));
+                }else{
+                    setResult(RESULT_CANCELED);
+                }
+
                 finish();
                 break;
         }
@@ -133,7 +151,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);
 
-
+        client.update(getInfo());
         client.setBirthDate(calendar.getTime());
         loadInfo(client);
     }

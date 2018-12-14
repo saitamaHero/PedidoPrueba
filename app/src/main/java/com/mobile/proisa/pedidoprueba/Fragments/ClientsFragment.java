@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 
 import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
+import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.R;
@@ -36,9 +37,13 @@ import Sqlite.ClientController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 
+import static android.app.Activity.RESULT_OK;
 
-public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener{
+
+public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
+    private static final int DETAILS_CLIENT_ACTIVITY = 805;
+    private static final int CREATE_CLIENT_CODE = 806;
 
     private List<Client> clients;
     private RecyclerView recyclerView;
@@ -86,6 +91,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         super.onViewCreated(view, savedInstanceState);
 
         fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(this);
+
         recyclerView = view.findViewById(R.id.recycler_view);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -148,7 +155,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             public void onClientMoreClick(Client client) {
                 Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
                 seeMoreIntent.putExtra("client", client);
-                getActivity().startActivity(seeMoreIntent);
+                //getActivity().startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
+
+                startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
             }
 
             @Override
@@ -200,5 +209,57 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         clients = getClients(newText);
         setAdapter();
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        switch (requestCode){
+            case DETAILS_CLIENT_ACTIVITY:
+                clients = getClients(5);
+                setAdapter();
+                break;
+
+            case CREATE_CLIENT_CODE:
+                if(resultCode == RESULT_OK)
+                {
+                    Client clientToInsert = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
+
+
+                    if(clientToInsert != null){
+                        clientToInsert.setId("TMP_"+clientToInsert.hashCode());
+                        ClientController controller =
+                                new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+
+                        if(controller.insert(clientToInsert)){
+                            String msg = getString(R.string.save_success, clientToInsert.getName());
+                            Toast.makeText(getActivity().getApplicationContext(),
+                                    msg, Toast.LENGTH_LONG).show();
+
+
+                            clients = getClients(5);
+                            setAdapter();
+                        }else{
+                            Toast.makeText(getActivity().getApplicationContext(),
+                                    R.string.error_to_save, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.fab:
+                Intent createClientIntent = new Intent(getActivity(), EditClientActivity.class);
+                startActivityForResult(createClientIntent, CREATE_CLIENT_CODE);
+                break;
+        }
     }
 }

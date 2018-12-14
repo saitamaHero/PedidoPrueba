@@ -247,17 +247,5 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
-            List<Item> items = data.getParcelableArrayListExtra(SelectorItemActivity.EXTRA_ITEMS);
-
-            for(Item i : items){
-                Log.d("selectedItems", i.toString());
-            }
-        }
-    }
 }
-

@@ -200,7 +200,7 @@ public class DetailsItemActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    private static class UpdateLastModificationProccessor implements Runnable{
+    public static class UpdateLastModificationProccessor implements Runnable{
         private volatile boolean running;
         private Handler handler;
         private Runnable postAction;
