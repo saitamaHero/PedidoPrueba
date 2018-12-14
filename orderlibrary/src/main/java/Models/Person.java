@@ -29,6 +29,7 @@ public class Person implements Parcelable{
 
 
     public Person() {
+        id="";
         phoneNumbers = new ArrayList<>();
         profilePhoto = Uri.EMPTY;
         birthDate = Calendar.getInstance().getTime();

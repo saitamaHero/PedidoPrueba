@@ -139,7 +139,9 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         setName(item.getName());
         setEmail(item.getEmail());
         setPhoneNumbers(item.getPhoneNumbers());
-
+        setBirthDate(item.getBirthDate());
+        setIdentityCard(item.getIdentityCard());
+        setCreditLimit(item.getCreditLimit());
 
         return true;
     }

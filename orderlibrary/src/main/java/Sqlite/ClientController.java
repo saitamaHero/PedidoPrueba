@@ -238,8 +238,6 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._LNG, item.getLatlng().y);
         cv.put(Client._ADDRESS, item.getAddress());
 
-
-
         SQLiteDatabase database = getSqLiteDatabase();
 
         int result = database.update(Client.TABLE_NAME, cv, Client._ID.concat("=?"), new String[]{item.getId()});

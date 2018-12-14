@@ -47,6 +47,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "PRIMARY KEY(" + Unit._ID + ")"
             + ");";
 
+    //Mantener una ID_REMOTO para mantener sincronizacion,
+    //Mantener un estado(FLAG_PENDING) para saber que esta pediente de insercion
     private static final String CREATE_TABLE_CLIENTES
             = "CREATE TABLE "+ Client.TABLE_NAME
             + "("+ Client._ID   + " TEXT NOT NULL,"
