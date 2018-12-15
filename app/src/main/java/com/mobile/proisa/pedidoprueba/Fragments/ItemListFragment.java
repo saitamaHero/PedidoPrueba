@@ -45,7 +45,7 @@ import Utils.DateUtils;
 
 public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener {
     private static final String PARAM_ITEMS = "param_items";
-    private static final int ITEMS_COUNT_DEFAULT = 3;
+    private static final int ITEMS_COUNT_DEFAULT = 30;
     private List<Item> items;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;

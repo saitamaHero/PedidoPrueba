@@ -95,6 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
+                android:imeOptions="actionDone"
                 />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
@@ -118,7 +119,7 @@
                 android:id="@+id/birth_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
+
                 />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
@@ -143,7 +144,7 @@
                 android:id="@+id/card_client"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="numberSigned"
                 />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>

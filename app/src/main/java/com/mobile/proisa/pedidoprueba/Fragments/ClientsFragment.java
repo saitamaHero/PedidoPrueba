@@ -44,6 +44,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     private static final String PARAM_CLIENT_LIST = "param_client_list";
     private static final int DETAILS_CLIENT_ACTIVITY = 805;
     private static final int CREATE_CLIENT_CODE = 806;
+    private static final int DEFAULT_CLIENTS_COUNT = 20;
 
     private List<Client> clients;
     private RecyclerView recyclerView;
@@ -117,31 +118,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         });
 
-
-        clients = getClients(5);
-
-        if(clients == null || clients.isEmpty()){
-            ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-            Client client = new Client();
-
-            client.setId("CL-2100");
-            client.setName("Dionicio Acevedo Lebron");
-            client.setIdentityCard("40225706668");
-            client.setEmail("tec.dionicioacevedo@gmail.com");
-            client.setBirthDate(DateUtils.convertToDate("16-02-1997", DateUtils.DD_MM_YYYY));
-            client.setCreditLimit(5000.00);
-            client.setAddress("Los Buenos #12, Av. Bartolome Colon, Santiago");
-
-            boolean inserted = controller.insert(client);
-
-            if(inserted){
-                Toast.makeText(getActivity().getApplicationContext(),
-                        client.toString(), Toast.LENGTH_LONG).show();
-            }
-        }
-
-
-        setAdapter();
+       updateList();
     }
 
     private void setAdapter() {
@@ -154,9 +131,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             @Override
             public void onClientMoreClick(Client client) {
                 Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
-                seeMoreIntent.putExtra("client", client);
-                //getActivity().startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
-
+                seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_CLIENT, client);
                 startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
             }
 
@@ -191,11 +166,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         super.onPrepareOptionsMenu(menu);
 
         MenuItem  item = menu.findItem(R.id.app_bar_search);
-
         item.collapseActionView();
 
         SearchView searchView = (SearchView) item.getActionView();
-
         searchView.setOnQueryTextListener(this);
     }
 
@@ -218,8 +191,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
-                clients = getClients(5);
-                setAdapter();
+
                 break;
 
             case CREATE_CLIENT_CODE:
@@ -239,8 +211,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                                     msg, Toast.LENGTH_LONG).show();
 
 
-                            clients = getClients(5);
-                            setAdapter();
+                           updateList();
                         }else{
                             Toast.makeText(getActivity().getApplicationContext(),
                                     R.string.error_to_save, Toast.LENGTH_LONG).show();
@@ -251,6 +222,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                 break;
         }
 
+    }
+
+    private void updateList(){
+        clients = getClients(DEFAULT_CLIENTS_COUNT);
+        setAdapter();
     }
 
     @Override
