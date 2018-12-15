@@ -35,41 +35,7 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Client client = new Client();
-            client.setId(cursor.getString(cursor.getColumnIndex(Client._ID)));
-            client.setName(cursor.getString(cursor.getColumnIndex(Client._NAME)));
-            client.setIdentityCard(cursor.getString(cursor.getColumnIndex(Client._IDCARD)));
-            client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
-            client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
-            client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
-
-
-            //Latitud y longitud que representa la ubicacionn en el mapa
-            float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
-            float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
-
-            client.setLatlng(lat, lng);
-
-            //Fecha de cumpleaño
-            String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
-            client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
-
-            //Fecha de entrada
-            String edate = cursor.getString(cursor.getColumnIndex(Client._ENTERED));
-            client.setEnteredDate(DateUtils.convertToDate(edate, DateUtils.YYYY_MM_DD));
-
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
-            client.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
-            client.setProfilePhoto(Uri.fromFile(photo));
-
-            clients.add(client);
-
+            clients.add(getDataFromCursor(cursor));
             cursor.moveToNext();
         }
 
@@ -86,41 +52,7 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Client client = new Client();
-            client.setId(cursor.getString(cursor.getColumnIndex(Client._ID)));
-            client.setName(cursor.getString(cursor.getColumnIndex(Client._NAME)));
-            client.setIdentityCard(cursor.getString(cursor.getColumnIndex(Client._IDCARD)));
-            client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
-            client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
-            client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
-
-
-            //Latitud y longitud que representa la ubicacionn en el mapa
-            float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
-            float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
-
-            client.setLatlng(lat, lng);
-
-            //Fecha de cumpleaño
-            String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
-            client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
-
-            //Fecha de entrada
-            String edate = cursor.getString(cursor.getColumnIndex(Client._ENTERED));
-            client.setEnteredDate(DateUtils.convertToDate(edate, DateUtils.YYYY_MM_DD));
-
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
-            client.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
-            client.setProfilePhoto(Uri.fromFile(photo));
-
-            clients.add(client);
-
+            clients.add(getDataFromCursor(cursor));
             cursor.moveToNext();
         }
 
@@ -138,40 +70,7 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Client client = new Client();
-            client.setId(cursor.getString(cursor.getColumnIndex(Client._ID)));
-            client.setName(cursor.getString(cursor.getColumnIndex(Client._NAME)));
-            client.setIdentityCard(cursor.getString(cursor.getColumnIndex(Client._IDCARD)));
-            client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
-            client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
-            client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
-
-            //Latitud y longitud que representa la ubicacionn en el mapa
-            float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
-            float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
-
-            client.setLatlng(lat, lng);
-
-            //Fecha de cumpleaño
-            String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
-            client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
-
-            //Fecha de entrada
-            String edate = cursor.getString(cursor.getColumnIndex(Client._ENTERED));
-            client.setEnteredDate(DateUtils.convertToDate(edate, DateUtils.YYYY_MM_DD));
-
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
-            client.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
-            client.setProfilePhoto(Uri.fromFile(photo));
-
-            clients.add(client);
-
+            clients.add(getDataFromCursor(cursor));
             cursor.moveToNext();
         }
 
@@ -242,6 +141,9 @@ public class ClientController extends Controller<Client> {
 
         int result = database.update(Client.TABLE_NAME, cv, Client._ID.concat("=?"), new String[]{item.getId()});
 
+
+        closeDatabase();
+
         return result == 1;
     }
 
@@ -270,6 +172,8 @@ public class ClientController extends Controller<Client> {
         } catch (SQLException e) {
             Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
         }
+
+        closeDatabase();
 
         return result != -1;
     }
@@ -310,5 +214,42 @@ public class ClientController extends Controller<Client> {
 
             return true;
         }
+    }
+
+
+    @Override
+    public Client getDataFromCursor(Cursor cursor) {
+        Client client = new Client();
+        client.setId(cursor.getString(cursor.getColumnIndex(Client._ID)));
+        client.setName(cursor.getString(cursor.getColumnIndex(Client._NAME)));
+        client.setIdentityCard(cursor.getString(cursor.getColumnIndex(Client._IDCARD)));
+        client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
+        client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
+        client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
+
+        //Latitud y longitud que representa la ubicacionn en el mapa
+        float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
+        float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
+
+        client.setLatlng(lat, lng);
+
+        //Fecha de cumpleaño
+        String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
+        client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
+
+        //Fecha de entrada
+        String edate = cursor.getString(cursor.getColumnIndex(Client._ENTERED));
+        client.setEnteredDate(DateUtils.convertToDate(edate, DateUtils.YYYY_MM_DD));
+
+        //Fecha de la ultima modificacion del archivo
+        String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
+        Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
+        client.setLastModification(lstMod);
+
+        //Foto del archivo
+        File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
+        client.setProfilePhoto(Uri.fromFile(photo));
+
+        return client;
     }
 }

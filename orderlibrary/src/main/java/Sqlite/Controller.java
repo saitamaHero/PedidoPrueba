@@ -1,5 +1,7 @@
 package Sqlite;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -34,6 +36,24 @@ public abstract class Controller<T> {
 
     public abstract T getById(Object id);
 
+    /**
+     * Obtains data from {@link Cursor}  for type T
+     * @param cursor
+     * @return a object filled from cursor
+     */
+    public T getDataFromCursor(Cursor cursor){
+        return null;
+    }
+
+    /**
+     * Override this method for create a contentValues
+     * @param item for create the {@link ContentValues}
+     * @return
+     */
+    public ContentValues getContentValues(T item){
+        return new ContentValues();
+    }
+
     /*Operations with single item*/
     public abstract boolean update(T item);
     public abstract boolean insert(T item);
@@ -42,6 +62,10 @@ public abstract class Controller<T> {
     /*Operations with multiple items*/
     public abstract boolean insertAll(List<T> item);
     public abstract boolean deleteAll(List<T> item);
+
+    public void closeDatabase(){
+        sqLiteDatabase.close();
+    }
 
 
 

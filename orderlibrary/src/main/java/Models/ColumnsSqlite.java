@@ -15,6 +15,16 @@ public interface ColumnsSqlite {
         String _COMMENT = "_comment";
     }
 
+    public interface ColumnsRemote{
+        int STATUS_PENDING = 1;
+        int STATUS_COMPLETE = 0;
+        String _ID_REMOTE = "_id_remote";
+        String _STATUS = "_status";
+
+        public int getStatus();
+        boolean isPending();
+    }
+
     /**
      * Columnas de la tabla de articulos
      */
@@ -22,14 +32,12 @@ public interface ColumnsSqlite {
         String TABLE_NAME = "products_table";
         String _ID = "_id";
         String _NAME = "_name";
-
-        String _COST = "_cost";
+        //String _COST = "_cost";
         String _PRICE = "_price";
         String _CAT = "_category";
         String _UNIT = "_unit";
         String _STOCK = "_stock";
         String _TAX_RATE = "_tax_rate";
-        //String _BCODE = "_barcode";
     }
 
     /**
