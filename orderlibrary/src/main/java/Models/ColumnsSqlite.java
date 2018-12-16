@@ -15,14 +15,19 @@ public interface ColumnsSqlite {
         String _COMMENT = "_comment";
     }
 
-    public interface ColumnsRemote{
-        int STATUS_PENDING = 1;
-        int STATUS_COMPLETE = 0;
-        String _ID_REMOTE = "_id_remote";
+    public interface ColumnStatus{
+        int STATUS_COMPLETE = -1;
+        int STATUS_PENDING = 0;
         String _STATUS = "_status";
 
+        public void setStatus(int status);
         public int getStatus();
-        boolean isPending();
+        public boolean isPending();
+    }
+    public interface ColumnsRemote extends ColumnStatus{
+        String _ID_REMOTE = "_id_remote";
+        public void setRemoteId(Object remote);
+        public Object getRemoteId();
     }
 
     /**
@@ -73,12 +78,13 @@ public interface ColumnsSqlite {
         String _ADDRESS = "_address";
         String _LAT = "_latitude";
         String _LNG = "_longitude";
+        String _PHONE = "_phone";
     }
 
     /**
      * Columnas de la tabla de clientes, extiende de {@link ColumnsPerson}
      */
-    public interface ColumnsClient extends ColumnsPerson
+    public interface ColumnsClient extends ColumnsPerson, ColumnsRemote
     {
         String TABLE_NAME = "clients_table";
         String _CR_LIMIT = "_credit_limit";
@@ -87,7 +93,7 @@ public interface ColumnsSqlite {
     /**
      * Columnas de la tabla de las visitas del {@link Vendor}
      */
-    public interface ColumnsDiary extends  ColumnModification, ColumnComment{
+    public interface ColumnsDiary extends  ColumnModification, ColumnComment, ColumnsRemote{
         String TABLE_NAME = "vendor_diary";
         String _ID = "_id";
         String _EVENT = "_date_event";
@@ -97,7 +103,7 @@ public interface ColumnsSqlite {
     /**
      * Columnas de la tabla de articulos
      */
-    public interface ColumnsInvoice extends ColumnModification, ColumnComment{
+    public interface ColumnsInvoice extends ColumnModification, ColumnComment, ColumnsRemote{
         String TABLE_NAME = "invoice_table";
         String _DATE = "_creation_date";
         String _ID = "_id_invoice";

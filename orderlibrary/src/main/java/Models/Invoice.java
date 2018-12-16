@@ -25,6 +25,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     private double discount;
     private InvoicePayment invoiceType;
     private String comment;
+    private int status;
+    private String remoteId;
 
     public Invoice() {
         super();
@@ -54,6 +56,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         discount = in.readDouble();
         invoiceType = InvoicePayment.valueOf(in.readString());
         comment = in.readString();
+        remoteId = in.readString();
     }
 
     @Override
@@ -65,6 +68,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         dest.writeDouble(discount);
         dest.writeString(invoiceType.name());
         dest.writeString(comment);
+        dest.writeString(remoteId);
     }
 
     @Override
@@ -176,5 +180,32 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
+
+    @Override
+    public boolean isPending() {
+        return getStatus() == STATUS_PENDING;
+    }
+
+    @Override
+    public void setRemoteId(Object remote) {
+        if(remote != null){
+            this.remoteId = remote.toString();
+        }
+    }
+
+    @Override
+    public Object getRemoteId() {
+        return this.remoteId;
     }
 }

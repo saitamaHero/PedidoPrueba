@@ -19,11 +19,12 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     private double creditLimit;
     private double distance;
     private Diary visitDate;
+    private int status;
+    private String remoteId;
 
     public Client() {
         super();
         distance = 0.0;
-
     }
 
     protected Client(Parcel in) {
@@ -32,6 +33,8 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         visitDate = in.readParcelable(Diary.class.getClassLoader());
         distance = in.readDouble();
         invoices = in.readArrayList(Invoice.class.getClassLoader());
+        status = in.readInt();
+        remoteId = in.readString();
     }
 
     public double getDistance() {
@@ -81,6 +84,10 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
 
     public void setInvoices(List<Invoice> invoices) {
         this.invoices = invoices;
+
+        for (Invoice i : this.invoices) {
+            i.setClient(this);
+        }
     }
 
     @Override
@@ -90,6 +97,8 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         dest.writeParcelable(visitDate, flags);
         dest.writeDouble(distance);
         dest.writeList(invoices);
+        dest.writeInt(status);
+        dest.writeString(remoteId);
     }
 
     @Override
@@ -144,5 +153,32 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         setCreditLimit(item.getCreditLimit());
 
         return true;
+    }
+
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
+
+    @Override
+    public boolean isPending() {
+        return getStatus() == STATUS_PENDING;
+    }
+
+    @Override
+    public void setRemoteId(Object remote) {
+        if(remote != null){
+            this.remoteId = remote.toString();
+        }
+    }
+
+    @Override
+    public Object getRemoteId() {
+        return this.remoteId;
     }
 }

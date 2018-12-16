@@ -20,6 +20,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     private Client clientToVisit;
     private Date lastModification;
     private int duration;
+    private int status;
 
     public Diary() {
         this.id = NEW_DIARY_ENTRY;
@@ -38,6 +39,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         dateEvent = (Date) in.readSerializable();
         lastModification = (Date) in.readSerializable();
         duration = in.readInt();
+        status = in.readInt();
 
     }
 
@@ -119,8 +121,23 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         parcel.writeSerializable(dateEvent);
         parcel.writeSerializable(lastModification);
         parcel.writeInt(duration);
+        parcel.writeInt(status);
     }
 
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
+
+    @Override
+    public boolean isPending() {
+        return getStatus() == STATUS_PENDING;
+    }
 
     public static class SortByDateDesc implements Comparator<Diary>{
 

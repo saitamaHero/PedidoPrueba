@@ -62,6 +62,9 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Client._LAT       + " REAL DEFAULT 0,"
             + Client._LNG       + " REAL DEFAULT 0,"
             + Client._CR_LIMIT  + " NUMERIC DEFAULT 0,"
+            + Client._PHONE     + " TEXT DEFAULT '',"
+            + Client._STATUS    + " INTEGER NOT NULL,"
+            + Client._ID_REMOTE + " TEXT,"
             + Client._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Client._ID + ")"
             + ");";
@@ -74,6 +77,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Invoice._INV_TYPE  + " INTEGER NOT NULL,"
             + Invoice._DATE      + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + Invoice._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Client._STATUS     + " INTEGER NOT NULL,"
+            + Client._ID_REMOTE  + " TEXT,"
             + "PRIMARY KEY(" + Invoice._ID + ")"
             + ");";
 
@@ -88,11 +93,13 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_VISITAS
-            = "CREATE TABLE "+ Diary.TABLE_NAME
-            + "("+ Diary._ID   + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + Diary._EVENT     + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + Diary._COMMENT   + " TEXT NOT NULL DEFAULT '',"
-            + Diary._LASTMOD   + " TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            = "CREATE TABLE "   + Diary.TABLE_NAME
+            + "("+ Diary._ID    + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+            + Diary._EVENT      + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Diary._COMMENT    + " TEXT NOT NULL DEFAULT '',"
+            + Client._STATUS    + " INTEGER NOT NULL,"
+            + Client._ID_REMOTE + " TEXT,"
+            + Diary._LASTMOD    + " TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");";
 
     public MySqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {

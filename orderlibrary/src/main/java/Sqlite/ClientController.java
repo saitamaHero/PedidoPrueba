@@ -15,6 +15,7 @@ import java.util.List;
 import Models.Category;
 import Models.Client;
 import Models.Client;
+import Models.ColumnsSqlite;
 import Models.Unit;
 import Utils.DateUtils;
 import Utils.NumberUtils;
@@ -85,38 +86,7 @@ public class ClientController extends Controller<Client> {
         cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, Client._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
-            Client client = new Client();
-            client.setId(cursor.getString(cursor.getColumnIndex(Client._ID)));
-            client.setName(cursor.getString(cursor.getColumnIndex(Client._NAME)));
-            client.setIdentityCard(cursor.getString(cursor.getColumnIndex(Client._IDCARD)));
-            client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
-            client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
-            client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
-
-            //Latitud y longitud que representa la ubicacionn en el mapa
-            float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
-            float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
-
-            client.setLatlng(lat, lng);
-
-            //Fecha de cumpleaño
-            String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
-            client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
-
-            //Fecha de entrada
-            String edate = cursor.getString(cursor.getColumnIndex(Client._ENTERED));
-            client.setEnteredDate(DateUtils.convertToDate(edate, DateUtils.YYYY_MM_DD));
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
-            client.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
-            client.setProfilePhoto(Uri.fromFile(photo));
-
-            return client;
+            return getDataFromCursor(cursor);
         }
 
         return null;
@@ -124,45 +94,20 @@ public class ClientController extends Controller<Client> {
 
     @Override
     public boolean update(Client item) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(Client._NAME, item.getName());
-        cv.put(Client._IDCARD, item.getIdentityCard());
-        cv.put(Client._PHOTO, item.getProfilePhoto().getPath());
-        cv.put(Client._CR_LIMIT, item.getCreditLimit());
-        cv.put(Client._EMAIL, item.getEmail());
-        cv.put(Client._BIRTH, DateUtils.formatDate(item.getBirthDate(), DateUtils.YYYY_MM_DD));
-        cv.put(Client._ENTERED, DateUtils.formatDate(item.getEnteredDate(), DateUtils.YYYY_MM_DD));
-        cv.put(Client._LAT, item.getLatlng().x);
-        cv.put(Client._LNG, item.getLatlng().y);
-        cv.put(Client._ADDRESS, item.getAddress());
+        ContentValues cv = getContentValues(item);
+        cv.remove(Client._ID);
+        cv.remove(Client._ID_REMOTE);
 
         SQLiteDatabase database = getSqLiteDatabase();
 
         int result = database.update(Client.TABLE_NAME, cv, Client._ID.concat("=?"), new String[]{item.getId()});
-
-
-        closeDatabase();
 
         return result == 1;
     }
 
     @Override
     public boolean insert(Client item) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(Client._ID,       item.getId());
-        cv.put(Client._NAME,     item.getName());
-        cv.put(Client._IDCARD,   item.getIdentityCard());
-        cv.put(Client._PHOTO,    item.getProfilePhoto().getPath());
-        cv.put(Client._CR_LIMIT, item.getCreditLimit());
-        cv.put(Client._EMAIL,    item.getEmail());
-        cv.put(Client._BIRTH,    DateUtils.formatDate(item.getBirthDate(), DateUtils.YYYY_MM_DD));
-        cv.put(Client._ENTERED,  DateUtils.formatDate(item.getEnteredDate(), DateUtils.YYYY_MM_DD));
-        cv.put(Client._LAT,      item.getLatlng().x);
-        cv.put(Client._LNG,      item.getLatlng().y);
-        cv.put(Client._ADDRESS, item.getAddress());
-
+        ContentValues cv = getContentValues(item);
         SQLiteDatabase database = getSqLiteDatabase();
 
         long result = -1;
@@ -172,8 +117,6 @@ public class ClientController extends Controller<Client> {
         } catch (SQLException e) {
             Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
         }
-
-        closeDatabase();
 
         return result != -1;
     }
@@ -251,5 +194,28 @@ public class ClientController extends Controller<Client> {
         client.setProfilePhoto(Uri.fromFile(photo));
 
         return client;
+    }
+
+    @Override
+    public ContentValues getContentValues(Client item) {
+        ContentValues cv = new ContentValues();
+
+        cv.put(Client._ID,       item.getId());
+        cv.put(Client._NAME,     item.getName());
+        cv.put(Client._IDCARD,   item.getIdentityCard());
+        cv.put(Client._PHOTO,    item.getProfilePhoto().getPath());
+        cv.put(Client._CR_LIMIT, item.getCreditLimit());
+        cv.put(Client._EMAIL,    item.getEmail());
+        cv.put(Client._BIRTH,    DateUtils.formatDate(item.getBirthDate(), DateUtils.YYYY_MM_DD));
+        cv.put(Client._ENTERED,  DateUtils.formatDate(item.getEnteredDate(), DateUtils.YYYY_MM_DD));
+        cv.put(Client._LAT,      item.getLatlng().x);
+        cv.put(Client._LNG,      item.getLatlng().y);
+        cv.put(Client._ADDRESS,  item.getAddress());
+
+        ColumnsSqlite.ColumnsRemote columnsRemote = item;
+        cv.put(Client._STATUS, columnsRemote.getStatus());
+        cv.put(Client._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
+
+        return cv;
     }
 }
