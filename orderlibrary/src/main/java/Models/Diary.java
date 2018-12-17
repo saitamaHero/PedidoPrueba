@@ -21,6 +21,9 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     private Date lastModification;
     private int duration;
     private int status;
+    private String remoteId;
+    private Date startTime;
+    private Date endTime;
 
     public Diary() {
         this.id = NEW_DIARY_ENTRY;
@@ -40,7 +43,9 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         lastModification = (Date) in.readSerializable();
         duration = in.readInt();
         status = in.readInt();
-
+        remoteId = in.readString();
+        startTime = (Date) in.readSerializable();
+        endTime = (Date)in.readSerializable();
     }
 
     public int getDuration() {
@@ -122,6 +127,9 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         parcel.writeSerializable(lastModification);
         parcel.writeInt(duration);
         parcel.writeInt(status);
+        parcel.writeString(remoteId);
+        parcel.writeSerializable(startTime);
+        parcel.writeSerializable(endTime);
     }
 
     @Override
@@ -139,11 +147,38 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         return getStatus() == STATUS_PENDING;
     }
 
+    @Override
+    public void setRemoteId(Object remote) {
+        if(remote != null){
+            this.remoteId = remote.toString();
+        }
+    }
+
+    @Override
+    public Object getRemoteId() {
+        return this.remoteId;
+    }
     public static class SortByDateDesc implements Comparator<Diary>{
 
         @Override
         public int compare(Diary diary, Diary t1) {
             return t1.getDateEvent().compareTo(diary.getDateEvent());
         }
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

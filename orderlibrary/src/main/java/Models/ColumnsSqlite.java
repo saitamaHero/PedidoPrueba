@@ -1,7 +1,6 @@
 package Models;
 
 public interface ColumnsSqlite {
-    String DBNAME = "appcontaproruteros.db";
 
     public interface ColumnModification{
         String _LASTMOD = "_last_mod";
@@ -11,10 +10,17 @@ public interface ColumnsSqlite {
         String _PHOTO = "_photo";
     }
 
+    /**
+     * Columna a implementar en las tablas que lleven comentarios como {@link ColumnsInvoice}
+     */
     public interface ColumnComment{
         String _COMMENT = "_comment";
     }
 
+    /**
+     * Representa el estado de un registro en una base de datos local.
+     *
+     */
     public interface ColumnStatus{
         int STATUS_COMPLETE = -1;
         int STATUS_PENDING = 0;
@@ -24,6 +30,10 @@ public interface ColumnsSqlite {
         public int getStatus();
         public boolean isPending();
     }
+
+    /**
+     * Representa tanto la columnnas o columna remota de la base de datos
+     */
     public interface ColumnsRemote extends ColumnStatus{
         String _ID_REMOTE = "_id_remote";
         public void setRemoteId(Object remote);
@@ -97,6 +107,10 @@ public interface ColumnsSqlite {
         String TABLE_NAME = "vendor_diary";
         String _ID = "_id";
         String _EVENT = "_date_event";
+        String _CLIENT_ID = "_client_id";
+        String _DURATION = "_duration";
+        String _START_TIME = "_start_time";
+        String _END_TIME = "_end_time";
     }
 
 
@@ -109,6 +123,7 @@ public interface ColumnsSqlite {
         String _ID = "_id_invoice";
         String _CLIENT = "_client";
         String _INV_TYPE = "_invoice_type";
+        String _DISCOUNT = "_discount";
 
         //Datos referentes al detalle del articulo
         String TABLE_NAME_DETAILS = "invoice_details";

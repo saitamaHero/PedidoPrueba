@@ -133,7 +133,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     }
 
     public double getDiscount() {
-        return discount;
+        return discount > 1 ? discount / 100.00 : discount;
     }
 
     public void setDiscount(double discount) {
