@@ -96,7 +96,7 @@ public class ClientController extends Controller<Client> {
     public boolean update(Client item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Client._ID);
-        cv.remove(Client._ID_REMOTE);
+        //cv.remove(Client._ID_REMOTE);
 
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -193,6 +193,10 @@ public class ClientController extends Controller<Client> {
         File photo = new File(cursor.getString(cursor.getColumnIndex(Client._PHOTO)));
         client.setProfilePhoto(Uri.fromFile(photo));
 
+        //Datos remotos
+        client.setStatus(cursor.getInt(cursor.getColumnIndex(Client._STATUS)));
+        client.setRemoteId(cursor.getString(cursor.getColumnIndex(Client._ID_REMOTE)));
+
         return client;
     }
 
@@ -211,6 +215,11 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._LAT,      item.getLatlng().x);
         cv.put(Client._LNG,      item.getLatlng().y);
         cv.put(Client._ADDRESS,  item.getAddress());
+
+        if(!item.getPhoneNumbers().isEmpty())
+        {
+            cv.put(Client._PHONE, item.getPhone(0));
+        }
 
         ColumnsSqlite.ColumnsRemote columnsRemote = item;
         cv.put(Client._STATUS, columnsRemote.getStatus());

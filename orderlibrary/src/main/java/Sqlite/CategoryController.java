@@ -54,7 +54,7 @@ public class CategoryController extends Controller<Category> {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, Item._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, Category._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
             Category category = new Category();

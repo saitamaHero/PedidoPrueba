@@ -1,0 +1,172 @@
+package Sqlite;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Log;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import Models.Client;
+import Models.Invoice;
+import Models.Item;
+import Utils.DateUtils;
+
+public class InvoiceController extends Controller<Invoice> {
+
+    public InvoiceController(SQLiteDatabase sqLiteDatabase) {
+        super(sqLiteDatabase);
+    }
+
+    @Override
+    public List<Invoice> getAll() {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        List<Invoice> invoices = new ArrayList<>();
+        Cursor cursor;
+
+        InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, null,
+                null, null, null, null);
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Invoice invoice = getDataFromCursor(cursor);
+            invoice.setItems(controller.getAllById(invoice.getId()));
+
+            invoices.add(invoice);
+
+            cursor.moveToNext();
+        }
+
+        return invoices;
+    }
+
+    @Override
+    public Invoice getById(Object id) {
+        return null;
+    }
+
+    @Override
+    public boolean update(Invoice item) {
+        return false;
+    }
+
+    @Override
+    public boolean insert(Invoice item) {
+        ContentValues cv = getContentValues(item);
+        SQLiteDatabase database = getSqLiteDatabase();
+
+        long result = -1;
+        boolean detailsInserted = false;
+        InvoiceDetailsController controller = new InvoiceDetailsController(database);
+
+        try {
+            result = database.insertOrThrow(Client.TABLE_NAME, null, cv);
+
+            detailsInserted = controller.insertAllWithId(item.getItems(), item.getId());
+        } catch (SQLException e) {
+            Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
+        }
+
+        return result != -1 && detailsInserted;
+    }
+
+    @Override
+    public boolean delete(Invoice item) {
+        SQLiteDatabase database = getSqLiteDatabase();
+        InvoiceDetailsController controller = new InvoiceDetailsController(database);
+
+        boolean deleted;
+
+        deleted = controller.deleteAllWithId(item.getId());
+
+        int result = database.delete(Client.TABLE_NAME, Client._ID.concat("=?"),
+                new String[]{item.getId()});
+
+
+
+        return result == 1  && deleted;
+    }
+
+    @Override
+    public boolean insertAll(List<Invoice> items) {
+
+        for (Invoice i : items) {
+            if (!insert(i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean deleteAll(List<Invoice> items) {
+        SQLiteDatabase database = getSqLiteDatabase();
+
+        if (items == null) {
+            return database.delete(Client.TABLE_NAME, "1", null) > 0;
+        } else {
+            for (Invoice i : items) {
+                if (!delete(i)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    @Override
+    public Invoice getDataFromCursor(Cursor cursor) {
+        Invoice invoice = new Invoice();
+
+        invoice.setId(cursor.getString(cursor.getColumnIndex(Invoice._ID)));
+        int invoiceType = cursor.getInt(cursor.getColumnIndex(Invoice._INV_TYPE));
+        invoice.setInvoiceType(Invoice.InvoicePayment.values()[invoiceType]);
+        invoice.setComment(cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
+
+        String date = cursor.getString(cursor.getColumnIndex(Invoice._DATE));
+        invoice.setDate(DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss));
+
+        invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
+
+        //Fecha de la ultima modificacion del archivo
+        date = cursor.getString(cursor.getColumnIndex(Invoice._LASTMOD));
+        Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
+        invoice.setLastModification(lstMod);
+
+        //Datos remotos
+        invoice.setStatus(cursor.getInt(cursor.getColumnIndex(Client._STATUS)));
+        invoice.setRemoteId(cursor.getString(cursor.getColumnIndex(Client._ID_REMOTE)));
+
+        //Obteniendo los datos del detalle
+       InvoiceDetailsController controller = new InvoiceDetailsController(getSqLiteDatabase());
+       invoice.setItems(controller.getAllById(invoice.getId()));
+
+
+        return invoice;
+    }
+
+    @Override
+    public ContentValues getContentValues(Invoice item) {
+        ContentValues cv = new ContentValues();
+
+        cv.put(Invoice._ID, item.getId());
+        cv.put(Invoice._CLIENT, item.getClient().getId());
+        cv.put(Invoice._DISCOUNT, item.getDiscount());
+        cv.put(Invoice._COMMENT, item.getComment());
+        cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD));
+        cv.put(Invoice._INV_TYPE, item.getInvoiceType().ordinal());
+
+
+
+        return cv;
+    }
+}

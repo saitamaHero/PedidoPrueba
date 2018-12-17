@@ -55,7 +55,7 @@ public class UnitController extends Controller<Unit> {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Unit.TABLE_NAME, null, Item._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        cursor = sqLiteDatabase.query(Unit.TABLE_NAME, null, Unit._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
             Unit unit = new Unit();

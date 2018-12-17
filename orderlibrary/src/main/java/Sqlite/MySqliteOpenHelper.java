@@ -75,7 +75,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Invoice._CLIENT    + " TEXT NOT NULL,"
             + Invoice._COMMENT   + " TEXT NOT NULL,"
             + Invoice._INV_TYPE  + " INTEGER NOT NULL,"
-            + Invoice._DATE      + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Invoice._DATE      + " TEXT DEFAULT '',"
             + Invoice._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + Client._STATUS     + " INTEGER NOT NULL,"
             + Client._ID_REMOTE  + " TEXT,"
@@ -93,19 +93,23 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_VISITAS
-            = "CREATE TABLE "   + Diary.TABLE_NAME
-            + "("+ Diary._ID    + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + Diary._EVENT      + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + Diary._COMMENT    + " TEXT NOT NULL DEFAULT '',"
-            + Client._STATUS    + " INTEGER NOT NULL,"
-            + Client._ID_REMOTE + " TEXT,"
-            + Diary._LASTMOD    + " TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            = "CREATE TABLE "     + Diary.TABLE_NAME
+            + "("+ Diary._ID      + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+            + Diary._EVENT        + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Diary._COMMENT      + " TEXT NOT NULL DEFAULT '',"
+            + Diary._DURATION     + " INTEGER DEFAULT 0,"
+            + Diary._CLIENT_ID    + " TEXT NOT NULL,"
+            + Diary._START_TIME + " TEXT,"
+            + Diary._END_TIME + " TEXT,"
+            + Client._STATUS      + " INTEGER NOT NULL,"
+            + Client._ID_REMOTE   + " TEXT,"
+            + Diary._LASTMOD      + " TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            + "FOREIGN KEY("+Diary._CLIENT_ID+") REFERENCES "+Client.TABLE_NAME+"("+Client._ID+")"
             + ");";
 
     public MySqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
-
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -141,30 +145,30 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
         if(newVersion > oldVersion){
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Item.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Item.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Item.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Item.TABLE_NAME));
 
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Category.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Category.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   +Category.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Category.TABLE_NAME));
 
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+Unit.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Unit.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Unit.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Unit.TABLE_NAME));
 
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  +Client.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Client.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Client.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Client.TABLE_NAME));
 
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Invoice.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_UPDATE_LM.concat(Invoice.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS "+ PREFIX_TRIGGER_INSERT_LM.concat(Invoice.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Invoice.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Invoice.TABLE_NAME));
 
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Invoice.TABLE_NAME_DETAILS);
-
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "  + Diary.TABLE_NAME);
-
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME_DETAILS);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));
 
             onCreate(sqLiteDatabase);
         }
