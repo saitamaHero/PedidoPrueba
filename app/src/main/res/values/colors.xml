@@ -10,6 +10,7 @@
 
     <color name="goodStatus">@android:color/holo_green_dark</color>
     <color name="badStatus">@android:color/holo_red_dark</color>
+    <color name="pendingStatus">@android:color/holo_orange_light</color>
 
     <color name="goodSelection">#a4c639</color>
 </resources>

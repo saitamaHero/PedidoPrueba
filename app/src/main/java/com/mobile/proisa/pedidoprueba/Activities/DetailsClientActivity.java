@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,13 +50,19 @@ import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import Models.Client;
+import Models.ColumnsSqlite;
 import Models.Diary;
+import Models.Invoice;
 import Models.Item;
 import Sqlite.ClientController;
+import Sqlite.DiaryController;
+import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.FileUtils;
@@ -81,8 +90,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private Calendar mCalendar;
     private Diary nextVisit; /*Proxima Visita*/
 
-
-    private int value = 60;
     private DetailsItemActivity.UpdateLastModificationProccessor update;
 
     @Override
@@ -90,11 +97,16 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_client);
 
-        client = getIntent().getExtras().getParcelable(EXTRA_CLIENT);
+        if(savedInstanceState == null){
+            client = getIntent().getExtras().getParcelable(EXTRA_CLIENT);
 
-        if(client == null){
-            finish();
+            if(client == null){
+                finish();
+            }
+        }else{
+            client = savedInstanceState.getParcelable(EXTRA_CLIENT);
         }
+
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.empty_string);
@@ -107,6 +119,39 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
 
+        MySqliteOpenHelper helper = MySqliteOpenHelper.getInstance(this);
+
+        InvoiceController controller = new InvoiceController(helper.getReadableDatabase());
+        List<Invoice> invoices = controller.getAllById(client.getId());
+
+        for(Invoice i : invoices){
+            //boolean deleted = controller.delete(i);
+            //
+            // Log.d("InvoicesFromClient",""+i.getId() + "fue borrada: "+deleted);
+
+            Log.d("InvoicesFromClient",""+i.toString());
+
+        }
+
+        DiaryController diaryController = new DiaryController(helper.getReadableDatabase());
+        List<Diary> diaryList = diaryController.getAllById(client.getId());
+
+        for(Diary diary : diaryList){
+            Log.d("diaryForThisClient", diary.toString());
+        }
+
+
+        printInThisYear(diaryController);
+
+    }
+
+    private void printInThisYear(DiaryController controller){
+        List<Diary> diaryList = controller.getAllRange(
+                client.getId(),"2019-01-01", "2019-01-03");
+
+        for(Diary diary : diaryList){
+            Log.d("diaryForThisClient", "rango: "+ diary.toString());
+        }
     }
 
     private void loadBackdrop(Uri uri) {
@@ -140,7 +185,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
-
 
         TextView txtAddress = findViewById(R.id.address);
         txtAddress.setText(client.getAddress());
@@ -182,13 +226,17 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             txtLastUpdate.setText(getString(R.string.time_unknow));
         }
 
+        if(client.isPending()){
+            txtLastUpdate.setTextColor(resources.getColor(R.color.pendingStatus));
+        }else{
+            txtLastUpdate.setTextColor(resources.getColor(R.color.goodStatus));
+        }
+
         Log.d(
                 "tiempoDiff",
                 String.format("%d dias, %d horas, %d minutos, %d segundos",
                         converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
         );
-
-
     }
 
 
@@ -288,7 +336,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (requestCode ){
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
-                    //Uri realUri = getRealUriFromGallery(currentPhotoItem);
                     client.setProfilePhoto(currentPhotoItem);
 
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
@@ -466,6 +513,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         nextVisit = new Diary();
         nextVisit.setClientToVisit(client);
         nextVisit.setDuration(value);
+        nextVisit.setComment("Esto es un comentario de prueba.");
+        nextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
         DatePickerFragment
                 .newInstance(this, null, Calendar.getInstance().getTime())
@@ -493,10 +542,19 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         nextVisit.setDateEvent(mCalendar.getTime());
 
+        DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
+        if(diaryController.insert(nextVisit)){
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
+                    .show();
+        }else{
+            Toast.makeText(getApplicationContext(), R.string.error_to_save, Toast.LENGTH_LONG)
+                    .show();
+        }
+
         Log.d("nextVisit",nextVisit.toString());
 
-        //Guardar datos en la base de datos tanto local como remota
-        Toast.makeText(getApplicationContext(), "Visita Creada!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -526,5 +584,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        outState.putParcelable(EXTRA_CLIENT, this.client);
+    }
 }

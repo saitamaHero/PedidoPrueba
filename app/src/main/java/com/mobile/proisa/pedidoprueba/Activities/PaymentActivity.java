@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,15 +18,20 @@ import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import Models.ColumnsSqlite;
 import Models.ITotal;
 import Models.Invoice;
+import Sqlite.InvoiceController;
+import Sqlite.MySqliteOpenHelper;
 
-public class PaymentActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class PaymentActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     public static final String EXTRA_INVOICE = "com.mobile.proisa.pedidoprueba.EXTRA_INVOICE";
     private Spinner spPayment;
+    private Button btnCompletePayment;
     private Invoice invoiceToSave;
 
     @Override
@@ -36,6 +42,8 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         invoiceToSave = getInvoiceToShow();
 
         spPayment = findViewById(R.id.spPayment);
+        btnCompletePayment = findViewById(R.id.btn_complete_payment);
+        btnCompletePayment.setOnClickListener(this);
 
        InvoicePaymentAdapter adapter =
                new InvoicePaymentAdapter(this, R.layout.invoice_type_layout, getInvoiceTypes());
@@ -97,5 +105,31 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btn_complete_payment:
+                invoiceToSave.setComment("");
+                invoiceToSave.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+                invoiceToSave.setDate(Calendar.getInstance().getTime());
+                invoiceToSave.setId(String.valueOf(invoiceToSave.hashCode()));
+
+                InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+                if(controller.insert(invoiceToSave)){
+                    Toast.makeText(getApplicationContext(),
+                            "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
+                    .show();
+
+                    setResult(RESULT_OK);
+                    finish();
+                }else{
+                    Toast.makeText(getApplicationContext(),
+                            "No guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
+                            .show();
+                }
+                break;
+        }
     }
 }

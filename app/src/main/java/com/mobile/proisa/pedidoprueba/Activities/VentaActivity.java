@@ -32,6 +32,7 @@ import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener, ItemsListSalesAdapter.NotificationListener {
     public static final String EXTRA_CLIENT = "extra_client";
     private static final int MY_REQUEST_CODE_ITEMS = 1000;
+    private static final int PAYMENT_REQUEST_CODE = 1001;
     //public static final String EXTRA_XXX = "";
 
     private RecyclerView recyclerView;
@@ -131,7 +132,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
 
                     Intent paymentActivity = new Intent(this, PaymentActivity.class);
                     paymentActivity.putExtra(PaymentActivity.EXTRA_INVOICE, mInvoice);
-                    startActivity(paymentActivity);
+                    startActivityForResult(paymentActivity, PAYMENT_REQUEST_CODE);
                 }
                 return true;
 
@@ -178,6 +179,11 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
                     invalidateOptionsMenu();
 
                     loadData();
+                }
+                break;
+            case PAYMENT_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    finish();
                 }
                 break;
         }
@@ -230,8 +236,9 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("list", new ArrayList<Item>(this.itemList));
-        //outState.putParcelable("mInvoice", mInvoice);
     }
+
+
 
 
 }
