@@ -34,6 +34,10 @@ public abstract class Controller<T> {
 
     public List<T> getAllById(Object id){return null;}
 
+    public List<T> getAllRange(Object id, String lower, String upper){
+        return null;
+    }
+
     public abstract T getById(Object id);
 
     /**

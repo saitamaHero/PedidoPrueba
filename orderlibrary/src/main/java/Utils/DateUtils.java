@@ -75,6 +75,8 @@ public class DateUtils {
      * @return Devuelve un objeto java.util.Date or null si el formato falla
      */
     public static Date convertToDate(String date, String format){
+        if(date == null) return  null;
+
         DateFormat dateFormat = new SimpleDateFormat(format);
         Date d = null;
 

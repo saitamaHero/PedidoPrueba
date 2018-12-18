@@ -89,7 +89,7 @@ public class InvoiceDetailsController extends ControllerDetails<Item> {
         cv.put(Invoice._ID, String.valueOf(id));
         cv.put(Invoice.ITEM_ID, item.getId());
         cv.put(Invoice._PRICE, item.getPrice());
-        cv.put(Invoice._QTY, item.getId());
+        cv.put(Invoice._QTY, item.getQuantity());
         cv.put(Invoice._TAX_RATE, item.getTaxRate());
 
         return cv;

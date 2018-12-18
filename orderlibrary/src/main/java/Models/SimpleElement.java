@@ -11,6 +11,8 @@ public class SimpleElement implements Parcelable{
     private Date lastModification;
 
     public SimpleElement() {
+        this.id = "";
+        this.name ="";
     }
 
     public SimpleElement(String id, String name) {

@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import Models.Client;
 import Models.ColumnsSqlite;
@@ -48,7 +49,9 @@ public class DiaryController extends Controller<Diary> {
         List<Diary> items = new ArrayList<>();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, Diary._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, Diary._CLIENT_ID.concat(" =?"), new String[]{String.valueOf(id)},
+                null, null, Diary._EVENT.concat(" ASC"));
+        cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
             Diary unit = getDataFromCursor(cursor);
@@ -72,6 +75,29 @@ public class DiaryController extends Controller<Diary> {
         }
 
         return null;
+    }
+
+    @Override
+    public List<Diary> getAllRange(Object id, String lower, String upper) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        List<Diary> items = new ArrayList<>();
+        Cursor cursor;
+
+        String selection = String.format(Locale.getDefault(), "%s=? AND %s>=? AND %s <=?",
+                Diary._CLIENT_ID, Diary._EVENT, Diary._EVENT);
+        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
+                selection, new String[]{String.valueOf(id), lower, upper},
+                null, null, null);
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Diary unit = getDataFromCursor(cursor);
+            items.add(unit);
+
+            cursor.moveToNext();
+        }
+
+        return items;
     }
 
     @Override
@@ -135,7 +161,6 @@ public class DiaryController extends Controller<Diary> {
 
         return true;
     }
-
 
     @Override
     public Diary getDataFromCursor(Cursor cursor) {

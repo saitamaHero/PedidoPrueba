@@ -15,7 +15,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 5;
+    public static final int VERSION = 6;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -32,7 +32,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_DEPARTAMENTOS
-            = "CREATE TABLE "+ Category.TABLE_NAME
+            = "CREATE TABLE "   + Category.TABLE_NAME
             + "("+ Category._ID + " TEXT NOT NULL,"
             + Category._NAME    + " TEXT NOT NULL,"
             + Category._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
@@ -70,11 +70,12 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_FACTURAS
-            = "CREATE TABLE "+ Invoice.TABLE_NAME
+            = "CREATE TABLE "    + Invoice.TABLE_NAME
             + "("+ Invoice._ID   + " TEXT NOT NULL,"
             + Invoice._CLIENT    + " TEXT NOT NULL,"
             + Invoice._COMMENT   + " TEXT NOT NULL,"
             + Invoice._INV_TYPE  + " INTEGER NOT NULL,"
+            + Invoice._DISCOUNT  + " NUMERIC DEFAULT 0,"
             + Invoice._DATE      + " TEXT DEFAULT '',"
             + Invoice._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + Client._STATUS     + " INTEGER NOT NULL,"
@@ -83,7 +84,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String CREATE_TABLE_FACTURAS_DETALLE
-            = "CREATE TABLE "+ Invoice.TABLE_NAME_DETAILS
+            = "CREATE TABLE "    + Invoice.TABLE_NAME_DETAILS
             + "("+ Invoice._ID   + " TEXT NOT NULL,"
             + Invoice.ITEM_ID    + " TEXT NOT NULL,"
             + Invoice._QTY       + " NUMERIC DEFAULT 1,"
@@ -164,8 +165,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Invoice.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Invoice.TABLE_NAME));
-
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME_DETAILS);
+
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));

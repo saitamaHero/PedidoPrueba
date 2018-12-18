@@ -16,6 +16,7 @@ import Models.Category;
 import Models.Client;
 import Models.Client;
 import Models.ColumnsSqlite;
+import Models.Diary;
 import Models.Unit;
 import Utils.DateUtils;
 import Utils.NumberUtils;
@@ -24,6 +25,18 @@ public class ClientController extends Controller<Client> {
 
     public ClientController(SQLiteDatabase sqLiteDatabase) {
         super(sqLiteDatabase);
+    }
+
+    public Diary getNextVisit(Client client){
+        Diary diary = null;
+        DiaryController diaryController = new DiaryController(getSqLiteDatabase());
+        List<Diary> diaryList = diaryController.getAllById(client.getId());
+
+        if(diaryList != null && !diaryList.isEmpty()){
+            diary = diaryList.get(0);
+        }
+
+        return diary;
     }
 
     @Override
@@ -36,7 +49,9 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            clients.add(getDataFromCursor(cursor));
+            Client client = getDataFromCursor(cursor);
+            client.setVisitDate(getNextVisit(client));
+            clients.add(client);
             cursor.moveToNext();
         }
 
@@ -53,7 +68,9 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            clients.add(getDataFromCursor(cursor));
+            Client client = getDataFromCursor(cursor);
+            client.setVisitDate(getNextVisit(client));
+            clients.add(client);
             cursor.moveToNext();
         }
 
@@ -71,7 +88,9 @@ public class ClientController extends Controller<Client> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            clients.add(getDataFromCursor(cursor));
+            Client client = getDataFromCursor(cursor);
+            client.setVisitDate(getNextVisit(client));
+            clients.add(client);
             cursor.moveToNext();
         }
 
@@ -170,6 +189,8 @@ public class ClientController extends Controller<Client> {
         client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
         client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
 
+        client.addPhone(cursor.getString(cursor.getColumnIndex(Client._PHONE)));
+
         //Latitud y longitud que representa la ubicacionn en el mapa
         float lat = cursor.getFloat(cursor.getColumnIndex(Client._LAT));
         float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
@@ -196,6 +217,7 @@ public class ClientController extends Controller<Client> {
         //Datos remotos
         client.setStatus(cursor.getInt(cursor.getColumnIndex(Client._STATUS)));
         client.setRemoteId(cursor.getString(cursor.getColumnIndex(Client._ID_REMOTE)));
+
 
         return client;
     }

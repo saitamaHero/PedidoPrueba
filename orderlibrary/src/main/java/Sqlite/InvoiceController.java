@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 import Models.Client;
+import Models.ColumnsSqlite;
 import Models.Invoice;
 import Models.Item;
 import Utils.DateUtils;
@@ -31,8 +32,7 @@ public class InvoiceController extends Controller<Invoice> {
 
         InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
 
-        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, null,
-                null, null, null, null);
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
@@ -49,7 +49,39 @@ public class InvoiceController extends Controller<Invoice> {
 
     @Override
     public Invoice getById(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._CLIENT.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            return getDataFromCursor(cursor);
+        }
+
         return null;
+    }
+
+    @Override
+    public List<Invoice> getAllById(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        List<Invoice> invoices = new ArrayList<>();
+        Cursor cursor;
+
+        //InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._CLIENT.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Invoice invoice = getDataFromCursor(cursor);
+            //invoice.setItems(controller.getAllById(invoice.getId()));
+
+            invoices.add(invoice);
+
+            cursor.moveToNext();
+        }
+
+        return invoices;
     }
 
     @Override
@@ -67,7 +99,7 @@ public class InvoiceController extends Controller<Invoice> {
         InvoiceDetailsController controller = new InvoiceDetailsController(database);
 
         try {
-            result = database.insertOrThrow(Client.TABLE_NAME, null, cv);
+            result = database.insertOrThrow(Invoice.TABLE_NAME, null, cv);
 
             detailsInserted = controller.insertAllWithId(item.getItems(), item.getId());
         } catch (SQLException e) {
@@ -86,12 +118,10 @@ public class InvoiceController extends Controller<Invoice> {
 
         deleted = controller.deleteAllWithId(item.getId());
 
-        int result = database.delete(Client.TABLE_NAME, Client._ID.concat("=?"),
-                new String[]{item.getId()});
+        int result = database.delete(Invoice.TABLE_NAME, Invoice._ID.concat("=?"), new String[]{item.getId()});
 
 
-
-        return result == 1  && deleted;
+        return result == 1 && deleted;
     }
 
     @Override
@@ -111,7 +141,7 @@ public class InvoiceController extends Controller<Invoice> {
         SQLiteDatabase database = getSqLiteDatabase();
 
         if (items == null) {
-            return database.delete(Client.TABLE_NAME, "1", null) > 0;
+            return database.delete(Invoice.TABLE_NAME, "1", null) > 0;
         } else {
             for (Invoice i : items) {
                 if (!delete(i)) {
@@ -135,7 +165,7 @@ public class InvoiceController extends Controller<Invoice> {
         String date = cursor.getString(cursor.getColumnIndex(Invoice._DATE));
         invoice.setDate(DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
-        invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
+       // invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
 
         //Fecha de la ultima modificacion del archivo
         date = cursor.getString(cursor.getColumnIndex(Invoice._LASTMOD));
@@ -147,9 +177,14 @@ public class InvoiceController extends Controller<Invoice> {
         invoice.setRemoteId(cursor.getString(cursor.getColumnIndex(Client._ID_REMOTE)));
 
         //Obteniendo los datos del detalle
-       InvoiceDetailsController controller = new InvoiceDetailsController(getSqLiteDatabase());
-       invoice.setItems(controller.getAllById(invoice.getId()));
+        InvoiceDetailsController controller = new InvoiceDetailsController(getSqLiteDatabase());
+        invoice.setItems(controller.getAllById(invoice.getId()));
 
+        //Obtener datos del cliente cliente
+        String id = cursor.getString(cursor.getColumnIndex(Invoice._CLIENT));
+        ClientController clientController = new ClientController(getSqLiteDatabase());
+        Client client = clientController.getById(id);
+        invoice.setClient(client);
 
         return invoice;
     }
@@ -160,12 +195,14 @@ public class InvoiceController extends Controller<Invoice> {
 
         cv.put(Invoice._ID, item.getId());
         cv.put(Invoice._CLIENT, item.getClient().getId());
-        cv.put(Invoice._DISCOUNT, item.getDiscount());
+        //cv.put(Invoice._DISCOUNT, item.getDiscount());
         cv.put(Invoice._COMMENT, item.getComment());
-        cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD));
+        cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD_HH_mm_ss));
         cv.put(Invoice._INV_TYPE, item.getInvoiceType().ordinal());
 
-
+        ColumnsSqlite.ColumnsRemote columnsRemote = item;
+        cv.put(Invoice._STATUS, columnsRemote.getStatus());
+        cv.put(Invoice._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
     }
