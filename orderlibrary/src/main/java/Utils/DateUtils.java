@@ -99,6 +99,12 @@ public class DateUtils {
         return d;
     }
 
+    public static Calendar getGregorianCalendarFrom(Date date){
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return calendar;
+    }
+
 
     public static Date deleteTime(Date date){
         Calendar calendar = new GregorianCalendar();
