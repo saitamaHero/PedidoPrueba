@@ -48,7 +48,8 @@ public class Vendor extends Person implements Parcelable{
         this.diaryList = diaryList;
     }
 
-
-
-
+    @Override
+    public String toString() {
+        return "Vendor{" + "codigo=" + getId() +",nombre=" + getName() + '}';
+    }
 }

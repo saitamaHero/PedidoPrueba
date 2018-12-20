@@ -81,6 +81,29 @@ public class SqlConnection{
         return dbData;
     }
 
+    public static ResultSet consulta(Connection sqlConnection, String query) throws SQLException {
+        Statement sqlcon;
+        ResultSet resultSet;
+
+        sqlcon = sqlConnection.createStatement();
+
+        resultSet = sqlcon.executeQuery(query);
+
+        return resultSet;
+    }
+
+    public static int comando(Connection sqlConnection, String query) throws SQLException {
+        PreparedStatement sqlComando;
+
+        int registrosAfectados;
+
+        sqlComando = sqlConnection.prepareStatement(query);
+        registrosAfectados = sqlComando.executeUpdate();
+
+        return registrosAfectados;
+    }
+
+
 
     private String buildConnection(){
         return String.format("jdbc:jtds:sqlserver://%s:%d;databaseName=%s;user=%s;password=%s;",

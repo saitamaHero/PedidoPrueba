@@ -9,6 +9,10 @@ public class User implements Parcelable {
     private String password;
     private char level;
     private Vendor vendor;
+    private boolean logged;
+
+    public User() {
+    }
 
     public User(String user, char level, Vendor vendor) {
         this.user = user;
@@ -21,6 +25,7 @@ public class User implements Parcelable {
         password = in.readString();
         level = (char) in.readInt();
         vendor = in.readParcelable(Vendor.class.getClassLoader());
+        logged = in.readInt() == 1;
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -71,6 +76,14 @@ public class User implements Parcelable {
         return this.vendor != null ? this.vendor.getProfilePhoto() : null;
     }
 
+    public boolean isLogged() {
+        return logged;
+    }
+
+    public void setLogged(boolean logged) {
+        this.logged = logged;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -82,5 +95,6 @@ public class User implements Parcelable {
         parcel.writeString(password);
         parcel.writeInt((int) level);
         parcel.writeParcelable(vendor, i);
+        parcel.writeInt(logged ? 1 : 0);
     }
 }

@@ -4,9 +4,7 @@ import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 
 public abstract class Updater<T> {
     public static final String LOG_TAG_FAIL = "UpdaterFail";
