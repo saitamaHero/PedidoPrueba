@@ -92,6 +92,13 @@
         <item quantity="other">En %d días</item>
     </plurals>
 
+    <string name="time_hours">
+        en %d horas
+    </string>
+
+    <string name="time_minutes">
+        en %d minute
+    </string>
     <!--
     Cadena que representa hoy
     -->
@@ -136,4 +143,5 @@
     <string name="update_success">¡Actualizado Correctamente!</string>
     <string name="save_success">%s Guardado Exitosamente!</string>
     <string name="error_to_save">Error al intentar guardar.</string>
+    <string name="log_out">Salir</string>
 </resources>

@@ -91,7 +91,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
                }
             }
 
-            printTime(this.items);
+            //printTime(this.items);
         }
 
         setAdapter();

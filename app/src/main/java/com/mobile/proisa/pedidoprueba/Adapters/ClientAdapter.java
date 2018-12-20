@@ -60,15 +60,27 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
 
         if(converter != null){
             int daysCount = (int)converter.getDays();
-            if (daysCount == 0) {
-                holder.txtVisitEvent.setText(res.getString(R.string.today));
-            } else {
+            int hourCount = (int)converter.getHours();
+            int minutesCount = (int)converter.getMinutes();
+
+
+            if(daysCount > 0){
                 holder.txtVisitEvent.setText(
                         res.getQuantityString(R.plurals.visit_formateable,
-                                (int)converter.getDays(), (int)converter.getDays()));
+                                daysCount, daysCount));
+            }else if(hourCount > 0){
+                holder.txtVisitEvent.setText(
+                        res.getString(R.string.time_hours, hourCount));
+
+            }else if(minutesCount > 0){
+                holder.txtVisitEvent.setText(
+                        res.getString(R.string.time_minutes, minutesCount));
+            }else{
+                holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
             }
 
             Log.d("diaryVisit", client.getVisitDate().getDateEvent().toString());
+            Log.d("diaryVisit",client.getName().concat(":") + converter.toString());
         }else{
             holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
         }

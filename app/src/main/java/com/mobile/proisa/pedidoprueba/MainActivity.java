@@ -1,6 +1,7 @@
 package com.mobile.proisa.pedidoprueba;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,13 +14,16 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Activities.SelectorItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
+import com.mobile.proisa.pedidoprueba.Clases.Constantes;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
+import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.time.LocalDate;
@@ -33,6 +37,8 @@ import java.util.Random;
 import Models.Client;
 import Models.Diary;
 import Models.Item;
+import Models.User;
+import Models.Vendor;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
@@ -41,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private ViewPager viewPager;
     private BottomNavigationView navigationView;
+    private User mUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,32 +88,27 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             }
         });
 
-        navigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+       /* navigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 Toast.makeText(getApplicationContext(), "Reselected: "+item.toString().trim(), Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
 
-        setUpViewPager(1);
-
-
-        // startActivityForResult(new Intent(getApplicationContext(), SelectorItemActivity.class),100);
-
-        Calendar calendar = new GregorianCalendar();
-        calendar.set(Calendar.YEAR,2018);
-        calendar.set(Calendar.MONTH,Calendar.DECEMBER);
-        calendar.set(Calendar.DAY_OF_MONTH,6);
-        calendar.set(Calendar.HOUR_OF_DAY,15);
-        calendar.set(Calendar.MINUTE,35);
-        calendar.set(Calendar.SECOND,0);
+        setUpViewPager(3);
 
 
+        checkPreferences();
+    }
 
-       /* Item item = ItemListFragment.getItem("COD-9799", "YUCA DEL CAMPO 1LB");
-        ItemController controller = new ItemController(new MySqliteOpenHelper(this, "PRUEBA.db", null, MySqliteOpenHelper.VERSION).getWritableDatabase());
-        controller.insert(item);*/
+    private void checkPreferences() {
+        if(!areUserThere()){
+            startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class),100);
+        }else{
+            //mUser = getUserFromPreferences();
+            //setTitle("User: "+mUser.getUser() + " "+mUser.getVendor().toString()) ;
+        }
     }
 
     private void setUpViewPager(int positionForStart){
@@ -114,9 +117,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(this);
 
-
         viewPager.setCurrentItem(positionForStart);
-
     }
 
    private List<Fragment> getFragmentsForViewPager() {
@@ -124,40 +125,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
        fragments.add(ItemListFragment.newInstance());
        fragments.add(ClientsFragment.newInstance());
        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
-       fragments.add(TestFragment.newInstance("Perfil", "Perfil del vendedor"));
+       fragments.add(new VendorProfileFragment());
 
        return fragments;
    }
 
-   private List<Client> getClientsForTest(int count){
-        List<Client> clients = new ArrayList<>();
-        Random random = new Random();
-
-        for(int i = 0; i < count; i++){
-            Client client = new Client();
-
-            client.setId(String.valueOf(random.nextInt(5000)));
-            client.setName("Cliente de Prueba #"+(i+1));
-            client.setCreditLimit(random.nextDouble() * 5000.00);
-            client.setDistance(random.nextDouble() * 100.00 * 5.00);
-            client.setAddress("Calle #"+(i+1)+" Santiago de los Caballeros");
-            client.setIdentityCard("402-2570666-8");
-            client.addPhone("8098608075");
-            client.setEmail("tec.dionicioacevedo@gmail.com");
-
-            int id = (client.getDistance() < 300)? (R.drawable.photo ): (R.drawable.photo2);
-
-            Uri path = Uri.parse("android.resource://"+getPackageName()+"/"+ id);
-            client.setProfilePhoto(path);
-
-            client.setBirthDate(getRandomDate(Calendar.getInstance().getTime(), 1997));
-
-            client.setVisitDate(new Diary(1, getRandomDate(Calendar.getInstance().getTime()),""));
-            clients.add(client);
-        }
-
-        return clients;
-   }
 
    private Date getRandomDate(Date dateBase){
         Calendar calendar = new GregorianCalendar();
@@ -248,4 +220,69 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 100){
+            if(resultCode == RESULT_OK){
+                User mUser = data.getExtras().getParcelable("user");
+                guardarUsuario(mUser);
+            }else{
+                finish();
+            }
+        }
+    }
+
+    private boolean areUserThere(){
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
+
+        return preferences.contains(Constantes.USER);
+    }
+
+    private User getUserFromPreferences() {
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
+        User user = new User();
+        user.setUser(preferences.getString(Constantes.USER,""));
+
+        Vendor vendor = new Vendor();
+        vendor.setId(preferences.getString(Constantes.VENDOR_CODE,""));
+        vendor.setName(preferences.getString(Constantes.VENDOR_NAME, ""));
+        user.setVendor(vendor);
+
+        user.setLogged(true);
+
+        return user;
+    }
+
+    private void guardarUsuario(User user) {
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
+        SharedPreferences.Editor editor;
+
+        editor = preferences.edit();
+
+        editor.putString(Constantes.USER,user.getUser());
+
+        Vendor vendor = user.getVendor();
+
+        if(vendor != null){
+            editor.putString(Constantes.VENDOR_CODE,vendor.getId());
+            editor.putString(Constantes.VENDOR_NAME,vendor.getName());
+            editor.commit();
+        }
+    }
+
+    private void deletePreferences() {
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
+        SharedPreferences.Editor editor;
+
+        editor = preferences.edit();
+        editor.clear().commit();
+
+        /*editor.remove(Constantes.USER);
+        editor.remove(Constantes.VENDOR_CODE);
+        editor.remove(Constantes.VENDOR_NAME);
+        editor.commit();*/
+
+    }
 }

@@ -111,25 +111,38 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_complete_payment:
-                invoiceToSave.setComment("");
-                invoiceToSave.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
-                invoiceToSave.setDate(Calendar.getInstance().getTime());
-                invoiceToSave.setId(String.valueOf(invoiceToSave.hashCode()));
+                if(invoiceToSave.getInvoiceType().equals(Invoice.InvoicePayment.CASH)){
+                    Toast.makeText(getApplicationContext(), "Pagando en Efectivo", Toast.LENGTH_LONG).show();
 
-                InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
-                if(controller.insert(invoiceToSave)){
-                    Toast.makeText(getApplicationContext(),
-                            "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
-                    .show();
-
-                    setResult(RESULT_OK);
-                    finish();
-                }else{
-                    Toast.makeText(getApplicationContext(),
-                            "No guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
-                            .show();
+                    showDialogToReturnMoney(invoiceToSave);
                 }
                 break;
+        }
+    }
+
+    private void showDialogToReturnMoney(Invoice invoiceToSave) {
+
+    }
+
+
+    public void saveInvoice(){
+        invoiceToSave.setComment("");
+        invoiceToSave.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+        invoiceToSave.setDate(Calendar.getInstance().getTime());
+        invoiceToSave.setId(String.valueOf(invoiceToSave.hashCode()));
+
+        InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+        if(controller.insert(invoiceToSave)){
+            Toast.makeText(getApplicationContext(),
+                    "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
+                    .show();
+
+            setResult(RESULT_OK);
+            finish();
+        }else{
+            Toast.makeText(getApplicationContext(),
+                    "No guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
+                    .show();
         }
     }
 }

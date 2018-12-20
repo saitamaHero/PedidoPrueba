@@ -8,4 +8,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="detail_backdrop_height">256dp</dimen>
     <dimen name="detail_backdrop_height_2">512dp</dimen>
+    <dimen name="width_card_login">300dp</dimen>
 </resources>
