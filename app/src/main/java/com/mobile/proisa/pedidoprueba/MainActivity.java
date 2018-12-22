@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         return calendar.getTime();
     }
-   private List<Actividad> getActividadesDePrueba(){
+   public static List<Actividad> getActividadesDePrueba(){
         List<Actividad> actividads = new ArrayList<>();
 
        Random random = new Random();
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return actividads;
    }
 
-   private int getPercent(float min, float max){
+   private static int getPercent(float min, float max){
         float p = ( min / max) * 100.00f;
         return Math.round(p);
    }

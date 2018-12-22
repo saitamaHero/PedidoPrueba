@@ -4,29 +4,53 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Actividad implements Parcelable{
+    private int id;
     private String numeric;
-    private String descrition;
+    private String description;
     private String info;
     private boolean isGood;
 
+    public Actividad(int id, String numeric, String descrition) {
+        this.id = id;
+        this.numeric = numeric;
+        this.description = descrition;
+    }
+
+    public Actividad(int id, String numeric, String description, String info, boolean isGood) {
+        this.id = id;
+        this.numeric = numeric;
+        this.description = description;
+        this.info = info;
+        this.isGood = isGood;
+    }
+
     public Actividad(String numeric, String descrition, String info) {
         this.numeric = numeric;
-        this.descrition = descrition;
+        this.description = descrition;
         this.info = info;
         this.isGood = true;
     }
 
     public Actividad(String numeric, String descrition, String info, boolean isGood) {
         this.numeric = numeric;
-        this.descrition = descrition;
+        this.description = descrition;
         this.info = info;
         this.isGood = isGood;
     }
 
     protected Actividad(Parcel in) {
+        id = in.readInt();
         numeric = in.readString();
-        descrition = in.readString();
+        description = in.readString();
         info = in.readString();
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public boolean isGood() {
@@ -57,12 +81,12 @@ public class Actividad implements Parcelable{
         this.numeric = numeric;
     }
 
-    public String getDescrition() {
-        return descrition;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescrition(String descrition) {
-        this.descrition = descrition;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getInfo() {
@@ -80,8 +104,9 @@ public class Actividad implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
         parcel.writeString(numeric);
-        parcel.writeString(descrition);
+        parcel.writeString(description);
         parcel.writeString(info);
     }
 }

@@ -14,9 +14,13 @@ import android.view.ViewGroup;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static Utils.NumberUtils.getPercent;
 
 
 public class ActividadFragment extends Fragment {
@@ -66,4 +70,7 @@ public class ActividadFragment extends Fragment {
 
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
     }
+
+
+
 }

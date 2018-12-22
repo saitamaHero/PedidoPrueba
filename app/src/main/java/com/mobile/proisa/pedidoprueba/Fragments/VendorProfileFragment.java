@@ -9,20 +9,31 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
+import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
+import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Clases.Constantes;
+import com.mobile.proisa.pedidoprueba.MainActivity;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import Models.User;
 import Models.Vendor;
@@ -40,6 +51,9 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     private TextView txtId;
     private Button btnLogOut;
     private ImageView profilePhoto;
+    private RecyclerView recyclerView;
+
+    private boolean activeGridLayout;
 
     public VendorProfileFragment() {
         // Required empty public constructor
@@ -72,6 +86,23 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         btnLogOut = view.findViewById(R.id.btn_log_out);
         btnLogOut.setOnClickListener(this);
+
+        recyclerView = view.findViewById(R.id.list_activities_vendor);
+
+
+        /*vendorOptions = view.findViewById(R.id.options);
+
+        ArrayAdapter<String> options = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+        options.add("Hola");
+        options.add("Hola2");
+        options.add("Hola3");
+        options.add("Hola4");
+        options.add("Salir");
+
+        vendorOptions.setAdapter(options);
+        options.notifyDataSetChanged();*/
+
+
     }
 
 
@@ -128,6 +159,9 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     @Override
     public void onResume() {
         super.onResume();
+
+        activeGridLayout = true;
+
         mUser = getUserFromPreferences();
 
         txtName.setText(mUser.getVendor().getName());
@@ -139,5 +173,77 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
                 .into(profilePhoto);
 
         btnLogOut.setOnClickListener(this);
+
+
+        setAdapterActividades();
+    }
+
+    private void setAdapterActividades() {
+        List<Actividad> actividadList =getActividades();
+
+        ActividadAdapter actividadAdapter = new ActividadAdapter(actividadList, R.layout.data_detail_layout);
+        recyclerView.setAdapter(actividadAdapter);
+
+        if(activeGridLayout){
+            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+
+        }else{
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+    }
+
+    public static List<Actividad> getActividades(){
+        List<Actividad> actividads = new ArrayList<>();
+
+
+        Actividad actividad;
+
+        actividad =new Actividad(NumberUtils.formatNumber(2,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
+        actividad.setId(1);
+        actividads.add(actividad);
+
+        actividad = new Actividad(2, NumberUtils.formatNumber(12,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados Sí Facturación");
+        actividads.add(actividad);
+
+
+        actividad = new Actividad(3, NumberUtils.formatNumber(30,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitar", "En el día de hoy", true);
+        actividads.add(actividad);
+
+        actividad = new Actividad(4, NumberUtils.formatNumber(14,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitados", "En el día de hoy", true);
+        actividads.add(actividad);
+
+        actividad = new Actividad(5, NumberUtils.formatNumber(8,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Devoluciones",
+                "Un total de RD$"+NumberUtils.formatNumber(368.98, NumberUtils.FORMAT_NUMER_DOUBLE), false);
+        actividads.add(actividad);
+
+
+        actividad = new Actividad(6, NumberUtils.formatNumber(9,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Pagos de Clientes",
+                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), false);
+        actividads.add(actividad);
+
+        actividad = new Actividad(7, NumberUtils.formatNumber(2,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Nuevos");
+        actividads.add(actividad);
+
+        actividad = new Actividad(9, NumberUtils.formatNumber(9,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Ventas a Crédito",
+                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), false);
+        actividads.add(actividad);
+
+        actividad = new Actividad(10, NumberUtils.formatNumber(3,
+                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes con Crédito Cerrado");
+        actividads.add(actividad);
+
+
+        actividad = new Actividad(11, "", "Gráficos de Ventas",
+                "Ver el gráfico para el año actual.", true);
+        actividads.add(actividad);
+        return actividads;
     }
 }

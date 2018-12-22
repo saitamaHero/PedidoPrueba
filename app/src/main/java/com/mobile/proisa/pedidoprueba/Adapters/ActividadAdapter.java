@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class ActividadAdapter extends RecyclerView.Adapter<ActividadAdapter.Acti
             holder.txtNumeric.setTextColor(context.getResources().getColor(R.color.badStatus));
         }
 
-        holder.txtDescription.setText(actividad.getDescrition());
+        holder.txtDescription.setText(actividad.getDescription());
         holder.txtInfo.setText(actividad.getInfo());
     }
 
