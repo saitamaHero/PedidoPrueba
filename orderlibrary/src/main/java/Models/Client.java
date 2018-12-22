@@ -15,12 +15,16 @@ import Utils.DateUtils;
 import static Models.ColumnsSqlite.*;
 
 public class Client extends Person implements Parcelable, ColumnsClient, Updatable<Client> {
+    public static final char CREDIT_OPENED = 'A';
+    public static final char CREDIT_CLOSED = 'C';
     private List<Invoice> invoices;
     private double creditLimit;
     private double distance;
     private Diary visitDate;
     private int status;
     private String remoteId;
+    private char creditStatus;
+
 
     public Client() {
         super();
@@ -35,6 +39,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         invoices = in.readArrayList(Invoice.class.getClassLoader());
         status = in.readInt();
         remoteId = in.readString();
+        creditStatus = (char) in.readInt();
     }
 
     public double getDistance() {
@@ -99,6 +104,19 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         dest.writeList(invoices);
         dest.writeInt(status);
         dest.writeString(remoteId);
+        dest.writeInt(creditStatus);
+    }
+
+    public char getCreditStatus() {
+        return creditStatus;
+    }
+
+    public void setCreditStatus(char creditStatus) {
+        this.creditStatus = creditStatus;
+    }
+
+    public boolean isCreditClosed(){
+        return this.creditStatus == CREDIT_CLOSED;
     }
 
     @Override
