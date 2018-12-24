@@ -1,10 +1,17 @@
 package BaseDeDatos;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import Models.Constantes;
+import Models.User;
+import Models.Vendor;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public abstract class SqlUpdater<T> extends Updater<T> {
     private Context context;
@@ -39,5 +46,15 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         } catch (SQLException e) {
             Log.e(LOG_TAG_FAIL, e.getMessage(), e.getCause());
         }
+    }
+
+    public Vendor getVendor(){
+        SharedPreferences preferences = context.getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
+
+        Vendor vendor = new Vendor();
+        vendor.setId(preferences.getString(Constantes.VENDOR_CODE,""));
+        vendor.setName(preferences.getString(Constantes.VENDOR_NAME, ""));
+
+        return vendor;
     }
 }

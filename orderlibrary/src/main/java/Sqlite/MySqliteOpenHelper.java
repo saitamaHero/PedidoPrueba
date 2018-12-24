@@ -64,6 +64,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Client._CR_LIMIT  + " NUMERIC DEFAULT 0,"
             + Client._PHONE     + " TEXT DEFAULT '',"
             + Client._STATUS    + " INTEGER NOT NULL,"
+            + Client._CR_STATUS + " TEXT NOT NULL DEFAULT '"+Client.CREDIT_OPENED+"',"
             + Client._ID_REMOTE + " TEXT,"
             + Client._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Client._ID + ")"

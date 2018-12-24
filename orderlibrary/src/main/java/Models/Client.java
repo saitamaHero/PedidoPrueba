@@ -66,13 +66,6 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         this.visitDate = visitDate;
     }
 
-    public boolean isDayOfTheVisit(){
-        if(this.visitDate == null) return false;
-
-        Date date =  DateUtils.deleteTime(Calendar.getInstance().getTime());
-        return this.visitDate.getDateEvent().compareTo(date) == 0;
-    }
-
     public DateUtils.DateConverter getTimeToVisit(){
         if(visitDate == null) return null;
 

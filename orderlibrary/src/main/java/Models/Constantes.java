@@ -1,4 +1,4 @@
-package com.mobile.proisa.pedidoprueba.Clases;
+package Models;
 
 public class Constantes {
     public static final String USER_DATA = "user_data";
