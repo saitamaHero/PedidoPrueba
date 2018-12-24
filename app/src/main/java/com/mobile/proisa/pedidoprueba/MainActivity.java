@@ -2,31 +2,24 @@ package com.mobile.proisa.pedidoprueba;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
-import com.mobile.proisa.pedidoprueba.Activities.SelectorItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
-import com.mobile.proisa.pedidoprueba.Clases.Constantes;
+import Models.Constantes;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
-import com.mobile.proisa.pedidoprueba.Fragments.TestFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,13 +27,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 
-import Models.Client;
 import Models.Diary;
-import Models.Item;
 import Models.User;
 import Models.Vendor;
-import Sqlite.ItemController;
-import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {

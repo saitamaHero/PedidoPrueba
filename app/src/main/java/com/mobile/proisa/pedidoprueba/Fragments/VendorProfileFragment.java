@@ -15,19 +15,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
-import com.mobile.proisa.pedidoprueba.Clases.Constantes;
-import com.mobile.proisa.pedidoprueba.MainActivity;
+import Models.Constantes;
+
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
@@ -43,7 +42,7 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class VendorProfileFragment extends Fragment implements View.OnClickListener {
+public class VendorProfileFragment extends Fragment implements View.OnClickListener, ActividadAdapter.ActividadHolder.OnActividadClick {
 
 
     private User mUser;
@@ -89,20 +88,6 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         recyclerView = view.findViewById(R.id.list_activities_vendor);
 
-
-        /*vendorOptions = view.findViewById(R.id.options);
-
-        ArrayAdapter<String> options = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
-        options.add("Hola");
-        options.add("Hola2");
-        options.add("Hola3");
-        options.add("Hola4");
-        options.add("Salir");
-
-        vendorOptions.setAdapter(options);
-        options.notifyDataSetChanged();*/
-
-
     }
 
 
@@ -125,11 +110,8 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     private void deletePreferences() {
         SharedPreferences preferences = getActivity().getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
         SharedPreferences.Editor editor;
-
         editor = preferences.edit();
         editor.clear().commit();
-
-
     }
 
     private boolean areUserThere(){
@@ -190,6 +172,8 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
         }else{
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
+
+        actividadAdapter.setOnActividadClick(this);
     }
 
     public static List<Actividad> getActividades(){
@@ -198,7 +182,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         Actividad actividad;
 
-        actividad =new Actividad(NumberUtils.formatNumber(2,
+        actividad = new Actividad(NumberUtils.formatNumber(2,
                 NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
         actividad.setId(1);
         actividads.add(actividad);
@@ -245,5 +229,12 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
                 "Ver el gráfico para el año actual.", true);
         actividads.add(actividad);
         return actividads;
+    }
+
+    @Override
+    public void onActividadClick(List<Actividad> actividades, int position) {
+        Actividad actividad = actividades.get(position);
+
+        Toast.makeText(getActivity(), actividad.getDescription(), Toast.LENGTH_SHORT).show();
     }
 }
