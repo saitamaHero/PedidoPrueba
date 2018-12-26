@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import Models.Client;
+import Models.ColumnsSqlite;
 import Utils.DateUtils;
 
 public class EditClientActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
@@ -126,6 +127,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         switch (item.getItemId()){
             case R.id.action_apply:
                 if(client.update(getInfo())){
+                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
                     setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,client));
                 }else{
                     setResult(RESULT_CANCELED);

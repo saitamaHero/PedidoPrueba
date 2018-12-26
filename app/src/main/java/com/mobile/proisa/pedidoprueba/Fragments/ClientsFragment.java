@@ -1,7 +1,9 @@
 package com.mobile.proisa.pedidoprueba.Fragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -28,10 +30,14 @@ import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
+import BaseDeDatos.ClientUpdater;
+import BaseDeDatos.SqlConnection;
 import Models.Client;
 import Sqlite.ClientController;
 import Sqlite.MySqliteOpenHelper;
@@ -40,7 +46,7 @@ import Utils.DateUtils;
 import static android.app.Activity.RESULT_OK;
 
 
-public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener{
+public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener, TareaAsincrona.OnFinishedProcess{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
     private static final int DETAILS_CLIENT_ACTIVITY = 805;
     private static final int CREATE_CLIENT_CODE = 806;
@@ -173,6 +179,17 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.sync:
+                new SyncClients(0, getActivity(), this).execute();
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
     }
@@ -212,11 +229,15 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
 
                            updateList();
+
+                           new SyncClients(0, getActivity(), this).execute();
                         }else{
                             Toast.makeText(getActivity().getApplicationContext(),
                                     R.string.error_to_save, Toast.LENGTH_LONG).show();
                         }
                     }
+
+
 
                 }
                 break;
@@ -236,6 +257,40 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                 Intent createClientIntent = new Intent(getActivity(), EditClientActivity.class);
                 startActivityForResult(createClientIntent, CREATE_CLIENT_CODE);
                 break;
+        }
+    }
+
+    @Override
+    public void onFinishedProcess(TareaAsincrona task) {
+        if(!task.hasErrors()){
+            Log.d("RemoteData","The sync is finished");
+        }
+
+    }
+
+    @Override
+    public void onErrorOccurred(int id, Stack<Exception> exceptions) {
+
+    }
+
+
+    public static class SyncClients extends TareaAsincrona<Void, Void, Void> {
+
+        public SyncClients(int id, Activity context, OnFinishedProcess listener) {
+            super(id, context, listener);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+            ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
+
+            ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
+            updater.addData(controller.getAll());
+            updater.apply();
+
+
+            return null;
         }
     }
 }
