@@ -112,6 +112,16 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         return this.creditStatus == CREDIT_CLOSED;
     }
 
+    public int getIdCardtype(){
+        if(getIdentityCard().length() == 9){
+            return 1;
+        }else if(getIdentityCard().length() == 11){
+            return 2;
+        }else{
+            return 0;
+        }
+    }
+
     @Override
     public int describeContents() {
         return 0;

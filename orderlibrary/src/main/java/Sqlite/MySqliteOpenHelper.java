@@ -15,7 +15,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 6;
+    public static final int VERSION = 7;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME

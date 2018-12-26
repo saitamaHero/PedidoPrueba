@@ -92,7 +92,10 @@ public class Person implements Parcelable{
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        if(address != null && !address.trim().isEmpty())
+            this.address = address;
+        else
+            this.address = "";
     }
 
     public Date getBirthDate() {
@@ -212,6 +215,8 @@ public class Person implements Parcelable{
         parcel.writeSerializable(enteredDate);
         parcel.writeSerializable(lastModification);
     }
+
+
 }
 
 

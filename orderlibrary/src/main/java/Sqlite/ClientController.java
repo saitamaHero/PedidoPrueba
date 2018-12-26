@@ -188,6 +188,7 @@ public class ClientController extends Controller<Client> {
         client.setEmail(cursor.getString(cursor.getColumnIndex(Client._EMAIL)));
         client.setAddress(cursor.getString(cursor.getColumnIndex(Client._ADDRESS)));
         client.setCreditLimit(cursor.getDouble(cursor.getColumnIndex(Client._CR_LIMIT)));
+        client.setCreditStatus(cursor.getString(cursor.getColumnIndex(Client._CR_STATUS)).charAt(0));
 
         client.addPhone(cursor.getString(cursor.getColumnIndex(Client._PHONE)));
 
@@ -247,6 +248,7 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._STATUS, columnsRemote.getStatus());
         cv.put(Client._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
+        Log.d("RemoteData", String.format("remoteId='%s', status=%d", columnsRemote.getRemoteId(), columnsRemote.getStatus()));
         return cv;
     }
 }
