@@ -2,6 +2,7 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
 import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
+import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
@@ -38,6 +40,7 @@ import java.util.Stack;
 
 import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.SqlConnection;
+import BaseDeDatos.SqlUpdater;
 import Models.Client;
 import Sqlite.ClientController;
 import Sqlite.MySqliteOpenHelper;
@@ -274,10 +277,27 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
 
-    public static class SyncClients extends TareaAsincrona<Void, Void, Void> {
+    public static class SyncClients extends TareaAsincrona<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client> {
+
+        private ProgressDialog progressDialog;
+
 
         public SyncClients(int id, Activity context, OnFinishedProcess listener) {
             super(id, context, listener);
+
+            progressDialog = ProgressDialog.newInstance("");
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog.show(getContext().getFragmentManager(), "");
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            progressDialog.changeInfo(values[0]);
         }
 
         @Override
@@ -286,11 +306,44 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
 
             ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
+            updater.setOnDataUpdateListener(this);
             updater.addData(controller.getAll());
             updater.apply();
 
 
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+
+        @Override
+        public void onDataUpdate(Client data, int action) {
+            String resource;
+
+            switch (action){
+                case ACTION_INSERT:
+                    resource = getContext().getString(R.string.insert_msg,data.getName());
+                    break;
+
+                case ACTION_UPDATE:
+                    resource = getContext().getString(R.string.update_msg, data.getName());
+                    break;
+
+                default:
+                    return;
+            }
+
+            publishProgress(resource);
+        }
+
+        @Override
+        public void onDataUpdated(Client data) {
+
         }
     }
 }

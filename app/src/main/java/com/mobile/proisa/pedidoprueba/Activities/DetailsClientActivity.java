@@ -174,7 +174,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         txtId.setText(client.getId());
 
         TextView txtDistance = findViewById(R.id.distance);
-        txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
+        txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km {st=%s, rmt=%s}",client.getDistance(), client.getStatus(), client.getRemoteId()));
 
         TextView txtOwner = findViewById(R.id.owner);
         txtOwner.setText(client.getName());

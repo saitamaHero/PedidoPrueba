@@ -144,4 +144,8 @@
     <string name="save_success">%s Guardado Exitosamente!</string>
     <string name="error_to_save">Error al intentar guardar.</string>
     <string name="log_out">Salir</string>
+
+
+    <string name="insert_msg">Guardando a %s</string>
+    <string name="update_msg">Actualizando a %s</string>
 </resources>

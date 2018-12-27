@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,10 +15,13 @@ import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import Models.Constantes;
+
+import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
+import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.ArrayList;
@@ -89,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 
         checkPreferences();
+        //new TestProgress(1, this, null).execute();
     }
 
     private void checkPreferences() {
@@ -273,5 +278,56 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         editor.remove(Constantes.VENDOR_NAME);
         editor.commit();*/
 
+    }
+
+    public static class TestProgress extends TareaAsincrona<Void, String, Void>{
+
+        private ProgressDialog progressDialog;
+        private int progress;
+
+        public TestProgress(int id, Activity context, OnFinishedProcess listener) {
+            super(id, context, listener);
+
+            progressDialog = ProgressDialog.newInstance("");
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog.show(getContext().getFragmentManager(), "");
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            progressDialog.changeInfo(values[0]);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+
+            for(int i = 0; i < 5; i++){
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                ++progress;
+                publishProgress("Actualizado " + progress );
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 }
