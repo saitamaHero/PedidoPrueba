@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Queue;
 
 import Models.Client;
@@ -21,6 +24,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
     private Context context;
     private SqlConnection connection;
     private Controller<T> controller;
+    private OnDataUpdateListener<T> onDataUpdateListener;
 
     public SqlUpdater(Context context, SqlConnection connection, Controller<T> controller) {
         this.context = context;
@@ -30,6 +34,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     public SqlConnection getConnection() {
         return connection;
+    }
+
+    public void setOnDataUpdateListener(OnDataUpdateListener<T> onDataUpdateListener) {
+        this.onDataUpdateListener = onDataUpdateListener;
     }
 
     @Override
@@ -51,13 +59,17 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
                         if (remoteData.isPending()) {
                             if (remoteData.getRemoteId() == null || remoteData.getRemoteId().equals("null")) {
-                               if(doInsert(itemPeek)){
+                               if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_INSERT);
+
+                                if(doInsert(itemPeek)){
                                    onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
                                }else{
                                    fail(SERVER_NOT_FOUND);
                                    break;
                                }
                             }else if(remoteData.getRemoteId() != null && !remoteData.getRemoteId().equals("")){
+                                if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_UPDATE);
+
                                 if(doUpdate(itemPeek)){
                                     onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
                                 }else{
@@ -93,7 +105,18 @@ public abstract class SqlUpdater<T> extends Updater<T> {
             case UPDATED_DATA_SUCCESS:
                 if(controller != null){
                     if(controller.update(data)){
+                        if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
                         Log.d("RemoteData", "Data updated successful!");
+                    }
+                }
+                break;
+
+            case RETRIVE_DATA_SUCCESS:
+                if(controller != null){
+                    if(controller.insert(data)){
+                        if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
+
+                        Log.d("RemoteData", "Data inserted successful!");
                     }
                 }
                 break;
@@ -105,6 +128,45 @@ public abstract class SqlUpdater<T> extends Updater<T> {
     @Override
     protected void onFail(int reason) {
         super.onFail(reason);
+        closeSqlConnection();
+    }
+
+
+    @Override
+    protected void onDataRequestRetrive() {
+        SqlConnection connection = getConnection();
+
+        connection.connect();
+
+        if(connection.isConnected()){
+            Connection conn = connection.getSqlConnection();
+
+            try {
+
+                PreparedStatement preparedStatement = getQueryToRetriveData();
+
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                while (rs.next()){
+                    T item = getItemFromResultSet(rs);
+
+                    if(item != null){
+                        onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                    }
+                }
+
+
+            }catch (SQLException e) {
+                fail(Updater.ERROR);
+
+            }
+
+        }else{
+            fail(Updater.SERVER_NOT_FOUND);
+        }
+
+
         closeSqlConnection();
     }
 
@@ -154,4 +216,15 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         return NO_ID;
     }
 
+    public abstract T getItemFromResultSet(ResultSet rs);
+
+    public abstract PreparedStatement getQueryToRetriveData();
+
+
+    public interface OnDataUpdateListener<T>{
+        int ACTION_INSERT = 0;
+        int ACTION_UPDATE = 1;
+        public void onDataUpdate(T data, int action);
+        public void onDataUpdated(T data);
+    }
 }

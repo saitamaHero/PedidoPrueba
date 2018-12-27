@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import Models.Client;
 import Models.ColumnsSqlite;
@@ -36,6 +37,34 @@ public class ClientUpdater extends SqlUpdater<Client> {
         }
 
         return id;
+    }
+
+
+
+    @Override
+    public Client getItemFromResultSet(ResultSet set) {
+        return null;
+    }
+
+    @Override
+    public PreparedStatement getQueryToRetriveData() {
+        String query = "SELECT \n"
+                + "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1,\n"
+                + "CL_LIMCRE, CL_ESTADO, CL_FECNAC, CL_FECING, \n"
+                + "CL_RNC\n"
+                + "FROM CCBDCLIE WHERE VE_CODIGO = ?";
+
+        PreparedStatement preparedStatement = null;
+
+        try {
+
+            preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
+            preparedStatement.setString(1, getVendor().getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return preparedStatement;
     }
 
     @Override
@@ -125,6 +154,8 @@ public class ClientUpdater extends SqlUpdater<Client> {
             preparedStatement.setDate(11, new java.sql.Date(data.getEnteredDate().getTime()));
             preparedStatement.setString(12, String.valueOf(data.getRemoteId()));
 
+            data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
+
             int rowsAffected = preparedStatement.executeUpdate();
 
             if(rowsAffected > 0)
@@ -139,4 +170,6 @@ public class ClientUpdater extends SqlUpdater<Client> {
 
         return true;
     }
+
+
 }
