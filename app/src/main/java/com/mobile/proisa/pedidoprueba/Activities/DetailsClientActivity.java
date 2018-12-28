@@ -337,6 +337,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
                     client.setProfilePhoto(currentPhotoItem);
+                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
@@ -356,6 +357,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case EDIT_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
                     client = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
+                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
                     //Actualizar
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
@@ -377,6 +379,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 if(resultCode == RESULT_OK){
                     Uri realUri = getRealUriFromGallery(data.getData());
                     client.setProfilePhoto(realUri);
+                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
 
                     Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());

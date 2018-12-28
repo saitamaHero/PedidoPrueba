@@ -133,7 +133,10 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
         switch (view.getId()){
             case R.id.btn_log_out:
                 deletePreferences();
+
+                getActivity().deleteDatabase("PRUEBA.db");
                 checkPreferences();
+
                 break;
         }
     }

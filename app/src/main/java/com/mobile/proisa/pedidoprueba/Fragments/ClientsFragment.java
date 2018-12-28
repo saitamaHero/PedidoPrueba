@@ -32,6 +32,7 @@ import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.util.ArrayList;
@@ -127,7 +128,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         });
 
-       updateList();
+       //updateList();
     }
 
     private void setAdapter() {
@@ -155,6 +156,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     private List<Client> getClients(int count){
         ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+
+        //Toast.makeText(getActivity(), String.valueOf(controller.exists(Client._ID_REMOTE, "6015")), Toast.LENGTH_LONG).show();
 
         return  controller.getAll(count);
     }
@@ -219,9 +222,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                 {
                     Client clientToInsert = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
 
-
                     if(clientToInsert != null){
-                        clientToInsert.setId("TMP_"+clientToInsert.hashCode());
+                        //clientToInsert.setId("TMP_"+clientToInsert.hashCode());
                         ClientController controller =
                                 new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
 
@@ -254,6 +256,12 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateList();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.fab:
@@ -266,6 +274,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
+            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
             Log.d("RemoteData","The sync is finished");
         }
 
@@ -277,27 +286,14 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
 
-    public static class SyncClients extends TareaAsincrona<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client> {
-
-        private ProgressDialog progressDialog;
-
+    public static class SyncClients extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client> {
 
         public SyncClients(int id, Activity context, OnFinishedProcess listener) {
             super(id, context, listener);
-
-            progressDialog = ProgressDialog.newInstance("");
         }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            progressDialog.show(getContext().getFragmentManager(), "");
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            progressDialog.changeInfo(values[0]);
+        public SyncClients(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
+            super(id, context, listener, mDialogShow);
         }
 
         @Override
@@ -305,20 +301,16 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
 
+            //Si no hay elementos en la base de datos no se analizara practicamente nada.
             ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
             updater.setOnDataUpdateListener(this);
             updater.addData(controller.getAll());
             updater.apply();
 
+            //Llamar este metodo para que inserte los datos que hacen falta del servidor
+            updater.retriveData();
 
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            progressDialog.dismiss();
-            progressDialog = null;
         }
 
         @Override
