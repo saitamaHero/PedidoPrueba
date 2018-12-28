@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -126,6 +127,10 @@ public class ClientController extends Controller<Client> {
 
     @Override
     public boolean insert(Client item) {
+        if(TextUtils.isEmpty(item.getId())){
+            item.setId(String.valueOf(item.hashCode()));
+        }
+
         ContentValues cv = getContentValues(item);
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -178,6 +183,16 @@ public class ClientController extends Controller<Client> {
         }
     }
 
+    @Override
+    public boolean exists(String field, Object object) {
+
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, field.concat(" =?"), new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
 
     @Override
     public Client getDataFromCursor(Cursor cursor) {

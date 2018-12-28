@@ -31,6 +31,10 @@ public abstract class Updater<T> {
 
     protected abstract void onDataRequestRetrive();
 
+    public void retriveData(){
+        onDataRequestRetrive();
+    }
+
     /**
      * Cuando un registro es actualizado remotamente.
      * @param data que es actualizada

@@ -113,11 +113,21 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
             case RETRIVE_DATA_SUCCESS:
                 if(controller != null){
-                    if(controller.insert(data)){
-                        if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
+                    boolean canInsert = true;
 
-                        Log.d("RemoteData", "Data inserted successful!");
+                    if(data instanceof ColumnsSqlite.ColumnsRemote){
+                        ColumnsSqlite.ColumnsRemote columnsRemote = (ColumnsSqlite.ColumnsRemote) data;
+                        canInsert = !controller.exists(ColumnsSqlite.ColumnsRemote._ID_REMOTE, columnsRemote.getRemoteId());
                     }
+
+                    if(canInsert){
+                        if(controller.insert(data)){
+                            if(onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
+
+                            Log.d("RemoteData", "Data inserted successful!");
+                        }
+                    }
+
                 }
                 break;
         }
@@ -139,17 +149,14 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         connection.connect();
 
         if(connection.isConnected()){
-            Connection conn = connection.getSqlConnection();
-
             try {
-
                 PreparedStatement preparedStatement = getQueryToRetriveData();
-
-
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()){
                     T item = getItemFromResultSet(rs);
+
+                    Log.d("dataFromDB", item.toString());
 
                     if(item != null){
                         onDataUpdated(item, RETRIVE_DATA_SUCCESS);
@@ -161,11 +168,9 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                 fail(Updater.ERROR);
 
             }
-
         }else{
             fail(Updater.SERVER_NOT_FOUND);
         }
-
 
         closeSqlConnection();
     }

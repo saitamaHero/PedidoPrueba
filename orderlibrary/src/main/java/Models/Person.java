@@ -34,7 +34,7 @@ public class Person implements Parcelable{
         profilePhoto = Uri.EMPTY;
         birthDate = Calendar.getInstance().getTime();
         enteredDate = Calendar.getInstance().getTime();
-        latlng = new PointF(19.453280f, -70.698085f);
+        latlng = new PointF(19.453280f, -70.698085f);//PROISA lat and lng
     }
 
     protected Person(Parcel in) {

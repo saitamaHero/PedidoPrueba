@@ -42,8 +42,36 @@ public class ClientUpdater extends SqlUpdater<Client> {
 
 
     @Override
-    public Client getItemFromResultSet(ResultSet set) {
-        return null;
+    public Client getItemFromResultSet(ResultSet rs) {
+        Client client = new Client();
+
+        try {
+            //Codigo de la base de datos
+            client.setRemoteId(rs.getString("CL_CODIGO").trim());
+            client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
+
+            client.setName(rs.getString("CL_NOMBRE"));
+
+            //Credito
+            client.setCreditStatus(rs.getString("CL_ESTADO").charAt(0));
+            client.setCreditLimit(rs.getDouble("CL_LIMCRE"));
+            //RNC o cedula
+            client.setIdentityCard(rs.getString("CL_RNC").trim());
+            client.setEmail(rs.getString("CL_EMAIL").trim());
+            //Fecha de ingreso y nacimiento
+            client.setEnteredDate(rs.getDate("CL_FECING"));
+            client.setBirthDate(rs.getDate("CL_FECNAC"));
+            //Telefono y direccion
+            client.addPhone(rs.getString("CL_TELEF1").trim());
+            client.setAddress(rs.getString("CL_DIREC1").trim());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+
+        return client;
     }
 
     @Override
@@ -51,13 +79,12 @@ public class ClientUpdater extends SqlUpdater<Client> {
         String query = "SELECT \n"
                 + "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1,\n"
                 + "CL_LIMCRE, CL_ESTADO, CL_FECNAC, CL_FECING, \n"
-                + "CL_RNC\n"
+                + "CL_RNC, CL_EMAIL\n"
                 + "FROM CCBDCLIE WHERE VE_CODIGO = ?";
 
         PreparedStatement preparedStatement = null;
 
         try {
-
             preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
             preparedStatement.setString(1, getVendor().getId());
         } catch (SQLException e) {
@@ -97,7 +124,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
                 }
 
                 preparedStatement.setString(5, data.getIdentityCard());
-                preparedStatement.setInt(6, data.getIdCardtype());
+                preparedStatement.setInt(6,    data.getIdCardtype());
                 preparedStatement.setString(7,  data.getEmail());
                 preparedStatement.setString(8,  String.valueOf(data.getCreditStatus()));
                 preparedStatement.setString(9,  getVendor().getId());
