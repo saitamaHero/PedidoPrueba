@@ -54,18 +54,19 @@ public class CategoryController extends Controller<Category> {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, Category._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, Category._ID.concat(" =?"), new String[]{String.valueOf(id).trim()}, null, null, null);
 
         if (cursor.moveToNext()) {
             Category category = new Category();
             category.setId(cursor.getString(cursor.getColumnIndex(Category._ID)));
             category.setName(cursor.getString(cursor.getColumnIndex(Category._NAME)));
 
-
             //Fecha de la ultima modificacion del archivo
             String date = cursor.getString(cursor.getColumnIndex(Category._LASTMOD));
             Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
             category.setLastModification(lstMod);
+
+            cursor.close();
 
             return category;
         }

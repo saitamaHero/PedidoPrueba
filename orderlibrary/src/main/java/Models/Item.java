@@ -101,6 +101,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
     }
 
     public void setCategory(Category category) {
+        if(category == null) return;
         this.category = category;
     }
 
@@ -109,6 +110,7 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
     }
 
     public void setUnit(Unit unit) {
+        if(unit == null) return;
         this.unit = unit;
     }
 

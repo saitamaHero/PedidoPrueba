@@ -55,7 +55,9 @@ public class UnitController extends Controller<Unit> {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Unit.TABLE_NAME, null, Unit._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+        Log.d("unitById","Buscando el codigo="+id);
+
+        cursor = sqLiteDatabase.query(Unit.TABLE_NAME, null, Unit._ID.concat(" =?"), new String[]{String.valueOf(id).trim()}, null, null, null);
 
         if (cursor.moveToNext()) {
             Unit unit = new Unit();
@@ -68,6 +70,7 @@ public class UnitController extends Controller<Unit> {
             Date lstMod = DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss);
             unit.setLastModification(lstMod);
 
+            cursor.close();
             return unit;
         }
 

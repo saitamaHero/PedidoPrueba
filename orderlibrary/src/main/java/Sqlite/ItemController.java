@@ -34,23 +34,7 @@ public class ItemController extends Controller<Item> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Item item = new Item();
-            item.setId(cursor.getString(cursor.getColumnIndex(Item._ID)));
-            item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
-            item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
-            item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
-            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
-            item.setQuantity(1);
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Item._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            item.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Item._PHOTO)));
-            item.setPhoto(Uri.fromFile(photo));
-
+            Item item = getDataFromCursor(cursor);
             items.add(item);
 
             cursor.moveToNext();
@@ -69,23 +53,7 @@ public class ItemController extends Controller<Item> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Item item = new Item();
-            item.setId(cursor.getString(cursor.getColumnIndex(Item._ID)));
-            item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
-            item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
-            item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
-            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
-            item.setQuantity(1);
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Item._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            item.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Item._PHOTO)));
-            item.setPhoto(Uri.fromFile(photo));
-
+            Item item = getDataFromCursor(cursor);
             items.add(item);
 
             cursor.moveToNext();
@@ -105,23 +73,7 @@ public class ItemController extends Controller<Item> {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Item item = new Item();
-            item.setId(cursor.getString(cursor.getColumnIndex(Item._ID)));
-            item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
-            item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
-            item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
-            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
-            item.setQuantity(1);
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Item._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            item.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Item._PHOTO)));
-            item.setPhoto(Uri.fromFile(photo));
-
+            Item item = getDataFromCursor(cursor);
             items.add(item);
 
             cursor.moveToNext();
@@ -138,23 +90,7 @@ public class ItemController extends Controller<Item> {
         cursor = sqLiteDatabase.query(Item.TABLE_NAME, null, Item._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
-            Item item = new Item();
-            item.setId(cursor.getString(cursor.getColumnIndex(Item._ID)));
-            item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
-            item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
-            item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
-            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
-            item.setQuantity(1);
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Item._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            item.setLastModification(lstMod);
-
-            //Foto del archivo
-            File photo = new File(cursor.getString(cursor.getColumnIndex(Item._PHOTO)));
-            item.setPhoto(Uri.fromFile(photo));
-
+            Item item = getDataFromCursor(cursor);
             return item;
         }
 
@@ -163,21 +99,8 @@ public class ItemController extends Controller<Item> {
 
     @Override
     public boolean update(Item item) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(Item._NAME, item.getName());
-        cv.put(Item._PRICE, item.getPrice());
-        cv.put(Item._PHOTO, item.getPhoto().getPath());
-        cv.put(Item._STOCK, item.getStock());
-        cv.put(Item._TAX_RATE, item.getTaxRate());
-
-        if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
-            cv.put(Item._CAT, item.getCategory().getId());
-        }
-
-        if (!Unit.UNKNOWN_UNIT.equals(item.getUnit())) {
-            cv.put(Item._UNIT, item.getCategory().getId());
-        }
+        ContentValues cv = getContentValues(item);
+        cv.remove(Item._ID);
 
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -188,22 +111,7 @@ public class ItemController extends Controller<Item> {
 
     @Override
     public boolean insert(Item item) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(Item._ID, item.getId());
-        cv.put(Item._NAME, item.getName());
-        cv.put(Item._PRICE, item.getPrice());
-        cv.put(Item._PHOTO, item.getPhoto().getPath());
-        cv.put(Item._STOCK, item.getStock());
-        cv.put(Item._TAX_RATE, item.getTaxRate());
-
-        if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
-            cv.put(Item._CAT, item.getCategory().getId());
-        }
-
-        if (!Unit.UNKNOWN_UNIT.equals(item.getUnit())) {
-            cv.put(Item._UNIT, item.getCategory().getId());
-        }
+        ContentValues cv = getContentValues(item);
 
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -254,5 +162,58 @@ public class ItemController extends Controller<Item> {
 
             return true;
         }
+    }
+
+    @Override
+    public Item getDataFromCursor(Cursor cursor) {
+        Item item = new Item();
+        item.setId(cursor.getString(cursor.getColumnIndex(Item._ID)));
+        item.setName(cursor.getString(cursor.getColumnIndex(Item._NAME)));
+        item.setPrice(cursor.getDouble(cursor.getColumnIndex(Item._PRICE)));
+        item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
+        item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
+        item.setQuantity(1);
+
+        CategoryController categoryController = new CategoryController(getSqLiteDatabase());
+        Category category  = categoryController.getById(cursor.getString(cursor.getColumnIndex(Item._CAT)));
+        item.setCategory(category);
+
+        UnitController unitController = new UnitController(getSqLiteDatabase());
+        Unit unit = unitController.getById(cursor.getString(cursor.getColumnIndex(Item._UNIT)));
+        item.setUnit(unit);
+
+        //Fecha de la ultima modificacion del archivo
+        String date = cursor.getString(cursor.getColumnIndex(Item._LASTMOD));
+        Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
+        item.setLastModification(lstMod);
+
+        //Foto del archivo
+        File photo = new File(cursor.getString(cursor.getColumnIndex(Item._PHOTO)));
+        item.setPhoto(Uri.fromFile(photo));
+
+        return item;
+    }
+
+
+    @Override
+    public ContentValues getContentValues(Item item) {
+        ContentValues cv = new ContentValues();
+
+        cv.put(Item._ID, item.getId());
+        cv.put(Item._NAME, item.getName());
+        cv.put(Item._PRICE, item.getPrice());
+        cv.put(Item._PHOTO, item.getPhoto().getPath());
+        cv.put(Item._STOCK, item.getStock());
+        cv.put(Item._TAX_RATE, item.getTaxRate());
+
+        if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
+            cv.put(Item._CAT, item.getCategory().getId());
+        }
+
+        if (!Unit.UNKNOWN_UNIT.equals(item.getUnit())) {
+            cv.put(Item._UNIT, item.getUnit().getId());
+        }
+
+        return cv;
     }
 }
