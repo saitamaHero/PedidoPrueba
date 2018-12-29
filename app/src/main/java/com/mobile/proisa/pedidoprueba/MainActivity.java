@@ -9,11 +9,14 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
+
+import Models.Category;
 import Models.Constantes;
 
 import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
@@ -32,8 +35,12 @@ import java.util.List;
 import java.util.Random;
 
 import Models.Diary;
+import Models.Unit;
 import Models.User;
 import Models.Vendor;
+import Sqlite.CategoryController;
+import Sqlite.MySqliteOpenHelper;
+import Sqlite.UnitController;
 import Utils.DateUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -93,7 +100,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 
         checkPreferences();
-        //new TestProgress(1, this, null).execute();
+
+
+        UnitController controller = new UnitController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+        List<Unit> units = controller.getAll();
+
+        for(Unit u : units){
+            Log.d("units",u.toString());
+        }
+
+
     }
 
     private void checkPreferences() {

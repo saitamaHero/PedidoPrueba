@@ -1,6 +1,7 @@
 package com.mobile.proisa.pedidoprueba.Fragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -27,6 +28,8 @@ import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
+import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,16 +37,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
+import BaseDeDatos.CategoryUpdater;
+import BaseDeDatos.ClientUpdater;
+import BaseDeDatos.ItemUpdater;
+import BaseDeDatos.SqlConnection;
+import BaseDeDatos.SqlUpdater;
+import BaseDeDatos.UnitUpdater;
 import Models.Category;
+import Models.Client;
 import Models.Item;
 import Models.Unit;
+import Sqlite.CategoryController;
+import Sqlite.ClientController;
 import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.UnitController;
 import Utils.DateUtils;
 
-public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener {
+public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener, TareaAsincrona.OnFinishedProcess {
     private static final String PARAM_ITEMS = "param_items";
     private static final int ITEMS_COUNT_DEFAULT = 30;
     private List<Item> items;
@@ -76,24 +90,16 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recycler_view);
+    }
 
-        if (this.items == null) {
-            this.items = getItems(ITEMS_COUNT_DEFAULT);
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateList();
+    }
 
-            if(this.items.size() == 0){
-                ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-
-                List<Item> items = createListItem(2000, 0);
-
-               if(controller.insertAll(items))
-               {
-                  this.items = getItems(ITEMS_COUNT_DEFAULT);
-               }
-            }
-
-            //printTime(this.items);
-        }
-
+    private void updateList(){
+        this.items = getItems(ITEMS_COUNT_DEFAULT);
         setAdapter();
     }
 
@@ -124,6 +130,17 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         itemListAdapter.setOnItemClickListener(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.sync:
+                new SyncItems(0, getActivity(), this).execute();
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -203,5 +220,80 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsItemActivity.class);
         seeMoreIntent.putExtra(DetailsItemActivity.EXTRA_ITEM_DATA, item);
         getActivity().startActivity(seeMoreIntent);
+    }
+
+    @Override
+    public void onFinishedProcess(TareaAsincrona task) {
+        if(!task.hasErrors()){
+            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onErrorOccurred(int id, Stack<Exception> exceptions) {
+
+    }
+
+
+    public static class SyncItems extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Item> {
+
+        public SyncItems(int id, Activity context, OnFinishedProcess listener) {
+            super(id, context, listener);
+        }
+
+        public SyncItems(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
+            super(id, context, listener, mDialogShow);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+
+            ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
+            //Si no hay elementos en la base de datos no se analizara practicamente nada.
+            ItemUpdater itemUpdater = new ItemUpdater(getContext().getApplicationContext(), connection, itemController);
+            //Llamar este metodo para que inserte los datos que hacen falta del servidor
+            itemUpdater.retriveData();
+
+
+            CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
+            //Si no hay elementos en la base de datos no se analizara practicamente nada.
+            CategoryUpdater categoryUpdater = new CategoryUpdater(getContext().getApplicationContext(), connection, categoryController);
+            //Llamar este metodo para que inserte los datos que hacen falta del servidor
+            categoryUpdater.retriveData();
+
+            UnitController unitController = new UnitController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
+            //Si no hay elementos en la base de datos no se analizara practicamente nada.
+            UnitUpdater unitUpdater = new UnitUpdater(getContext().getApplicationContext(), connection, unitController);
+            //Llamar este metodo para que inserte los datos que hacen falta del servidor
+            unitUpdater.retriveData();
+
+            return null;
+        }
+
+        @Override
+        public void onDataUpdate(Item data, int action) {
+            String resource;
+
+            switch (action){
+                case ACTION_INSERT:
+                    resource = getContext().getString(R.string.insert_msg,data.getName());
+                    break;
+
+                case ACTION_UPDATE:
+                    resource = getContext().getString(R.string.update_msg, data.getName());
+                    break;
+
+                default:
+                    return;
+            }
+
+            publishProgress(resource);
+        }
+
+        @Override
+        public void onDataUpdated(Item data) {
+
+        }
     }
 }
