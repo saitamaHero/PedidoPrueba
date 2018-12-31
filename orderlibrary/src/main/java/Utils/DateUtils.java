@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -184,5 +185,25 @@ public class DateUtils {
         public String toString() {
             return "DateConverter{" + "startDate=" + startDate + ", endDate=" + endDate + ", days=" + days + ", hours=" + hours + ", minutes=" + minutes + ", seconds=" + seconds + '}';
         }
+    }
+
+
+    private Date getRandomDate(Date dateBase, int year){
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(DateUtils.deleteTime(dateBase));
+        calendar.set(Calendar.YEAR, year);
+
+        Random random = new Random();
+
+        calendar.set(Calendar.MONTH, random.nextInt(11));
+
+        int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));
+
+
+
+        return calendar.getTime();
     }
 }
