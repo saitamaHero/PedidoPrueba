@@ -42,6 +42,7 @@ import Sqlite.CategoryController;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.UnitController;
 import Utils.DateUtils;
+import Utils.FileUtils;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
@@ -54,9 +55,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Date date = DateUtils.convertToDate("29-11-2018", DateUtils.DD_MM_YYYY);
-        Diary diary = new Diary(1,date, "Hola oo");
-
         navigationView = findViewById(R.id.nav_bottom);
 
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -64,60 +62,33 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int position = item.getOrder() - 1;
                 viewPager.setCurrentItem(position, true);
-                /*switch (item.getItemId()){
-                    case R.id.stock:
-                        viewPager.setCurrentItem(0, true);
-                        break;
-                    case R.id.clients:
-                        viewPager.setCurrentItem(1, true);
-                        break;
-                    case R.id.vendor_activity:
-                        viewPager.setCurrentItem(2, true);
-                        break;
 
-                    case R.id.vendor_profile:
-                        viewPager.setCurrentItem(3, true);
-                        break;
-
-                    default:
-                        return false;
-
-                }*/
-                //Snackbar.make(navigationView, ""+item.getOrder()+" "+item.toString(), Snackbar.LENGTH_SHORT).show();
                 return true;
             }
         });
 
-       /* navigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
-            @Override
-            public void onNavigationItemReselected(@NonNull MenuItem item) {
-                Toast.makeText(getApplicationContext(), "Reselected: "+item.toString().trim(), Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
 
         setUpViewPager(3);
 
 
         checkPreferences();
 
+        //setTitle(FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.ITEMS_PHOTOS).getPath());
 
+/*
         UnitController controller = new UnitController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
         List<Unit> units = controller.getAll();
 
         for(Unit u : units){
             Log.d("units",u.toString());
         }
-
+*/
 
     }
 
     private void checkPreferences() {
         if(!areUserThere()){
             startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class),100);
-        }else{
-            //mUser = getUserFromPreferences();
-            //setTitle("User: "+mUser.getUser() + " "+mUser.getVendor().toString()) ;
         }
     }
 
@@ -153,24 +124,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return calendar.getTime();
    }
 
-    private Date getRandomDate(Date dateBase, int year){
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(DateUtils.deleteTime(dateBase));
-        calendar.set(Calendar.YEAR, year);
 
-        Random random = new Random();
-
-        calendar.set(Calendar.MONTH, random.nextInt(11));
-
-        int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));
-
-
-
-        return calendar.getTime();
-    }
    public static List<Actividad> getActividadesDePrueba(){
         List<Actividad> actividads = new ArrayList<>();
 

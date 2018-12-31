@@ -43,8 +43,6 @@ import static android.content.Context.MODE_PRIVATE;
  * A simple {@link Fragment} subclass.
  */
 public class VendorProfileFragment extends Fragment implements View.OnClickListener, ActividadAdapter.ActividadHolder.OnActividadClick {
-
-
     private User mUser;
     private TextView txtName;
     private TextView txtId;
@@ -116,7 +114,6 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
     private boolean areUserThere(){
         SharedPreferences preferences = getActivity().getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
-
         return preferences.contains(Constantes.USER);
     }
 
@@ -164,7 +161,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void setAdapterActividades() {
-        List<Actividad> actividadList =getActividades();
+        List<Actividad> actividadList = getActividades();
 
         ActividadAdapter actividadAdapter = new ActividadAdapter(actividadList, R.layout.data_detail_layout);
         recyclerView.setAdapter(actividadAdapter);
@@ -185,13 +182,12 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         Actividad actividad;
 
-        actividad = new Actividad(NumberUtils.formatNumber(2,
+        actividad = new Actividad(1,NumberUtils.formatNumber(2,
                 NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
-        actividad.setId(1);
         actividads.add(actividad);
 
         actividad = new Actividad(2, NumberUtils.formatNumber(12,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados Sí Facturación");
+                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados Sí Facturación", "", true);
         actividads.add(actividad);
 
 
@@ -211,7 +207,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         actividad = new Actividad(6, NumberUtils.formatNumber(9,
                 NumberUtils.FORMAT_NUMER_INTEGER), "Pagos de Clientes",
-                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), false);
+                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), true);
         actividads.add(actividad);
 
         actividad = new Actividad(7, NumberUtils.formatNumber(2,
