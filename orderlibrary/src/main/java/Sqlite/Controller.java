@@ -40,6 +40,10 @@ public abstract class Controller<T> {
 
     public abstract T getById(Object id);
 
+    public List<T> getAll(String selection, String[] selectionArgs){
+        return null;
+    }
+
 
     public boolean exists(String field, Object object){
         return false;

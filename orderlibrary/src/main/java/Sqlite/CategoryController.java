@@ -74,6 +74,7 @@ public class CategoryController extends Controller<Category> {
         return null;
     }
 
+
     @Override
     public boolean update(Category item) {
         ContentValues cv = new ContentValues();

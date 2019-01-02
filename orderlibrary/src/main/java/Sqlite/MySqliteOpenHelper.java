@@ -197,7 +197,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     }
 
     public static MySqliteOpenHelper getInstance(Context context){
-        return new MySqliteOpenHelper(context, "PRUEBA.db", null, MySqliteOpenHelper.VERSION);
+        return new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
     }
 
 }

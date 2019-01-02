@@ -11,7 +11,7 @@ public interface ColumnsSqlite {
     }
 
     /**
-     * Columna a implementar en las tablas que lleven comentarios como {@link ColumnsInvoice}
+     * Columna a implementar en las tablas que lleven comentarios como {@link ColumnsInvoice Invoice}
      */
     public interface ColumnComment{
         String _COMMENT = "_comment";
@@ -47,7 +47,6 @@ public interface ColumnsSqlite {
         String TABLE_NAME = "products_table";
         String _ID = "_id";
         String _NAME = "_name";
-        //String _COST = "_cost";
         String _PRICE = "_price";
         String _CAT = "_category";
         String _UNIT = "_unit";
@@ -76,7 +75,7 @@ public interface ColumnsSqlite {
 
     /**
      * Columnas base para tabla con campos de persona por ejemplo
-     * {@link ColumnsClient}
+     * {@link ColumnsClient Client}
      */
     public interface ColumnsPerson extends ColumnModification, ColumnPhoto{
         String _ID = "_id";
@@ -92,7 +91,7 @@ public interface ColumnsSqlite {
     }
 
     /**
-     * Columnas de la tabla de clientes, extiende de {@link ColumnsPerson}
+     * Columnas de la tabla de clientes, extiende de {@link ColumnsPerson Person}
      */
     public interface ColumnsClient extends ColumnsPerson, ColumnsRemote
     {

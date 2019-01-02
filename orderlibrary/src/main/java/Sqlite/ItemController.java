@@ -83,6 +83,29 @@ public class ItemController extends Controller<Item> {
     }
 
     @Override
+    public List<Item> getAll(String selection, String[] selectionArgs) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        List<Item> items = new ArrayList<>();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Item.TABLE_NAME, null, selection,
+                selectionArgs, null, null, null);
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Item item = getDataFromCursor(cursor);
+            items.add(item);
+
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        return items;
+    }
+
+    @Override
     public Item getById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
