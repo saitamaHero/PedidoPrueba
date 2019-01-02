@@ -148,4 +148,6 @@
 
     <string name="insert_msg">Guardando a %s</string>
     <string name="update_msg">Actualizando a %s</string>
+    <string name="filter">Filtro</string>
+    <string name="clean_filter">Limpiar filtro</string>
 </resources>

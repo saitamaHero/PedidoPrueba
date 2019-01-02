@@ -36,6 +36,7 @@ import java.util.List;
 
 import Models.User;
 import Models.Vendor;
+import Sqlite.MySqliteOpenHelper;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -55,7 +56,6 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     public VendorProfileFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -131,7 +131,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
             case R.id.btn_log_out:
                 deletePreferences();
 
-                getActivity().deleteDatabase("PRUEBA.db");
+                getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
                 checkPreferences();
 
                 break;

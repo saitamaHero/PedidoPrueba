@@ -1,45 +1,60 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.CursorAdapter;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.MyOnItemSelectedListener;
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
-import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+import Models.Category;
 import Models.Item;
+import Models.SimpleElement;
+import Sqlite.CategoryController;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 
-public class SelectorItemActivity extends AppCompatActivity implements MyOnItemSelectedListener, SearchView.OnQueryTextListener {
+public class SelectorItemActivity extends AppCompatActivity implements MyOnItemSelectedListener, SearchView.OnQueryTextListener, DialogInterface.OnClickListener, View.OnClickListener {
     public static final String EXTRA_ITEMS = "EXTRA_ITEMS";
 
     public List<Item> itemList;
     public List<ItemSelectable> searchItemList;
+
     private RecyclerView recyclerView;
+    private TextView txtCategorySelected;
+    private ImageView imgDelete;
     private ItemSelectableAdapter itemSelectableAdapter;
+
+    private Category selectedCategory;
+
+    private ListAdapter categories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +64,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         itemList = getExtraItems();
         searchItemList = new ArrayList<>();
 
-        recyclerView = findViewById(R.id.recycler_view);
+        bindUI();
 
 
         loadAdapter();
@@ -58,6 +73,22 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             searchItemList.addAll(ItemSelectable.checkItemsInTheList(ItemSelectable.getItemSelectableList(getItems(50)), this.itemList));
             itemSelectableAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void bindUI(){
+        recyclerView = findViewById(R.id.recycler_view);
+        txtCategorySelected = findViewById(R.id.category_name);
+        imgDelete = findViewById(R.id.img_remove);
+
+
+        txtCategorySelected.setOnClickListener(this);
+
+        /*CardView cardView = findViewById(R.id.card_category);
+        cardView.animate().scaleY(20.1f).scaleX(20.1f).setInterpolator(new LinearInterpolator())
+                .setDuration(5000).start();
+
+        cardView.animate().scaleY(1.0f).scaleX(1.0f).setInterpolator(new LinearInterpolator())
+                .setDuration(500).start();*/
     }
 
     private List<Item> getExtraItems() {
@@ -114,10 +145,47 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
                     sendData();
                 }
                 break;
+            case R.id.action_filter:
+                showDialogToChoose();
+                break;
         }
 
         return true;
     }
+
+    private void showDialogToChoose() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        categories = getCategories();
+
+        builder.setSingleChoiceItems(categories, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                selectedCategory = (Category) categories.getItem(i);
+
+                Toast.makeText(getApplicationContext(), selectedCategory.toString(),Toast.LENGTH_LONG).show();
+            }
+        });
+
+        builder.setPositiveButton(R.string.search,this);
+        builder.setNegativeButton(R.string.clean_filter,this);
+
+
+
+       builder.create().show();
+
+    }
+
+    private ListAdapter getCategories(){
+        ArrayAdapter listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+
+        CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+        List<Category> categories = categoryController.getAll();
+
+        listAdapter.addAll(categories);
+
+        return listAdapter;
+    }
+
 
     private void sendData() {
         Intent resultIntent = new Intent();
@@ -135,7 +203,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         }
 
         setTitle(getResources().getQuantityString(R.plurals.items_selected,this.itemList.size(), this.itemList.size()));
-        //invalidateOptionsMenu();
     }
 
     @Override
@@ -146,19 +213,32 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        search(newText);
+        return true;
+    }
+
+    private void search(String newText){
         searchItemList.removeAll(searchItemList);
 
         if(TextUtils.isEmpty(newText)){
             List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
             searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
         }else{
-            List<ItemSelectable> list = ItemSelectable.getItemSelectableList(getItems(newText));
-            searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+            if(selectedCategory != null){
+                ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+
+                List<Item> listItems = itemController.getAll(Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?"),
+                       new String[]{selectedCategory.getId(), "%"+newText+"%"} );
+
+                List<ItemSelectable> list = ItemSelectable.getItemSelectableList(listItems);
+                searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+            }else{
+                List<ItemSelectable> list = ItemSelectable.getItemSelectableList(getItems(newText));
+                searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+            }
         }
 
         itemSelectableAdapter.notifyDataSetChanged();
-
-        return true;
     }
 
     private List<Item> getItems(String str) {
@@ -172,8 +252,61 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
                 .getReadableDatabase());
         return controller.getAll(count);
     }
+
+
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public void onClick(DialogInterface dialogInterface, int whichButton)
+    {
+        switch (whichButton){
+            case DialogInterface.BUTTON_POSITIVE:
+                showCategoryChoosed();
+                break;
+
+            case DialogInterface.BUTTON_NEGATIVE:
+                selectedCategory = null;
+                break;
+        }
+
+
+
+    }
+
+    private void showCategoryChoosed() {
+        txtCategorySelected.setText(selectedCategory.getName());
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.category_name:
+                showDialogToChoose();
+                break;
+
+            case R.id.img_remove:
+                txtCategorySelected.setText("");
+                selectedCategory = null;
+                break;
+        }
+    }
+
+
+    public static class SingleSimpleElementAdapter extends ArrayAdapter<SimpleElement> implements ListAdapter{
+
+        public SingleSimpleElementAdapter(@NonNull Context context, int resource) {
+            super(context, resource);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            SimpleElement element = getItem(position);
+
+            convertView = super.getView(position, convertView, parent);
+
+            TextView txtView = convertView.findViewById(android.R.id.text1);
+            txtView.setText(element.getName());
+
+            return  convertView;
+        }
     }
 }
