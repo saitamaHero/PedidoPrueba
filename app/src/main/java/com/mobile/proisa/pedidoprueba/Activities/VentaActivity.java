@@ -1,7 +1,9 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
@@ -24,9 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Models.Client;
+import Models.Constantes;
 import Models.ITotal;
 import Models.Invoice;
 import Models.Item;
+import Models.Vendor;
 import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 
 public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener, ItemsListSalesAdapter.NotificationListener {
@@ -54,7 +58,9 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
             itemList =savedInstanceState.getParcelableArrayList("list");
         }
 
-        //setTitle(client.getName());
+        Vendor vendor =VendorUtil.getVendor(this);
+        setTitle(vendor.getName());
+        getSupportActionBar().setSubtitle(R.string.vendor);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -239,6 +245,20 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
     }
 
 
+
+    public static class VendorUtil{
+        public static Vendor getVendor(Context context){
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
+            String codigo = sharedPreferences.getString(Constantes.VENDOR_CODE, "");
+            String nombre = sharedPreferences.getString(Constantes.VENDOR_NAME, "");
+
+            Vendor vendor = new Vendor();
+            vendor.setId(codigo);
+            vendor.setName(nombre);
+
+            return vendor;
+        }
+    }
 
 
 }
