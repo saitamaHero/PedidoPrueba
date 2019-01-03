@@ -50,7 +50,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
             client.setRemoteId(rs.getString("CL_CODIGO").trim());
             client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
 
-            client.setName(rs.getString("CL_NOMBRE"));
+            client.setName(rs.getString("CL_NOMBRE").trim());
 
             //Credito
             client.setCreditStatus(rs.getString("CL_ESTADO").charAt(0));
