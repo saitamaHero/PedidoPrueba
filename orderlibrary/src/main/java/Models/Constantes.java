@@ -17,4 +17,5 @@ public class Constantes {
             .concat(File.separator);
 
 
+    public static final String REGEX_PHONE_CHARATERS = "\\(|\\)|-";
 }

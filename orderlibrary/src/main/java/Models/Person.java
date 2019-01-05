@@ -6,6 +6,10 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -214,6 +218,28 @@ public class Person implements Parcelable{
         parcel.writeSerializable(birthDate);
         parcel.writeSerializable(enteredDate);
         parcel.writeSerializable(lastModification);
+    }
+
+    public static String formatPhone(String phone) {
+        String number = "";
+
+        PhoneNumberUtil pnu = PhoneNumberUtil.getInstance();
+        Phonenumber.PhoneNumber pn = null;
+
+        try {
+            pn = pnu.parse(phone, "DO");
+        } catch (NumberParseException e) {
+            e.printStackTrace();
+        }
+
+        try{
+            number = pnu.format(pn, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+            number = number.replace(" " ,"");
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return number;
     }
 
 
