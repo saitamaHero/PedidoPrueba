@@ -21,6 +21,8 @@ import java.util.GregorianCalendar;
 
 import Models.Client;
 import Models.ColumnsSqlite;
+import Models.Constantes;
+import Models.Person;
 import Utils.DateUtils;
 
 public class EditClientActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
@@ -66,7 +68,9 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         try {
             TextInputEditText edtPhone = findViewById(R.id.phone);
-            edtPhone.setText(client.getPhone(0));
+            String phone = client.getPhone(0);
+            phone = phone.replaceAll(Constantes.REGEX_PHONE_CHARATERS,"");
+            edtPhone.setText(phone);
         }catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
@@ -96,7 +100,9 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         client.setName(edtName.getText().toString().trim());
 
         TextInputEditText edtPhone = findViewById(R.id.phone);
-        client.addPhone(edtPhone.getText().toString().trim());
+        String phone = edtPhone.getText().toString().trim();
+        phone = Person.formatPhone(phone);
+        client.addPhone(phone);
 
         TextInputEditText edtEmail = findViewById(R.id.email);
         client.setEmail(edtEmail.getText().toString().trim());

@@ -278,7 +278,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (view.getId()){
             case R.id.fab_start_visit:
                 if(client.getDistance() < 300){
+                    //Posiblemente hay que leer el codigo de barra del cliente
                     Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
+                    /**Si hay una cita acordada para hoy actualizar los registros
+                     * Sino crear una nueva*/
                 }
                 break;
 
