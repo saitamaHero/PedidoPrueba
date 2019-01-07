@@ -1,6 +1,7 @@
 package BaseDeDatos;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -10,9 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import Models.Category;
+import Models.Constantes;
 import Models.Item;
 import Models.Unit;
 import Sqlite.Controller;
+import Utils.FileUtils;
 
 public class ItemUpdater extends SqlUpdater<Item> {
 
@@ -40,9 +43,24 @@ public class ItemUpdater extends SqlUpdater<Item> {
             item.setPrice(rs.getDouble("AR_PREDET"));
             item.setTaxRate(rs.getDouble("ITBIS"));
             item.setStock(rs.getDouble("CTD_INV"));
-            item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
+
             item.setCategory(new Category(rs.getString("DE_CODIGO").trim(),""));
             item.setUnit(new Unit(rs.getString("AR_UNIDAD").trim(), ""));
+
+
+            String base64str = rs.getString("AR_IMAGEN2");
+
+            if(base64str != null){
+                String name = FileUtils.addExtension(item.getId(), FileUtils.JPG_EXT);
+                File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.ITEMS_PHOTOS);
+                Bitmap bm = FileUtils.decodeBase64(base64str);
+
+                FileUtils.savePhoto(bm, route , name, FileUtils.DEFAULT_QUALITY);
+
+                item.setPhoto(Uri.fromFile(new File(route,name)));
+            }else{
+                item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -59,8 +77,8 @@ public class ItemUpdater extends SqlUpdater<Item> {
                 + "   WHEN 'S' THEN (SELECT ITBIS FROM FABDPROC) \n"
                 + "   WHEN 'T' THEN (SELECT ITBIS1 FROM FABDPROC) \n"
                 + "   ELSE 0.0  \n"
-                + "END) AS ITBIS\n"
-                + "FROM IVBDARTI";
+                + "END) AS ITBIS, AR_IMAGEN2\n"
+                + "FROM IVBDARTI WHERE AR_IMAGEN2 != ''";
 
         PreparedStatement preparedStatement = null;
 

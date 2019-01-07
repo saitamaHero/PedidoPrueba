@@ -1,6 +1,7 @@
 package Utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +15,8 @@ public class FileUtils {
     public static String PNG_EXT = ".png";
     public static String JPG_EXT = ".jpg";
     public static String PDF_EXT = ".pdf";
+    public static final  int DEFAULT_QUALITY = 30;
+    public static final  int GOOD_QUALITY = 80;
 
     public static String createTmpFileName(){
         return UUID.randomUUID().toString().substring(0,7);
@@ -85,5 +88,33 @@ public class FileUtils {
         file = new File(mainRoute, subFolder);
 
         return file;
+    }
+
+
+    public static String encodeBase64(File file){
+        byte[] fileArray = new byte[(int) file.length()];
+        String encodedFile = "";
+        try {
+            encodedFile = android.util.Base64.encodeToString(fileArray, android.util.Base64.DEFAULT);
+        } catch (Exception e) {
+            // Manejar Error
+        }
+
+        return encodedFile;
+    }
+
+    public static Bitmap decodeBase64(String strToDecode){
+        byte[] bytes = android.util.Base64.decode(strToDecode, android.util.Base64.DEFAULT);
+
+        Bitmap bm = null;
+
+        try{
+            bm = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
+        }catch (OutOfMemoryError e){
+            e.printStackTrace();
+        }
+
+
+        return bm;
     }
 }
