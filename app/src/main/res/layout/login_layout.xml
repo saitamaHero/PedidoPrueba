@@ -103,15 +103,6 @@
                         android:imeOptions="actionDone"
                         />
                 </LinearLayout>
-
-                <Switch
-                    android:id="@+id/sw_remember_user"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/remember_user"
-                    android:layout_margin="16dp"
-                    android:checked="true"
-                    />
             </LinearLayout>
 
 

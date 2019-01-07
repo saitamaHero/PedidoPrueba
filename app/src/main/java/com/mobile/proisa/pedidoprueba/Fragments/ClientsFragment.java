@@ -2,20 +2,15 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,9 +23,7 @@ import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
 import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
-import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
-import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
@@ -45,7 +38,6 @@ import BaseDeDatos.SqlUpdater;
 import Models.Client;
 import Sqlite.ClientController;
 import Sqlite.MySqliteOpenHelper;
-import Utils.DateUtils;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -127,8 +119,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             }
 
         });
-
-       //updateList();
+        updateList();
     }
 
     private void setAdapter() {
@@ -258,7 +249,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     @Override
     public void onResume() {
         super.onResume();
-        updateList();
     }
 
     @Override
@@ -276,6 +266,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         if(!task.hasErrors()){
             Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
             Log.d("RemoteData","The sync is finished");
+            updateList();
         }
 
     }
@@ -318,11 +309,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             String resource;
 
             switch (action){
-                case ACTION_INSERT:
+                case ACTION_INSERT_REMOTE:
                     resource = getContext().getString(R.string.insert_msg,data.getName());
                     break;
 
-                case ACTION_UPDATE:
+                case ACTION_UPDATE_REMOTE:
                     resource = getContext().getString(R.string.update_msg, data.getName());
                     break;
 

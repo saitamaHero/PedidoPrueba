@@ -3,7 +3,6 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,8 +24,6 @@ import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.DetailsItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
-import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
-import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
@@ -40,18 +37,14 @@ import java.util.Random;
 import java.util.Stack;
 
 import BaseDeDatos.CategoryUpdater;
-import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.ItemUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.UnitUpdater;
 import Models.Category;
-import Models.Client;
 import Models.Item;
 import Models.Unit;
 import Sqlite.CategoryController;
-import Sqlite.ClientController;
-import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.UnitController;
@@ -90,12 +83,12 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recycler_view);
+        updateList();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateList();
     }
 
     private void updateList(){
@@ -136,7 +129,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncItems(0, getActivity(), this).execute();
+                new SyncItems(0, getActivity(), this, true).execute();
                 break;
         }
 
@@ -226,6 +219,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
             Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
+            updateList();
         }
     }
 
@@ -248,20 +242,30 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         @Override
         protected Void doInBackground(Void... voids) {
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+            publishProgress(getContext().getString(R.string.starting));
 
+            /**
+             * Articulos
+             */
             ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             ItemUpdater itemUpdater = new ItemUpdater(getContext().getApplicationContext(), connection, itemController);
+            itemUpdater.setOnDataUpdateListener(this);
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             itemUpdater.retriveData();
 
-
+            /**
+             * Categoria
+             */
             CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             CategoryUpdater categoryUpdater = new CategoryUpdater(getContext().getApplicationContext(), connection, categoryController);
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             categoryUpdater.retriveData();
 
+            /**
+             * Unidad
+             */
             UnitController unitController = new UnitController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             UnitUpdater unitUpdater = new UnitUpdater(getContext().getApplicationContext(), connection, unitController);
@@ -276,11 +280,12 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             String resource;
 
             switch (action){
-                case ACTION_INSERT:
+                case ACTION_INSERT_REMOTE:
+                case ACTION_INSERT_LOCAL:
                     resource = getContext().getString(R.string.insert_msg,data.getName());
                     break;
 
-                case ACTION_UPDATE:
+                case ACTION_UPDATE_REMOTE:
                     resource = getContext().getString(R.string.update_msg, data.getName());
                     break;
 

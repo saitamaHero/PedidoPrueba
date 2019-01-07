@@ -1,6 +1,9 @@
 package com.mobile.proisa.pedidoprueba.Dialogs;
 
+import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.res.Resources;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +21,7 @@ public class ProgressDialog extends DialogFragment {
 
     private String info;
     private TextView textView;
+    private String mTitle;
 
     public static ProgressDialog newInstance(String info) {
         Bundle args = new Bundle();
@@ -28,15 +32,20 @@ public class ProgressDialog extends DialogFragment {
         return fragment;
     }
 
+    public static ProgressDialog newInstance(String title, String info) {
+        Bundle args = new Bundle();
+        ProgressDialog fragment = new ProgressDialog();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setStyle(STYLE_NO_TITLE, getTheme());
+
 
         if(getArguments() != null){
             info = getArguments().getString(PARAM_INFO);
-        }else{
-            info = "...";
         }
     }
 
@@ -50,8 +59,20 @@ public class ProgressDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         textView = view.findViewById(R.id.textView);
         textView.setText(info);
+
+
+        setStyle(STYLE_NORMAL, R.style.Theme_AppCompat_Dialog_MinWidth);
+
     }
 
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+
+        dialog.setTitle(getString(R.string.processing));
+
+        return dialog;
+    }
 
     public void changeInfo(String newInfo){
         if(getDialog().isShowing() && !TextUtils.isEmpty(newInfo)){

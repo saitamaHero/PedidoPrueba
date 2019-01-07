@@ -152,4 +152,6 @@
     <string name="filter">Filtro</string>
     <string name="clean_filter">Limpiar filtro</string>
     <string name="vendor">Vendedor</string>
+    <string name="starting">Iniciando...</string>
+    <string name="processing">Procesando</string>
 </resources>
