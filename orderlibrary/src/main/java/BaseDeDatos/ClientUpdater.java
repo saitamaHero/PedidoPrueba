@@ -1,16 +1,26 @@
 package BaseDeDatos;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Environment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import Models.Client;
 import Models.ColumnsSqlite;
+import Models.Constantes;
 import Sqlite.Controller;
+import Utils.FileUtils;
 
 public class ClientUpdater extends SqlUpdater<Client> {
 
@@ -65,6 +75,27 @@ public class ClientUpdater extends SqlUpdater<Client> {
             client.addPhone(rs.getString("CL_TELEF1").trim());
             client.setAddress(rs.getString("CL_DIREC1").trim());
 
+
+            InputStream binaryStream = rs.getBinaryStream("CL_FOTO2");
+
+            if(binaryStream != null){
+                String name = FileUtils.addExtension(client.getRemoteId().toString(), FileUtils.JPG_EXT);
+                File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.CLIENTS_PHOTOS);
+                Bitmap bm = null;
+
+                try {
+                    bm = FileUtils.getBitmapFrom(binaryStream);
+
+                    FileUtils.savePhoto(bm, route , name, FileUtils.DEFAULT_QUALITY);
+
+                    client.setProfilePhoto(Uri.fromFile(new File(route,name)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                //client.setProfilePhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -79,7 +110,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         String query = "SELECT \n"
                 + "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1,\n"
                 + "CL_LIMCRE, CL_ESTADO, CL_FECNAC, CL_FECING, \n"
-                + "CL_RNC, CL_EMAIL\n"
+                + "CL_RNC, CL_EMAIL, CL_FOTO2\n"
                 + "FROM CCBDCLIE WHERE VE_CODIGO = ?";
 
         PreparedStatement preparedStatement = null;
@@ -99,8 +130,8 @@ public class ClientUpdater extends SqlUpdater<Client> {
         Connection connection = getConnection().getSqlConnection();
         String query = "INSERT INTO CCBDCLIE(" +
                 "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1, CL_RNC, CL_TIPORNC, CL_EMAIL," +
-                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING "        +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2 "        +
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             int id = generateId();
@@ -132,6 +163,15 @@ public class ClientUpdater extends SqlUpdater<Client> {
                 preparedStatement.setDate(11, new java.sql.Date(data.getBirthDate().getTime()));
                 preparedStatement.setDate(12, new java.sql.Date(data.getEnteredDate().getTime()));
 
+                File file = new File(data.getProfilePhoto().getPath());
+
+                try {
+                    preparedStatement.setBinaryStream(13, FileUtils.getFileInputStream(file), (int)file.length());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    preparedStatement.setNull(13, Types.VARBINARY);
+                }
+
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 if(rowsAffected > 0)
@@ -156,7 +196,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
 
         String query = "UPDATE CCBDCLIE SET " +
                 "CL_NOMBRE=?, CL_DIREC1=?, CL_TELEF1=?, CL_RNC=?, CL_TIPORNC=?, CL_EMAIL=?," +
-                "CL_ESTADO=?, VE_CODIGO=?, CL_LIMCRE=?, CL_FECNAC=?, CL_FECING=? "        +
+                "CL_ESTADO=?, VE_CODIGO=?, CL_LIMCRE=?, CL_FECNAC=?, CL_FECING=?, CL_FOTO2=? "        +
                 "WHERE CL_CODIGO=?";
 
         try {
@@ -179,7 +219,17 @@ public class ClientUpdater extends SqlUpdater<Client> {
             preparedStatement.setDouble(9, data.getCreditLimit());
             preparedStatement.setDate(10, new java.sql.Date(data.getBirthDate().getTime()));
             preparedStatement.setDate(11, new java.sql.Date(data.getEnteredDate().getTime()));
-            preparedStatement.setString(12, String.valueOf(data.getRemoteId()));
+
+            File file = new File(data.getProfilePhoto().getPath());
+
+            try {
+                preparedStatement.setBinaryStream(12, FileUtils.getFileInputStream(file), (int)file.length());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                preparedStatement.setNull(12, Types.VARBINARY);
+            }
+
+            preparedStatement.setString(13, String.valueOf(data.getRemoteId()));
 
             data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
 

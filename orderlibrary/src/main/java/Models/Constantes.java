@@ -13,7 +13,11 @@ public class Constantes {
 
     public static final String MAIN_DIR = Environment.getExternalStorageDirectory().toString()
             .concat(File.separator).concat(".proisa").concat(File.separator);
+
     public static final String ITEMS_PHOTOS = File.separator.concat("articulos")
+            .concat(File.separator);
+
+    public static final String CLIENTS_PHOTOS = File.separator.concat("clientes")
             .concat(File.separator);
 
 

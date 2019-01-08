@@ -2,10 +2,14 @@ package Utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -82,6 +86,43 @@ public class FileUtils {
         return saved;
     }
 
+    public static Uri compressPhoto(File dest, Uri uri, int quality) throws NullPointerException, IOException {
+        FileOutputStream fos = null;
+
+        if(!dest.exists())
+            dest.mkdirs();
+
+        File archivo = new File(dest,uri.getLastPathSegment());
+        Bitmap bm = BitmapFactory.decodeFile(uri.getPath(),new BitmapFactory.Options());
+
+        try {
+            fos = new FileOutputStream(archivo);
+
+            bm.compress(Bitmap.CompressFormat.JPEG, quality, fos);
+
+
+            uri = Uri.fromFile(archivo);
+
+            fos.flush();
+            fos.close();
+            fos = null;
+
+        } catch (IOException e) {
+            throw  e;
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    throw e;
+                }
+            }
+        }
+
+        return uri;
+    }
+
     public static File createFileRoute(String mainRoute, String subFolder){
         File file;
 
@@ -90,8 +131,30 @@ public class FileUtils {
         return file;
     }
 
+    public static InputStream getFileInputStream(File file) throws FileNotFoundException {
+        if(file == null) throw new NullPointerException();
+        return  new FileInputStream(file);
+    }
+
+    public static Bitmap getBitmapFrom(InputStream inputStream) throws IOException {
+        if(inputStream != null && inputStream.available() > 0){
+            Bitmap bm = BitmapFactory.decodeStream(inputStream);
+            return bm;
+        }
+
+        return null;
+    }
+
 
     public static String encodeBase64(File file){
+        try {
+            InputStream inputStream = new FileInputStream(file);
+
+            //inputStream.
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         byte[] fileArray = new byte[(int) file.length()];
         String encodedFile = "";
         try {
