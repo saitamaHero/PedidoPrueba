@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -49,6 +50,7 @@ import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -57,6 +59,7 @@ import java.util.Locale;
 
 import Models.Client;
 import Models.ColumnsSqlite;
+import Models.Constantes;
 import Models.Diary;
 import Models.Invoice;
 import Models.Item;
@@ -339,21 +342,31 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (requestCode ){
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
-                    client.setProfilePhoto(currentPhotoItem);
-                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
-                    ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+                    try {
+                        currentPhotoItem = savePhoto(currentPhotoItem);
 
-                    if(controller.update(client)){
-                        Toast.makeText(getApplicationContext(),
-                                R.string.update_photo_success,
-                                Toast.LENGTH_SHORT).show();
+                        client.setProfilePhoto(currentPhotoItem);
+                        client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
-                        client = controller.getById(client.getId());
+                        ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
+                        if(controller.update(client)){
+                            Toast.makeText(getApplicationContext(),
+                                    R.string.update_photo_success,
+                                    Toast.LENGTH_SHORT).show();
+
+                            client = controller.getById(client.getId());
+                        }
+
+                        loadBackdrop(client.getProfilePhoto());
+                        loadInfo(client);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
-                    loadBackdrop(client.getProfilePhoto());
-                    loadInfo(client);
+
                 }
                 break;
 
@@ -381,29 +394,41 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case GALLERY_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
                     Uri realUri = getRealUriFromGallery(data.getData());
-                    client.setProfilePhoto(realUri);
-                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
+                    try {
+                        realUri = savePhoto(realUri);
 
-                    Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
-                    Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
+                        client.setProfilePhoto(realUri);
+                        client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
-                    ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+                        //Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
+                        //Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
 
-                    if(controller.update(client)){
-                        Toast.makeText(getApplicationContext(),
-                                R.string.update_photo_success,
-                                Toast.LENGTH_SHORT).show();
+                        ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-                        client = controller.getById(client.getId());
+                        if(controller.update(client)){
+                            Toast.makeText(getApplicationContext(),
+                                    R.string.update_photo_success,
+                                    Toast.LENGTH_SHORT).show();
+
+                            client = controller.getById(client.getId());
+                        }
+
+                        loadBackdrop(client.getProfilePhoto());
+                        loadInfo(client);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    loadBackdrop(client.getProfilePhoto());
-                    loadInfo(client);
                 }
 
                 break;
         }
+    }
+
+    private Uri savePhoto(Uri photoItem) throws IOException {
+        File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.CLIENTS_PHOTOS);
+
+        return FileUtils.compressPhoto(route, photoItem, FileUtils.DEFAULT_QUALITY);
     }
 
     @Override

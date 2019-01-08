@@ -3,7 +3,7 @@
     <dimen name="text_size_titles">21sp</dimen>
     <dimen name="text_size_subtitles">18sp</dimen>
 
-    <dimen name="detail_backdrop_height">512dp</dimen>
+    <dimen name="detail_backdrop_height">410dp</dimen>
     <dimen name="width_card_login">500dp</dimen>
 
 </resources>

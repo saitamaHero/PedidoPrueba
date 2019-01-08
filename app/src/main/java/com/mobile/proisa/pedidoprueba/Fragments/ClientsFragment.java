@@ -310,6 +310,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             switch (action){
                 case ACTION_INSERT_REMOTE:
+                case ACTION_INSERT_LOCAL:
                     resource = getContext().getString(R.string.insert_msg,data.getName());
                     break;
 
