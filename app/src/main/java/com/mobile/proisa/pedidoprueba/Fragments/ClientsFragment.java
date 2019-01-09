@@ -179,7 +179,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncClients(0, getActivity(), this).execute();
+                new SyncClients(0, getActivity(), this, true).execute();
                 break;
         }
 
@@ -202,7 +202,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
 
@@ -214,7 +213,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                     Client clientToInsert = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
 
                     if(clientToInsert != null){
-                        //clientToInsert.setId("TMP_"+clientToInsert.hashCode());
                         ClientController controller =
                                 new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
 
