@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -218,10 +219,15 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
         } else {
             if (selectedCategory != null) {
-                List<Item> listItems = itemController.getAll(Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?"), new String[]{selectedCategory.getId(), "%" + newText + "%"});
+                String selection =  Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?");
+                String[] selectionArgs = new String[]{selectedCategory.getId(), "%" + newText + "%"};
 
+
+
+                List<Item> listItems = itemController.getAll(selection,  selectionArgs);
                 List<ItemSelectable> list = ItemSelectable.getItemSelectableList(listItems);
                 searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+
             } else {
                 List<ItemSelectable> list = ItemSelectable.getItemSelectableList(itemController.getAllLike(newText));
                 searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));

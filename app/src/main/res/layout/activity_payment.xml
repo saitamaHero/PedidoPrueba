@@ -79,6 +79,7 @@
             android:layout_gravity="center|bottom"
             android:text="@string/close_payment"
             android:textSize="@dimen/text_size_titles"
+
             />
 
 
