@@ -78,7 +78,7 @@ public class ItemUpdater extends SqlUpdater<Item> {
                 + "   WHEN 'T' THEN (SELECT ITBIS1 FROM FABDPROC) \n"
                 + "   ELSE 0.0  \n"
                 + "END) AS ITBIS, AR_IMAGEN2\n"
-                + "FROM IVBDARTI WHERE AR_IMAGEN2 != ''";
+                + "FROM IVBDARTI --WHERE AR_IMAGEN2 != ''";
 
         PreparedStatement preparedStatement = null;
 
@@ -91,4 +91,6 @@ public class ItemUpdater extends SqlUpdater<Item> {
 
         return preparedStatement;
     }
+
+
 }
