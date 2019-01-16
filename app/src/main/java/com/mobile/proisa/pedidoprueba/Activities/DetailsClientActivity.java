@@ -124,7 +124,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         MySqliteOpenHelper helper = MySqliteOpenHelper.getInstance(this);
 
-        InvoiceController controller = new InvoiceController(helper.getReadableDatabase());
+        /*InvoiceController controller = new InvoiceController(helper.getReadableDatabase());
         List<Invoice> invoices = controller.getAllById(client.getId());
 
         for(Invoice i : invoices){
@@ -145,6 +145,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
 
         printInThisYear(diaryController);
+
+        */
 
     }
 

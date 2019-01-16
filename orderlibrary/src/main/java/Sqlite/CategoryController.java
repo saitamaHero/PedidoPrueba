@@ -26,21 +26,12 @@ public class CategoryController extends Controller<Category> {
         List<Category> items = new ArrayList<>();
 
         Cursor cursor;
-        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, null, null, null, null, null);
+        cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, null, null, null, null, Category._NAME.concat(" ASC"));
 
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            Category category = new Category();
-            category.setId(cursor.getString(cursor.getColumnIndex(Category._ID)));
-            category.setName(cursor.getString(cursor.getColumnIndex(Category._NAME)));
-
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Category._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            category.setLastModification(lstMod);
-
+            Category category = getDataFromCursor(cursor);
             items.add(category);
 
             cursor.moveToNext();
@@ -57,15 +48,7 @@ public class CategoryController extends Controller<Category> {
         cursor = sqLiteDatabase.query(Category.TABLE_NAME, null, Category._ID.concat(" =?"), new String[]{String.valueOf(id).trim()}, null, null, null);
 
         if (cursor.moveToNext()) {
-            Category category = new Category();
-            category.setId(cursor.getString(cursor.getColumnIndex(Category._ID)));
-            category.setName(cursor.getString(cursor.getColumnIndex(Category._NAME)));
-
-            //Fecha de la ultima modificacion del archivo
-            String date = cursor.getString(cursor.getColumnIndex(Category._LASTMOD));
-            Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
-            category.setLastModification(lstMod);
-
+            Category category = getDataFromCursor(cursor);
             cursor.close();
 
             return category;
@@ -77,11 +60,10 @@ public class CategoryController extends Controller<Category> {
 
     @Override
     public boolean update(Category item) {
-        ContentValues cv = new ContentValues();
-        cv.put(Category._NAME, item.getName());
+        ContentValues cv = getContentValues(item);
+        cv.remove(Category._ID);
 
         SQLiteDatabase database = getSqLiteDatabase();
-
         int result = database.update(Category.TABLE_NAME, cv, Category._ID.concat("=?"), new String[]{item.getId()});
 
         return result == 1;
@@ -89,9 +71,8 @@ public class CategoryController extends Controller<Category> {
 
     @Override
     public boolean insert(Category item) {
-        ContentValues cv = new ContentValues();
-        cv.put(Category._ID, item.getId());
-        cv.put(Category._NAME, item.getName());
+        ContentValues cv = getContentValues(item);
+
 
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -136,5 +117,31 @@ public class CategoryController extends Controller<Category> {
         }
 
         return true;
+    }
+
+
+    @Override
+    public Category getDataFromCursor(Cursor cursor) {
+        Category category = new Category();
+
+        category.setId(cursor.getString(cursor.getColumnIndex(Category._ID)));
+        category.setName(cursor.getString(cursor.getColumnIndex(Category._NAME)));
+
+        //Fecha de la ultima modificacion del archivo
+        String date = cursor.getString(cursor.getColumnIndex(Category._LASTMOD));
+        Date lstMod = DateUtils.convertToDate(date, Utils.DateUtils.YYYY_MM_DD_HH_mm_ss);
+        category.setLastModification(lstMod);
+
+        return category;
+    }
+
+
+    @Override
+    public ContentValues getContentValues(Category item) {
+        ContentValues cv = new ContentValues();
+        cv.put(Category._ID, item.getId());
+        cv.put(Category._NAME, item.getName());
+
+        return cv;
     }
 }

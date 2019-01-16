@@ -54,6 +54,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     private ListAdapter categories;
     private String mLastTextSearch;
+    private ItemController itemController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,7 +213,8 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
         searchItemList.removeAll(searchItemList);
 
-        ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+        if(itemController == null)
+            itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
         if (TextUtils.isEmpty(newText)) {
             List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
@@ -221,8 +223,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             if (selectedCategory != null) {
                 String selection =  Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?");
                 String[] selectionArgs = new String[]{selectedCategory.getId(), "%" + newText + "%"};
-
-
 
                 List<Item> listItems = itemController.getAll(selection,  selectionArgs);
                 List<ItemSelectable> list = ItemSelectable.getItemSelectableList(listItems);

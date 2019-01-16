@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,25 +52,25 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         setContentView(R.layout.activity_payment);
 
         invoiceToSave = getInvoiceToShow();
+        bindUI();
+        loadInvoiceTypes();
 
+        loadData();
+    }
+
+    private void bindUI() {
         spPayment = findViewById(R.id.spPayment);
         btnCompletePayment = findViewById(R.id.btn_complete_payment);
         btnCompletePayment.setOnClickListener(this);
+    }
 
-       InvoiceTypeAdapter adapter =
-               new InvoiceTypeAdapter(getBaseContext(), R.layout.spinner_item_custom);
-       adapter.addAll(getInvoiceTypes());
 
+    private void loadInvoiceTypes() {
+        InvoiceTypeAdapter adapter = new InvoiceTypeAdapter(getBaseContext(), R.layout.spinner_item_custom);
+        adapter.addAll(getInvoiceTypes());
         spPayment.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-
         spPayment.setOnItemSelectedListener(this);
-
-        loadData();
-
-        Log.d("InvoiceToSave", invoiceToSave.toString());
-
-
     }
 
     private void loadData(){
@@ -124,8 +125,6 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         switch (view.getId()){
             case R.id.btn_complete_payment:
                 if(invoiceToSave.getInvoiceType().equals(Invoice.InvoicePayment.CASH)){
-                    Toast.makeText(getApplicationContext(), "Pagando en Efectivo", Toast.LENGTH_LONG).show();
-
                     showDialogToReturnMoney(invoiceToSave);
                 }
                 break;
@@ -136,36 +135,46 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         CashPaymentDialog.newInstance(invoiceToSave, new CashPaymentDialog.OnPaymentComplete() {
             @Override
             public void onPaymentComplete(boolean success, double money) {
-                Toast.makeText(getApplicationContext(), "Pagó con RD$"+NumberUtils.formatNumber(money,NumberUtils.FORMAT_NUMER_DOUBLE), Toast.LENGTH_SHORT).show();
+                if(success){
+                    saveInvoice();
+                    /*setResult(RESULT_OK);
+                    finish();*/
+                }
+
+                //Mantenerse en la actividad
+
             }
         }).show(getSupportFragmentManager(), null);
-
-
-
-
     }
 
-
-    public void saveInvoice(){
-        invoiceToSave.setComment("");
+    private Invoice getReadyInvoice() {
+        TextInputEditText edtComment = findViewById(R.id.comment);
+        invoiceToSave.setComment(edtComment.getText().toString());
         invoiceToSave.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
         invoiceToSave.setDate(Calendar.getInstance().getTime());
         invoiceToSave.setId(String.valueOf(invoiceToSave.hashCode()));
 
+        return invoiceToSave;
+    }
+
+    public void saveInvoice(){
+        invoiceToSave = getReadyInvoice();
+
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+
         if(controller.insert(invoiceToSave)){
-            Toast.makeText(getApplicationContext(),
-                    "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
+            Toast.makeText(getApplicationContext(), "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
                     .show();
 
-            setResult(RESULT_OK);
-            finish();
+            //Posiblemente intentar guardar remotamente y luego  imprimir la factura
+            //setResult(RESULT_OK);
+            //finish();
         }else{
-            Snackbar.make(getCurrentFocus(), "No se guardó la factura", Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
                     .setAction(R.string.retry, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            Toast.makeText(getApplicationContext(), "Reintentar", Toast.LENGTH_SHORT).show();
+                            saveInvoice();
                         }
                     }).show();
         }
@@ -181,37 +190,18 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            InvoiceType payment = getItem(position);
-
-            convertView = super.getView(position, convertView, parent);
-
-            TextView txtView = convertView.findViewById(android.R.id.text1);
-            String stringResource;
-
-
-            switch (payment.getInvoicePayment()){
-                case CASH:
-                    stringResource =getContext().getString( R.string.cash_type);
-                    break;
-
-                case CREDIT:
-                    stringResource = getContext().getString(R.string.credit_type);
-                    break;
-
-                default:
-                    stringResource = getContext().getString(R.string.empty_string);
-                    break;
-            }
-
-
-            txtView.setText(stringResource);
-
-            return convertView;
+            return createView(position, convertView, parent);
         }
 
 
         @Override
         public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            return createView(position, convertView, parent);
+        }
+
+
+        private View createView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
+        {
             InvoiceType payment = getItem(position);
 
             convertView = super.getDropDownView(position, convertView, parent);

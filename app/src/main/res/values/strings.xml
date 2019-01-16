@@ -22,6 +22,7 @@
     <string name="diary">Agendar</string>
     <string name="edit">Editar</string>
     <string name="comment">Coment.</string>
+    <string name="comment_full">Comentario</string>
     <string name="change_location">Reubicar</string>
     <string name="balance">Saldo: </string>
     <string name="credit">Crédito: </string>

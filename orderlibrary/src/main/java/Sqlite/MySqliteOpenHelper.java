@@ -109,7 +109,12 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "FOREIGN KEY("+Diary._CLIENT_ID+") REFERENCES "+Client.TABLE_NAME+"("+Client._ID+")"
             + ");";
 
-    public MySqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    /**
+     * instancia unica para el OpenHelper
+     */
+    private static MySqliteOpenHelper instance;
+
+    protected MySqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
@@ -197,7 +202,11 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     }
 
     public static MySqliteOpenHelper getInstance(Context context){
-        return new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
+        if(instance == null){
+            instance = new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
+        }
+
+        return instance;
     }
 
 }
