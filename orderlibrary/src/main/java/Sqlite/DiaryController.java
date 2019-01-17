@@ -103,7 +103,7 @@ public class DiaryController extends Controller<Diary> {
     @Override
     public boolean update(Diary item) {
         ContentValues cv = getContentValues(item);
-
+        cv.remove(Diary._ID);
         
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -177,7 +177,7 @@ public class DiaryController extends Controller<Diary> {
 
         //Duracion aprox. de la visita
         diary.setDuration(cursor.getInt(cursor.getColumnIndex(Diary._DURATION)));
-        diary.setComment(cursor.getString(cursor.getColumnIndex(Diary._COMMENT)));
+        //diary.setComment(cursor.getString(cursor.getColumnIndex(Diary._COMMENT)));
 
         //Fecha en la que está planeada la visita
         String dataEvent = cursor.getString(cursor.getColumnIndex(Diary._EVENT));
@@ -188,7 +188,7 @@ public class DiaryController extends Controller<Diary> {
         diary.setStartTime(DateUtils.convertToDate(startTime, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
         String endTime = cursor.getString(cursor.getColumnIndex(Diary._END_TIME));
-        diary.setStartTime(DateUtils.convertToDate(endTime, DateUtils.YYYY_MM_DD_HH_mm_ss));
+        diary.setEndTime(DateUtils.convertToDate(endTime, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
         //Fecha de la ultima modificacion del archivo
         String date = cursor.getString(cursor.getColumnIndex(Client._LASTMOD));
@@ -224,8 +224,8 @@ public class DiaryController extends Controller<Diary> {
         }
 
         ColumnsSqlite.ColumnsRemote columnsRemote = item;
-        cv.put(Client._STATUS, columnsRemote.getStatus());
-        cv.put(Client._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
+        cv.put(Diary._STATUS, columnsRemote.getStatus());
+        cv.put(Diary._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
     }
