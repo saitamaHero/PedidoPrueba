@@ -40,6 +40,10 @@ public abstract class Controller<T> {
 
     public abstract T getById(Object id);
 
+    public T getById(String field, Object id){
+        return null;
+    }
+
     public List<T> getAll(String selection, String[] selectionArgs){
         return null;
     }

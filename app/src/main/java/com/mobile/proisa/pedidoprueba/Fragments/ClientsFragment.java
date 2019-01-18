@@ -33,10 +33,12 @@ import java.util.List;
 import java.util.Stack;
 
 import BaseDeDatos.ClientUpdater;
+import BaseDeDatos.DiaryUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import Models.Client;
 import Sqlite.ClientController;
+import Sqlite.DiaryController;
 import Sqlite.MySqliteOpenHelper;
 
 import static android.app.Activity.RESULT_OK;
@@ -288,7 +290,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         @Override
         protected Void doInBackground(Void... voids) {
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
-            ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
+            MySqliteOpenHelper mySqliteOpenHelper = MySqliteOpenHelper.getInstance(getContext());
+
+            ClientController controller = new ClientController(mySqliteOpenHelper.getWritableDatabase());
 
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
@@ -298,6 +302,16 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             updater.retriveData();
+
+            /*Visitas*/
+            DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
+            //Updater de las visitas
+            DiaryUpdater diaryUpdater       = new DiaryUpdater(getContext().getApplicationContext(), connection, diaryController);
+            diaryUpdater.addData(diaryController.getAll());
+            diaryUpdater.apply();
+
+            //Obtener visitas que estan en el servidor
+            diaryUpdater.retriveData();
 
             return null;
         }

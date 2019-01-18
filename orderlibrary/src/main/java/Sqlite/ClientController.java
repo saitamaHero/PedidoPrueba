@@ -106,7 +106,25 @@ public class ClientController extends Controller<Client> {
         cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, Client._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
-            return getDataFromCursor(cursor);
+            Client client = getDataFromCursor(cursor);
+            cursor.close();
+            return client;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Client getById(String field, Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, field.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            Client client = getDataFromCursor(cursor);
+            cursor.close();
+            return client;
         }
 
         return null;

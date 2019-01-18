@@ -34,6 +34,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         return connection;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public void setOnDataUpdateListener(OnDataUpdateListener<T> onDataUpdateListener) {
         this.onDataUpdateListener = onDataUpdateListener;
     }
@@ -159,9 +163,8 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                 while (rs.next()) {
                     T item = getItemFromResultSet(rs);
 
-                    Log.d("dataFromDB", item.toString());
-
                     if (item != null) {
+                        Log.d("dataFromDB", item.toString());
                         onDataUpdated(item, RETRIVE_DATA_SUCCESS);
                     }
                 }
