@@ -277,7 +277,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
 
-    public static class SyncClients extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client> {
+    public static class SyncClients extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client>, SqlUpdater.OnErrorListener {
 
         public SyncClients(int id, Activity context, OnFinishedProcess listener) {
             super(id, context, listener);
@@ -303,16 +303,18 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             updater.retriveData();
 
-            /*Visitas*/
-            DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
-            //Updater de las visitas
-            DiaryUpdater diaryUpdater       = new DiaryUpdater(getContext().getApplicationContext(), connection, diaryController);
-            diaryUpdater.addData(diaryController.getAll());
-            diaryUpdater.apply();
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                DiaryUpdater diaryUpdater = new DiaryUpdater(getContext().getApplicationContext(), connection, diaryController);
+                diaryUpdater.addData(diaryController.getAll());
+                diaryUpdater.apply();
 
-            //Obtener visitas que estan en el servidor
-            diaryUpdater.retriveData();
-
+                //Obtener visitas que estan en el servidor
+                diaryUpdater.retriveData();
+            }
             return null;
         }
 
@@ -340,6 +342,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         @Override
         public void onDataUpdated(Client data) {
 
+        }
+
+        @Override
+        public void onError(int error) {
+            cancel(true);
         }
     }
 }
