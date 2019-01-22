@@ -15,11 +15,8 @@ public abstract class Updater<T> {
     public static final int RETRIVE_DATA_SUCCESS = 0x4;
     public static final int ERROR = 0x4;
 
-    //public static final int
-
     public Queue<T> data;
     public int capacity;
-
 
 
     /**
@@ -36,7 +33,7 @@ public abstract class Updater<T> {
     }
 
     /**
-     * Cuando un registro es actualizado remotamente.
+     * Cuando un registro es actualizado o insertado remotamente.
      * @param data que es actualizada
      * @param status estado en el que la transaccion fue completada.
      */
@@ -87,11 +84,16 @@ public abstract class Updater<T> {
      * La llamada de este metodo implica que los datos estan listos para procesados
      */
     public void apply(){
-        if(this.data == null || this.data.isEmpty()){
+        if(!isDataReady()){
            return;
         }
 
         onDataRequestUpdate(this.data);
+    }
+
+    public boolean isDataReady()
+    {
+        return !(this.data == null || this.data.isEmpty());
     }
 
     public void setCapacity(int capacity) {

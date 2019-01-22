@@ -23,6 +23,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
     private SqlConnection connection;
     private Controller<T> controller;
     private OnDataUpdateListener<T> onDataUpdateListener;
+    private OnErrorListener onErrorListener;
 
     public SqlUpdater(Context context, SqlConnection connection, Controller<T> controller) {
         this.context = context;
@@ -40,6 +41,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     public void setOnDataUpdateListener(OnDataUpdateListener<T> onDataUpdateListener) {
         this.onDataUpdateListener = onDataUpdateListener;
+    }
+
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
     }
 
     @Override
@@ -110,7 +115,6 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                 if (controller != null) {
                     if (controller.update(data)) {
                         if (onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
-                        Log.d("RemoteData", "Data updated successful!");
                     }
                 }
                 break;
@@ -125,12 +129,12 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                     }
 
                     if (canInsert) {
+                        if (onDataUpdateListener != null)
+                            onDataUpdateListener.onDataUpdate(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
+
                         if (controller.insert(data)) {
                             if (onDataUpdateListener != null)
                                 onDataUpdateListener.onDataUpdated(data);
-
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdate(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
 
                             Log.d("RemoteData", "Data inserted successful!");
                         }
@@ -141,11 +145,21 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         }
     }
 
+    @Override
+    public void apply() {
+        if (!isDataReady()) {
+            addData(controller.getAll());
+        }
+
+        super.apply();
+    }
 
     @Override
     protected void onFail(int reason) {
         super.onFail(reason);
         closeSqlConnection();
+
+        if (onErrorListener != null) onErrorListener.onError(reason);
     }
 
 
@@ -242,5 +256,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         public void onDataUpdate(T data, int action);
 
         public void onDataUpdated(T data);
+    }
+
+
+    public interface OnErrorListener {
+        void onError(int error);
     }
 }
