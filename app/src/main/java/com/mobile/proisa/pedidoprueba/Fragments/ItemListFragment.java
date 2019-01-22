@@ -218,14 +218,15 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
-            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.updater_success), Toast.LENGTH_SHORT).show();
             updateList();
         }
+
     }
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-
+        Toast.makeText(getActivity(), exceptions.pop().getMessage(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -241,8 +242,9 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
         @Override
         protected Void doInBackground(Void... voids) {
-            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             publishProgress(getContext().getString(R.string.starting));
+
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
 
             /**
              * Articulos
@@ -255,7 +257,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             itemUpdater.retriveData();
 
             /**
-             * Categoria
+             * Categoría
              */
             CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
             //Si no hay elementos en la base de datos no se analizara practicamente nada.

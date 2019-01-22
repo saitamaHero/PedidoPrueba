@@ -264,8 +264,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
-            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
-            Log.d("RemoteData","The sync is finished");
+            Toast.makeText(getActivity(), getString(R.string.updater_success), Toast.LENGTH_SHORT).show();
             updateList();
         }
 
@@ -273,7 +272,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-
+        Toast.makeText(getActivity(), exceptions.pop().getMessage(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -289,6 +288,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         @Override
         protected Void doInBackground(Void... voids) {
+            publishProgress(getContext().getString(R.string.starting));
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             MySqliteOpenHelper mySqliteOpenHelper = MySqliteOpenHelper.getInstance(getContext());
 
@@ -297,6 +297,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
             updater.setOnDataUpdateListener(this);
+            updater.setOnErrorListener(this);
             updater.addData(controller.getAll());
             updater.apply();
 
@@ -346,6 +347,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         @Override
         public void onError(int error) {
+            publishError(new Exception(getContext().getString(R.string.error_to_updater)));
             cancel(true);
         }
     }

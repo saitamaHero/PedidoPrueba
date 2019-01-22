@@ -44,29 +44,11 @@ public class ProgressDialog extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         if(getArguments() != null){
             info = getArguments().getString(PARAM_INFO);
         }
     }
 
-
-/*
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.progress_dialog_layout, container);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        textView = view.findViewById(R.id.textView);
-        textView.setText(info);
-
-
-        setStyle(STYLE_NORMAL, R.style.Theme_AppCompat_Dialog_MinWidth);
-
-    }*/
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

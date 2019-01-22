@@ -145,6 +145,7 @@
     <string name="update_success">¡Actualizado Correctamente!</string>
     <string name="save_success">%s Guardado Exitosamente!</string>
     <string name="error_to_save">Error al intentar guardar.</string>
+    <string name="error_to_updater">Error en actualización. Intente de Nuevo.</string>
     <string name="log_out">Salir</string>
 
 
@@ -159,4 +160,5 @@
     <string name="money_received">Dinero Recibido</string>
     <string name="money_return">Devuelta</string>
     <string name="msg_cash_pay">Dígite el monto recibido</string>
+    <string name="updater_success">Actualización Terminada Correctamente!</string>
 </resources>

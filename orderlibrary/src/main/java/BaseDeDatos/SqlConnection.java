@@ -11,7 +11,7 @@ import java.sql.Statement;
 
 //Clase que  provee una conexion con una base de datos;
 public class SqlConnection{
-    public static final int DEFAULT_TIMEOUT = 30;
+    public static final int DEFAULT_TIMEOUT = 10;
     private DbData datos;
     private Connection sqlConnection;
     private boolean conectado;
