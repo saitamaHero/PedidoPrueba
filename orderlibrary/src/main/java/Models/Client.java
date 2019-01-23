@@ -72,6 +72,18 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         return new DateUtils.DateConverter(this.visitDate.getDateEvent(), Calendar.getInstance().getTime());
     }
 
+    public boolean hasVisitToday(){
+        if(visitDate == null){
+            return false;
+        }
+        Date date = DateUtils.deleteTime(visitDate.getDateEvent());
+        Date today = DateUtils.deleteTime(Calendar.getInstance().getTime());
+
+
+
+        return date.compareTo(today) == 0;
+    }
+
     public boolean hasInvoices(){
         return this.invoices != null || !(this.invoices.isEmpty());
     }

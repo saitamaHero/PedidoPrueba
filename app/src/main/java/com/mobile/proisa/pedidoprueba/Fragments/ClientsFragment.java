@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -54,6 +55,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
+    private boolean isSearching;
 
     public ClientsFragment() {
         // Required empty public constructor
@@ -195,6 +197,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        isSearching = newText.length() > 0;
+
         clients = getClients(newText);
         setAdapter();
         return true;
@@ -215,22 +219,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                     Client clientToInsert = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
 
                     if(clientToInsert != null){
-                        ClientController controller =
-                                new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-
-                        if(controller.insert(clientToInsert)){
-                            String msg = getString(R.string.save_success, clientToInsert.getName());
-                            Toast.makeText(getActivity().getApplicationContext(),
-                                    msg, Toast.LENGTH_LONG).show();
-
-
-                           updateList();
-
-                           new SyncClients(0, getActivity(), this).execute();
-                        }else{
-                            Toast.makeText(getActivity().getApplicationContext(),
-                                    R.string.error_to_save, Toast.LENGTH_LONG).show();
-                        }
+                       saveClient(clientToInsert);
                     }
 
 
@@ -241,6 +230,34 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     }
 
+    public void saveClient(final Client clientToInsert)
+    {
+        ClientController controller =
+                new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+
+        if(controller.insert(clientToInsert)){
+            String msg = getString(R.string.save_success, clientToInsert.getName());
+            Toast.makeText(getActivity().getApplicationContext(),
+                    msg, Toast.LENGTH_LONG).show();
+
+
+            updateList();
+
+            new SyncClients(0, getActivity(), this).execute();
+        }else{
+            /*Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.error_to_save, Toast.LENGTH_LONG).show();*/
+
+            Snackbar.make(recyclerView, R.string.error_to_save, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            saveClient(clientToInsert);
+                        }
+                    }).show();
+        }
+    }
+
     private void updateList(){
         clients = getClients(DEFAULT_CLIENTS_COUNT);
         setAdapter();
@@ -249,6 +266,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     @Override
     public void onResume() {
         super.onResume();
+
+        if(!isSearching)
+            updateList();
     }
 
     @Override

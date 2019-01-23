@@ -110,7 +110,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     @Override
     public String toString() {
         return "Diary{" + "id=" + id + ", dateEvent=" + dateEvent + ", comment='" + comment + '\''
-                + ", clientToVisit=" + clientToVisit + ", duration=" + duration + '}';
+                + ", clientToVisit=" + clientToVisit + ", duration=" + duration + ", startTime=" + startTime + ", endTime=" + endTime + '}';
     }
 
     @Override

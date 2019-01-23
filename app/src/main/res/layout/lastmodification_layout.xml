@@ -18,5 +18,5 @@
         android:layout_height="match_parent"
         android:paddingLeft="5dp"
         android:gravity="center_vertical"
-        android:text="(datos)" />
+        />
 </LinearLayout>

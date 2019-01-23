@@ -176,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         MenuItem menuItem = navigationView.getMenu().getItem(position);
         navigationView.setSelectedItemId(menuItem.getItemId());
 
+        setTitle(menuItem.getTitle());
+
     }
 
     @Override
@@ -250,54 +252,5 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-    public static class TestProgress extends TareaAsincrona<Void, String, Void>{
 
-        private ProgressDialog progressDialog;
-        private int progress;
-
-        public TestProgress(int id, Activity context, OnFinishedProcess listener) {
-            super(id, context, listener);
-
-            progressDialog = ProgressDialog.newInstance("");
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            progressDialog.show(getContext().getFragmentManager(), "");
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            progressDialog.changeInfo(values[0]);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-
-            for(int i = 0; i < 5; i++){
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                ++progress;
-                publishProgress("Actualizado " + progress );
-            }
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
 }

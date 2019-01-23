@@ -45,6 +45,8 @@
         <activity android:name=".Activities.VentaActivity" />
         <activity android:name=".Activities.PaymentActivity" />
         <activity android:name=".Activities.LoginActivity"></activity>
+
+        <service android:name=".Services.VisitaActivaService"></service>
     </application>
 
 </manifest>

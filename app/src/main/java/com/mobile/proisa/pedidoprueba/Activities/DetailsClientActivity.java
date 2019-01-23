@@ -3,15 +3,15 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,8 +32,8 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -47,12 +47,13 @@ import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.TestService;
+import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -61,11 +62,8 @@ import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
 import Models.Diary;
-import Models.Invoice;
-import Models.Item;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
-import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.FileUtils;
@@ -94,6 +92,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private Diary nextVisit; /*Proxima Visita*/
 
     private DetailsItemActivity.UpdateLastModificationProccessor update;
+    private boolean mVisitActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +101,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         if(savedInstanceState == null){
             client = getIntent().getExtras().getParcelable(EXTRA_CLIENT);
+            mVisitActive = false;
 
             if(client == null){
                 finish();
@@ -122,32 +122,37 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
 
-        MySqliteOpenHelper helper = MySqliteOpenHelper.getInstance(this);
 
-        /*InvoiceController controller = new InvoiceController(helper.getReadableDatabase());
-        List<Invoice> invoices = controller.getAllById(client.getId());
-
-        for(Invoice i : invoices){
-            //boolean deleted = controller.delete(i);
-            //
-            // Log.d("InvoicesFromClient",""+i.getId() + "fue borrada: "+deleted);
-
-            Log.d("InvoicesFromClient",""+i.toString());
-
-        }
-
-        DiaryController diaryController = new DiaryController(helper.getReadableDatabase());
-        List<Diary> diaryList = diaryController.getAllById(client.getId());
-
-        for(Diary diary : diaryList){
-            Log.d("diaryForThisClient", diary.toString());
-        }
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_START);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
 
 
-        printInThisYear(diaryController);
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent == null? "" : intent.getAction();
 
-        */
+                if(VisitaActivaService.ACTION_VISIT_START.equals(action)) {
+                    Toast.makeText(getApplicationContext(), "La visita ha iniciado!!!!", Toast.LENGTH_LONG).show();
 
+                    mVisitActive = true;
+
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
+                    Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
+                    Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
+                    Log.d("tiempoDeVisita","minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
+                    mVisitActive = false;
+
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.goodStatus)));
+                }
+
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     private void printInThisYear(DiaryController controller){
@@ -282,11 +287,22 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.fab_start_visit:
-                if(client.getDistance() < 300){
+                Intent intent = new Intent(this, VisitaActivaService.class);
+
+                if( true && !mVisitActive){//client.hasVisitToday()
                     //Posiblemente hay que leer el codigo de barra del cliente
-                    Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
+
                     /**Si hay una cita acordada para hoy actualizar los registros
                      * Sino crear una nueva*/
+
+                    //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                    //client.setDistance(500);
+
+
+                    intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
+                    startService(intent);
+                }else{
+                    stopService(intent);
                 }
                 break;
 
@@ -344,7 +360,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (requestCode ){
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
-
                     try {
                         currentPhotoItem = savePhoto(currentPhotoItem);
 
@@ -546,7 +561,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         nextVisit = new Diary();
         nextVisit.setClientToVisit(client);
         nextVisit.setDuration(value);
-        nextVisit.setComment("Esto es un comentario de prueba.");
+        nextVisit.setComment("");
         nextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
         DatePickerFragment
@@ -623,4 +638,25 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         outState.putParcelable(EXTRA_CLIENT, this.client);
     }
+
+   /* public class ProgressReceiver extends BroadcastReceiver{
+        private ProgressBar progressBar;
+
+        public ProgressReceiver(ProgressBar progressBar) {
+            this.progressBar = progressBar;
+            this.progressBar.setProgress(0);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if(TestService.ACTION_PROGRESS.equals(action)){
+                int progress = intent.getIntExtra("progress",0);
+                this.progressBar.setProgress(progress);
+            }else if(TestService.ACTION_FINISH.equals(action)){
+                Toast.makeText(getApplicationContext(), "Tarea Finalizo", Toast.LENGTH_LONG).show();
+            }
+        }
+    }*/
 }
