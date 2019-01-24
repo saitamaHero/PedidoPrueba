@@ -134,7 +134,5 @@
         app:fabSize="normal"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
-        android:backgroundTint="@color/goodStatus"
-        android:backgroundTintMode="multiply"
         />
 </android.support.design.widget.CoordinatorLayout>

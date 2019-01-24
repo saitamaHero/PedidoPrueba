@@ -1,6 +1,8 @@
 package com.mobile.proisa.pedidoprueba.Fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -129,13 +131,32 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_log_out:
-                deletePreferences();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.do_you_want_exit)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        logout();
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
 
-                getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
-                checkPreferences();
+
+                builder.create().show();
 
                 break;
         }
+    }
+
+    private void logout() {
+        deletePreferences();
+        getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
+        checkPreferences();
     }
 
     @Override

@@ -139,14 +139,24 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     mVisitActive = true;
 
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                    Log.d("tiempoDeVisita","La visita ha iniciado!!!!");
+
+                }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
+                    //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    mVisitActive = true;
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+
+                    Log.d("tiempoDeVisita","La visita esta corriendo");
                 }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
                     Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
                     DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
                     Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
+
+                    Log.d("tiempoDeVisita","La visita ha terminado!!!!");
                     Log.d("tiempoDeVisita","minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
                     mVisitActive = false;
 
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.goodStatus)));
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
 
             }
@@ -289,7 +299,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case R.id.fab_start_visit:
                 Intent intent = new Intent(this, VisitaActivaService.class);
 
-                if( true && !mVisitActive){//client.hasVisitToday()
+                if( client.hasVisitToday() && !mVisitActive){//client.hasVisitToday()
                     //Posiblemente hay que leer el codigo de barra del cliente
 
                     /**Si hay una cita acordada para hoy actualizar los registros
@@ -639,24 +649,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         outState.putParcelable(EXTRA_CLIENT, this.client);
     }
 
-   /* public class ProgressReceiver extends BroadcastReceiver{
-        private ProgressBar progressBar;
-
-        public ProgressReceiver(ProgressBar progressBar) {
-            this.progressBar = progressBar;
-            this.progressBar.setProgress(0);
+    @Override
+    public void onBackPressed() {
+        if(!mVisitActive){
+            super.onBackPressed();
         }
+    }
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
 
-            if(TestService.ACTION_PROGRESS.equals(action)){
-                int progress = intent.getIntExtra("progress",0);
-                this.progressBar.setProgress(progress);
-            }else if(TestService.ACTION_FINISH.equals(action)){
-                Toast.makeText(getApplicationContext(), "Tarea Finalizo", Toast.LENGTH_LONG).show();
-            }
-        }
-    }*/
 }

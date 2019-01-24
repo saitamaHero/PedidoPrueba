@@ -161,4 +161,5 @@
     <string name="money_return">Devuelta</string>
     <string name="msg_cash_pay">Dígite el monto recibido</string>
     <string name="updater_success">Actualización Terminada Correctamente!</string>
+    <string name="do_you_want_exit">¿Deseas salir?</string>
 </resources>

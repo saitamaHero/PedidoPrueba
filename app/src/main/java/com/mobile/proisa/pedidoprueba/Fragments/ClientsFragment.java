@@ -221,9 +221,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                     if(clientToInsert != null){
                        saveClient(clientToInsert);
                     }
-
-
-
                 }
                 break;
         }

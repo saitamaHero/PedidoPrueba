@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -46,10 +47,13 @@ public class DiaryController extends Controller<Diary> {
     @Override
     public List<Diary> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Calendar calendar = Calendar.getInstance();
         List<Diary> items = new ArrayList<>();
         Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, Diary._CLIENT_ID.concat(" =?"), new String[]{String.valueOf(id)},
+        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
+                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ?")
+                , new String[]{String.valueOf(id), DateUtils.formatDate(calendar.getTime(), DateUtils.YYYY_MM_DD_HH_mm_ss)},
                 null, null, Diary._EVENT.concat(" ASC"));
         cursor.moveToFirst();
 
