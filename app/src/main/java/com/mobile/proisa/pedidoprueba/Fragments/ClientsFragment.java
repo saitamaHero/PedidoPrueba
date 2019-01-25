@@ -106,23 +106,27 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+
+
                 switch (newState){
                     case RecyclerView.SCROLL_STATE_IDLE:
                         fab.show();
                         break;
 
-                    case RecyclerView.SCROLL_STATE_SETTLING:
-                        fab.hide();
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+ //                       fab.hide();
                         break;
 
-                    case RecyclerView.SCROLL_STATE_DRAGGING:
-                        fab.hide();
-                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                         fab.hide();
+                    break;
+
                 }
 
             }
 
         });
+
         updateList();
     }
 
@@ -142,9 +146,14 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             @Override
             public void onClientVisitClick(Client client) {
-                if(client.getDistance() < 300.00){
-                    Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
-                }
+                //if(client.getDistance() < 300.00){
+                    //Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
+
+                Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
+                seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_CLIENT, client);
+                seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_INIT_VISIT, true);
+                startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
+                //}
             }
         });
     }
@@ -260,13 +269,13 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         setAdapter();
     }
 
-    @Override
+/*    @Override
     public void onResume() {
         super.onResume();
 
         if(!isSearching)
             updateList();
-    }
+    }*/
 
     @Override
     public void onClick(View view) {

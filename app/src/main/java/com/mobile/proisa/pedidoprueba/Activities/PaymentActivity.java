@@ -1,6 +1,5 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -20,25 +19,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.model.stream.HttpUriLoader;
-import com.mobile.proisa.pedidoprueba.Adapters.InvoicePaymentAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.InvoiceType;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import Models.ColumnsSqlite;
 import Models.ITotal;
 import Models.Invoice;
-import Models.SimpleElement;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Utils.NumberUtils;
 
 public class PaymentActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     public static final String EXTRA_INVOICE = "com.mobile.proisa.pedidoprueba.EXTRA_INVOICE";

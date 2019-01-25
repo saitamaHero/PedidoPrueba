@@ -13,22 +13,21 @@ import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.List;
 
-import Models.Item;
-import Utils.NumberUtils;
+import Models.Invoice;
 
-public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ClientHolder> {
-    private List<Item> items;
+public class InvoiceListAdapter extends RecyclerView.Adapter<InvoiceListAdapter.ClientHolder> {
+    private List<Invoice> invoices;
     private int layoutResource;
-    private OnItemClickListener onItemClickListener;
+    private OnInvoiceClickListener onInvoiceClickListener;
 
 
-    public ItemListAdapter(List<Item> itemList, int layoutResource) {
-        this.items = itemList;
+    public InvoiceListAdapter(List<Invoice> itemList, int layoutResource) {
+        this.invoices = itemList;
         this.layoutResource = layoutResource;
     }
 
-    public void setOnItemClickListener(OnItemClickListener itemClickListener) {
-        this.onItemClickListener = itemClickListener;
+    public void setOnInvoiceClickListener(OnInvoiceClickListener itemClickListener) {
+        this.onInvoiceClickListener = itemClickListener;
     }
 
     @NonNull
@@ -41,25 +40,24 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
 
     @Override
     public void onBindViewHolder(@NonNull ClientHolder holder, int position) {
-        final Item item = items.get(position);
+        final Invoice item = invoices.get(position);
 
         holder.txtId.setText(item.getId());
         holder.txtName.setText(item.getName());
-        holder.txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
-        holder.txtStock.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
-        holder.txtCategory.setText(item.getCategory().getName());
+        //holder.txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        //holder.txtStock.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              if(onItemClickListener != null) onItemClickListener.onItemClick(item);
+              if(onInvoiceClickListener != null) onInvoiceClickListener.onInvoiceClick(item);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return invoices.size();
     }
 
     public class ClientHolder extends RecyclerView.ViewHolder{
@@ -67,7 +65,6 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
         public TextView txtName;
         public TextView txtPrice;
         public TextView txtStock;
-        public TextView txtCategory;
 
 
         public CardView cardView;
@@ -79,13 +76,13 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
             txtName = itemView.findViewById(R.id.name);
             txtStock = itemView.findViewById(R.id.stock);
             txtPrice = itemView.findViewById(R.id.price);
-            txtCategory = itemView.findViewById(R.id.category);
+
             cardView = itemView.findViewById(R.id.card);
         }
     }
 
 
-    public interface OnItemClickListener{
-        void onItemClick(Item item);
+    public interface OnInvoiceClickListener{
+        void onInvoiceClick(Invoice item);
     }
 }

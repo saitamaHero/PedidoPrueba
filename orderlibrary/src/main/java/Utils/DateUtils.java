@@ -55,6 +55,9 @@ public class DateUtils {
      */
     public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String EEE_DD_MMM_YYYY  = "EEE, DD MMM yyyy";
+    public static final String EEE_DD_MMM_YYYY_HH_mm  = "EEE, DD MMM yyyy HH:mm";
+
 
     /**
      * Convierte una fecha en un string para visualizar con el formato especificado

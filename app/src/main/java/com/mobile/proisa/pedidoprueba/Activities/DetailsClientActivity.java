@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +34,6 @@ import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -47,9 +47,7 @@ import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Services.TestService;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,13 +65,14 @@ import Sqlite.DiaryController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.FileUtils;
-
+import Utils.NumberUtils;
 
 
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
         TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
-    public static final String EXTRA_CLIENT = "client";
+    public static final String EXTRA_CLIENT = "com.mobile.proisa.EXTRA_CLIENT";
+    public static final String EXTRA_INIT_VISIT = "com.mobile.proisa.EXTRA_INIT_VISIT";
     private static final int CAMERA_INTENT_RESULT = 1;
     private static final int EDIT_INTENT_RESULT = 2;
     private static final int GALLERY_INTENT_RESULT = 3;
@@ -101,9 +100,15 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         if(savedInstanceState == null){
             client = getIntent().getExtras().getParcelable(EXTRA_CLIENT);
+            boolean canInitVisit =  getIntent().getBooleanExtra(EXTRA_INIT_VISIT, false);
+
             mVisitActive = false;
 
-            if(client == null){
+            if(client != null){
+                if(canInitVisit) {
+                    initOrCancelVisit(false);
+                }
+            }else{
                 finish();
             }
         }else{
@@ -257,6 +262,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 String.format("%d dias, %d horas, %d minutos, %d segundos",
                         converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
         );
+
+
     }
 
 
@@ -297,23 +304,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.fab_start_visit:
-                Intent intent = new Intent(this, VisitaActivaService.class);
-
-                if( client.hasVisitToday() && !mVisitActive){//client.hasVisitToday()
-                    //Posiblemente hay que leer el codigo de barra del cliente
-
-                    /**Si hay una cita acordada para hoy actualizar los registros
-                     * Sino crear una nueva*/
-
-                    //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    //client.setDistance(500);
-
-
-                    intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
-                    startService(intent);
-                }else{
-                    stopService(intent);
-                }
+                initOrCancelVisit(true);
                 break;
 
             case R.id.backdrop:
@@ -321,6 +312,36 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 .putExtra(Intent.EXTRA_STREAM, client.getProfilePhoto()));
                 break;
 
+        }
+    }
+
+    private void initOrCancelVisit(boolean showMessageToCreate)
+    {
+        Intent intent = new Intent(this, VisitaActivaService.class);
+
+        if(client.hasVisitToday() && !mVisitActive){
+            //Posiblemente hay que leer el codigo de barra del cliente
+
+            /**Si hay una cita acordada para hoy actualizar los registros
+             * Sino crear una nueva*/
+
+            //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+            //client.setDistance(500);
+
+
+            intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
+            startService(intent);
+        }else if(mVisitActive){
+            stopService(intent);
+        }else if(showMessageToCreate){
+            View v = findViewById(R.id.card);
+            Snackbar.make(v,R.string.not_visit_in_diary, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.create_visit, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            initVisitCreation();
+                        }
+                    }).show();
         }
     }
 
@@ -480,9 +501,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case R.id.action_diary:
-                DialogDurationPicker dialogDurationPicker = DialogDurationPicker.newInstance(Diary.ONE_HOUR);
-                dialogDurationPicker.setOnValueSetListener(this);
-                dialogDurationPicker.show(getSupportFragmentManager(), "");
+                initVisitCreation();
                 break;
 
 
@@ -494,6 +513,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    private void initVisitCreation(){
+        DialogDurationPicker dialogDurationPicker = DialogDurationPicker.newInstance(Diary.ONE_HOUR);
+        dialogDurationPicker.setOnValueSetListener(this);
+        dialogDurationPicker.show(getSupportFragmentManager(), "");
+    }
 
     private void checkPermissionStorage(){
         if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){

@@ -5,13 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,7 +18,6 @@ import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsListSalesAdapter;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,7 @@ import Models.ITotal;
 import Models.Invoice;
 import Models.Item;
 import Models.Vendor;
+import Utils.NumberUtils;
 import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 
 public class VentaActivity extends AppCompatActivity implements ItemsListSalesAdapter.OnListChangedListener, ItemsListSalesAdapter.NotificationListener {
@@ -102,7 +100,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
         TextView txtTotal = findViewById(R.id.total);
 
         if(itemList != null){
-            txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(itemList)),NumberUtils.FORMAT_NUMER_DOUBLE));
+            txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(itemList)), NumberUtils.FORMAT_NUMER_DOUBLE));
         }else{
             txtTotal.setText(NumberUtils.formatNumber(0.00,NumberUtils.FORMAT_NUMER_DOUBLE));
         }

@@ -128,6 +128,11 @@
 
     <string name="hours_minutes_formateable">Hace %d horas y %d minutos</string>
 
+    <plurals name="item_quantity">
+        <item quantity="one">%d artículo</item>
+        <item quantity="other">%d artículos</item>
+    </plurals>
+
 
     <string name="credit_limit">Límite de crédito</string>
     <string name="date_birth">Fecha de nacimiento</string>
@@ -162,4 +167,6 @@
     <string name="msg_cash_pay">Dígite el monto recibido</string>
     <string name="updater_success">Actualización Terminada Correctamente!</string>
     <string name="do_you_want_exit">¿Deseas salir?</string>
+    <string name="not_visit_in_diary">No hay visitas para hoy.</string>
+    <string name="create_visit">Crear visita</string>
 </resources>

@@ -1,7 +1,5 @@
 package com.mobile.proisa.pedidoprueba.Adapters;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -9,17 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.List;
 
 import Models.Item;
+import Utils.NumberUtils;
 
 public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAdapter.SelectableViewHolder>
         implements MyOnItemSelectedListener {
@@ -59,6 +55,7 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
         holder.txtName.setText(item.getName());
         holder.txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtStock.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        holder.txtCategory.setText(item.getCategory().getName());
     }
 
     @Override
@@ -89,6 +86,7 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
         public TextView txtName;
         public TextView txtPrice;
         public TextView txtStock;
+        public TextView txtCategory;
 
 
         public SelectableViewHolder(View itemView, MyOnItemSelectedListener onItemSelectedListener) {
@@ -100,10 +98,11 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
             check.setOnClickListener(this);
             cardView.setOnClickListener(this);
 
-            txtId = itemView.findViewById(R.id.id);
-            txtName = itemView.findViewById(R.id.name);
-            txtStock = itemView.findViewById(R.id.stock);
-            txtPrice = itemView.findViewById(R.id.price);
+            txtId       = itemView.findViewById(R.id.id);
+            txtName     = itemView.findViewById(R.id.name);
+            txtStock    = itemView.findViewById(R.id.stock);
+            txtPrice    = itemView.findViewById(R.id.price);
+            txtCategory = itemView.findViewById(R.id.category);
 
             this.onItemSelectedListener = onItemSelectedListener;
         }

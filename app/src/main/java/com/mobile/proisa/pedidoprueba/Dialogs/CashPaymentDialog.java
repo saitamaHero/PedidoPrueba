@@ -16,9 +16,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import Models.Invoice;
+import Utils.NumberUtils;
 
 public class CashPaymentDialog extends DialogFragment implements TextWatcher, DialogInterface.OnClickListener {
     private static final String PARAM_INVOICE = "param_invoice";

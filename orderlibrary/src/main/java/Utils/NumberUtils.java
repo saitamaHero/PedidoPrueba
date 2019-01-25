@@ -2,6 +2,9 @@ package Utils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+
+import Models.ITotal;
 
 
 /**
@@ -55,5 +58,16 @@ public class NumberUtils {
     public static float getFloatPercent(float value, float sum){
         float p = ( value / sum) * 100.00f;
         return p;
+    }
+
+
+    public static double getTotal(ArrayList<ITotal> totals) {
+        double total = 0;
+
+        for (ITotal t : totals) {
+            total = t.getTotal();
+        }
+
+        return total;
     }
 }
