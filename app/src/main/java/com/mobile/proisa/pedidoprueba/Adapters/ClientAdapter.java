@@ -62,6 +62,8 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         if(converter != null){
             int daysCount    = (int)converter.getDays();
             int hourCount    = (int)converter.getHours();
+
+            daysCount =  (hourCount > 0) ? daysCount + 1 : daysCount;
             //int minutesCount = (int)converter.getMinutes();
             boolean isToday  = DateUtils.deleteTime(Calendar.getInstance().getTime()).compareTo(DateUtils.deleteTime(client.getVisitDate().getDateEvent())) == 0;
 

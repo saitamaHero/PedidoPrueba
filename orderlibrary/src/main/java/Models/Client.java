@@ -4,8 +4,10 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -213,5 +215,21 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     @Override
     public Object getRemoteId() {
         return this.remoteId;
+    }
+
+
+    public static class SortByVisitDate implements Comparator<Client>
+    {
+
+        @Override
+        public int compare(Client client, Client t1) {
+            if(client.getVisitDate() == null){
+                return  1;
+            }else if(t1.getVisitDate() == null){
+                return -1;
+            }else{
+                return client.getVisitDate().getDateEvent().compareTo(t1.getVisitDate().getDateEvent());
+            }
+        }
     }
 }

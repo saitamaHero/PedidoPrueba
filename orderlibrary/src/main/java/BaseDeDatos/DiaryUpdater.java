@@ -32,6 +32,7 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
         String query = "{call PA_CCBDVISITA_MANTEN (?,?,?, ?, ?, ?, ?, ?, ?, ?)}";
 
         Log.d(TAG,"Inserting: " + data.toString());
+
         try {
 
             CallableStatement callableStatement = connection.prepareCall(query);
@@ -62,12 +63,7 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
             callableStatement.setInt(      9, data.getDuration());
             callableStatement.setString(   10, data.getComment());
 
-
             callableStatement.executeUpdate();
-
-            callableStatement.close();
-
-
             connection.commit();
 
             data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
@@ -75,6 +71,7 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
 
             Log.d(TAG,"Inserted: " + data.toString());
 
+            callableStatement.close();
     } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -110,7 +107,6 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
             //hora que inicio y se termino la visita
             if(data.getStartTime() != null){
                 callableStatement.setTimestamp(7, new Timestamp(data.getStartTime().getTime()));
-
             }else{
                 callableStatement.setTimestamp(7, null);
             }

@@ -90,7 +90,7 @@
     Formato para representacion del tiempo que queda para las visitas.
     -->
     <plurals name="visit_formateable">
-        <item quantity="one">Mañana</item>
+        <item quantity="one">En un día</item>
         <item quantity="other">En %d días</item>
     </plurals>
 
