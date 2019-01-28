@@ -99,13 +99,22 @@
     </string>
 
     <string name="time_minutes">
-        en %d minute
+        en %d minutos
     </string>
     <!--
     Cadena que representa hoy
     -->
     <string name="today">Hoy</string>
 
+    <!--
+  Cadena que representa hoy con tiempo
+  -->
+    <string name="today_at_time">Hoy a las %d:%02d %s</string>
+
+    <!--
+Cadena que representa maniana con tiempo
+-->
+    <string name="tomorrow_at_time">Mañana a las %d:%02d %s</string>
     <!--
       Formato para horas
     -->
@@ -169,4 +178,5 @@
     <string name="do_you_want_exit">¿Deseas salir?</string>
     <string name="not_visit_in_diary">No hay visitas para hoy.</string>
     <string name="create_visit">Crear visita</string>
+    <string name="invoices">Facturas</string>
 </resources>

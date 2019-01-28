@@ -170,15 +170,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
-    private void printInThisYear(DiaryController controller){
-        List<Diary> diaryList = controller.getAllRange(
-                client.getId(),"2019-01-01", "2019-01-03");
-
-        for(Diary diary : diaryList){
-            Log.d("diaryForThisClient", "rango: "+ diary.toString());
-        }
-    }
-
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
@@ -508,6 +499,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case R.id.action_order:
                 startActivity(new Intent(this, VentaActivity.class)
                 .putExtra(VentaActivity.EXTRA_CLIENT, this.client));
+                break;
+
+            case R.id.action_see_invoices:
+                startActivity(new Intent(this, InvoiceListActivity.class)
+                        .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
                 break;
 
         }

@@ -54,4 +54,11 @@
         android:title="@string/comment"
         app:showAsAction="always"
         />
+
+    <item
+        android:id="@+id/action_see_invoices"
+        android:icon="@drawable/ic_invoice"
+        android:title="@string/invoices"
+        app:showAsAction="always"
+        />
 </menu>

@@ -1,8 +1,16 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -26,6 +34,7 @@ import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.MyOnItemSelectedListener;
+import com.mobile.proisa.pedidoprueba.Clases.CountDrawable;
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
 
@@ -55,6 +64,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     private ListAdapter categories;
     private String mLastTextSearch;
     private ItemController itemController;
+    private Menu defaultMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +75,10 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         searchItemList = new ArrayList<>();
 
         bindUI();
-
-
         loadAdapter();
 
         if (itemList == null || itemList.isEmpty()) {
-            setTitle(getResources().getQuantityString(R.plurals.items_selected, this.itemList.size(), this.itemList.size()));
+            setTitle(getResources().getQuantityString(R.plurals.items_selected,0, 0));
         }
     }
 
@@ -125,6 +133,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        defaultMenu = menu;
         MenuItem menuItem;
 
         menuItem = menu.findItem(R.id.app_bar_search);
@@ -193,18 +202,27 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             itemList.remove(itemSelectable);
         }
 
-        setTitle(getResources().getQuantityString(R.plurals.items_selected, this.itemList.size(), this.itemList.size()));
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            setTitle(getResources().getQuantityString(R.plurals.items_selected, this.itemList.size(), this.itemList.size()));
+        }else{
+            setCount(this, String.valueOf(this.itemList.size()));
+        }
     }
 
     @Override
-    public boolean onQueryTextSubmit(String query) {
-
+    public boolean onQueryTextSubmit(String newText) {
+        search(newText);
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        search(newText);
+
+        if(TextUtils.isEmpty(newText)){
+            search(newText);
+        }
+
+
         return true;
     }
 
@@ -235,11 +253,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         }
 
         itemSelectableAdapter.notifyDataSetChanged();
-    }
-
-    private List<Item> getItems(int count) {
-        ItemController controller = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
-        return controller.getAll(count);
     }
 
 
@@ -285,6 +298,27 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         }
     }
 
+    public void setCount(Context context, String count) {
+
+        MenuItem menuItem = defaultMenu.findItem(R.id.action_select_items);
+        LayerDrawable icon = (LayerDrawable) menuItem.getIcon();
+
+        CountDrawable badge;
+
+        // Reuse drawable if possible
+        Drawable reuse = icon.findDrawableByLayerId(R.id.ic_count);
+
+        if (reuse != null && reuse instanceof CountDrawable) {
+            badge = (CountDrawable) reuse;
+        } else {
+            badge = new CountDrawable(context);
+        }
+
+        badge.setCount(count);
+        icon.mutate();
+        icon.setDrawableByLayerId(R.id.ic_count, badge);
+    }
+
 
     public static class SingleSimpleElementAdapter extends ArrayAdapter<SimpleElement> implements ListAdapter {
 
@@ -305,4 +339,9 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             return convertView;
         }
     }
+
+
+
+
+
 }

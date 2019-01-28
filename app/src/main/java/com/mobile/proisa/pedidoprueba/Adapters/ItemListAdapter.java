@@ -16,7 +16,7 @@ import java.util.List;
 import Models.Item;
 import Utils.NumberUtils;
 
-public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ClientHolder> {
+public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemHolder> {
     private List<Item> items;
     private int layoutResource;
     private OnItemClickListener onItemClickListener;
@@ -33,14 +33,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
 
     @NonNull
     @Override
-    public ClientHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         View view = LayoutInflater.from(context).inflate(layoutResource, parent, false);
-        return  new ClientHolder(view);
+        return  new ItemHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ClientHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemHolder holder, int position) {
         final Item item = items.get(position);
 
         holder.txtId.setText(item.getId());
@@ -62,7 +62,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
         return items.size();
     }
 
-    public class ClientHolder extends RecyclerView.ViewHolder{
+    public class ItemHolder extends RecyclerView.ViewHolder{
         public TextView txtId;
         public TextView txtName;
         public TextView txtPrice;
@@ -72,7 +72,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.Client
 
         public CardView cardView;
 
-        public ClientHolder(View itemView) {
+        public ItemHolder(View itemView) {
             super(itemView);
 
             txtId = itemView.findViewById(R.id.id);

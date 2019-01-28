@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.mobile.proisa.pedidoprueba.R;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -59,22 +60,23 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         DateUtils.DateConverter converter = client.getTimeToVisit();
 
         if(converter != null){
-            int daysCount = (int)converter.getDays();
-            int hourCount = (int)converter.getHours();
-            int minutesCount = (int)converter.getMinutes();
+            int daysCount    = (int)converter.getDays();
+            int hourCount    = (int)converter.getHours();
+            //int minutesCount = (int)converter.getMinutes();
+            boolean isToday  = DateUtils.deleteTime(Calendar.getInstance().getTime()).compareTo(DateUtils.deleteTime(client.getVisitDate().getDateEvent())) == 0;
 
+            Calendar calendarForTheVisit = DateUtils.getGregorianCalendarFrom(client.getVisitDate().getDateEvent());
+            boolean isAM = calendarForTheVisit.get(Calendar.AM_PM) == Calendar.AM;
 
             if(daysCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getQuantityString(R.plurals.visit_formateable,
-                                daysCount, daysCount));
-            }else if(hourCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getString(R.string.time_hours, hourCount));
+                holder.txtVisitEvent.setText(res.getQuantityString(R.plurals.visit_formateable, daysCount, daysCount));
+            }else if(isToday){
 
-            }else if(minutesCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getString(R.string.time_minutes, minutesCount));
+                holder.txtVisitEvent.setText(res.getString(R.string.today_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
+                        isAM ? "AM" : "PM"));
+            }else if(hourCount > 0){
+                holder.txtVisitEvent.setText(res.getString(R.string.tomorrow_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
+                        isAM ? "AM" : "PM"));
             }else{
                 holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
             }

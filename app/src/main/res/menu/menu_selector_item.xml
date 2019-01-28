@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_select_items"
-        android:icon="@drawable/ic_action_done_white"
+        android:icon="@drawable/ic_check_items_count"
         android:title="@string/select"
         app:showAsAction="ifRoom"
         />
@@ -14,9 +14,7 @@
         android:title="@string/search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always|collapseActionView"
-
         />
-
 
     <item
         android:id="@+id/action_filter"
@@ -24,15 +22,4 @@
         android:title="@string/filter"
         app:showAsAction="ifRoom"
         />
-
-
-
-
-
-
-
-
-
-
-
 </menu>

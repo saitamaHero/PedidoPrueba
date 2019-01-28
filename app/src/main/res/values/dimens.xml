@@ -9,4 +9,5 @@
     <dimen name="detail_backdrop_height">156dp</dimen>
     <dimen name="detail_backdrop_height_2">512dp</dimen>
     <dimen name="width_card_login">300dp</dimen>
+    <dimen name="badge_count_textsize">10sp</dimen>
 </resources>

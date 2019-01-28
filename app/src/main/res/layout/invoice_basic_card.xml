@@ -50,7 +50,7 @@
                     android:src="@drawable/ic_cart" />
 
                 <TextView
-                    android:id="@+id/stock"
+                    android:id="@+id/items_quantity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

@@ -30,6 +30,7 @@ import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -131,6 +132,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     }
 
     private void setAdapter() {
+        Collections.sort(clients, new Client.SortByVisitDate());
+
+
         clientAdapter = new ClientAdapter(this.clients, R.layout.cliente_card_layout);
         recyclerView.setAdapter(clientAdapter);
 
