@@ -179,4 +179,5 @@ Cadena que representa maniana con tiempo
     <string name="not_visit_in_diary">No hay visitas para hoy.</string>
     <string name="create_visit">Crear visita</string>
     <string name="invoices">Facturas</string>
+    <string name="nothing_to_show">Nada para mostrar.</string>
 </resources>

@@ -25,6 +25,7 @@ import Models.Person;
 import Utils.DateUtils;
 
 public class EditClientActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+    /*Puede ser reemplazado por el EXTRA_CLIENT y solo se usaría una sola vez*/
     public static String EXTRA_INFO = "extra_info";
     public static String EXTRA_DATA = "extra_data";
     private Client client;

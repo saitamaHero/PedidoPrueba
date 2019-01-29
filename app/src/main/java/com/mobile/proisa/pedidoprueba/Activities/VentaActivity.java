@@ -56,7 +56,7 @@ public class VentaActivity extends AppCompatActivity implements ItemsListSalesAd
             itemList =savedInstanceState.getParcelableArrayList("list");
         }
 
-        Vendor vendor =VendorUtil.getVendor(this);
+        Vendor vendor = VendorUtil.getVendor(this);
         setTitle(vendor.getName());
         getSupportActionBar().setSubtitle(R.string.vendor);
 

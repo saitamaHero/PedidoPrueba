@@ -65,7 +65,7 @@ public class NumberUtils {
         double total = 0;
 
         for (ITotal t : totals) {
-            total = t.getTotal();
+            total += t.getTotal();
         }
 
         return total;

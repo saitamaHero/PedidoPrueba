@@ -51,8 +51,40 @@ public class DiaryController extends Controller<Diary> {
         List<Diary> items = new ArrayList<>();
         Cursor cursor;
 
+        Date toFilter = DateUtils.deleteTime(calendar.getTime());
+
+
+        //Log.d("toFilter",DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss));
+
         cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
                 Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ?")
+                , new String[]{String.valueOf(id), DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss)},
+                null, null, Diary._EVENT.concat(" ASC"));
+
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Diary unit = getDataFromCursor(cursor);
+            items.add(unit);
+
+            cursor.moveToNext();
+        }
+
+        return items;
+    }
+
+    public List<Diary> getAllCompleteById(Object id)
+    {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Calendar calendar = Calendar.getInstance();
+        List<Diary> items = new ArrayList<>();
+        Cursor cursor;
+
+        String completeCondition = Diary._START_TIME +" IS NOT NULL AND "+Diary._END_TIME + " IS NOT NULL";
+
+        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
+                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ? AND ").concat(completeCondition)
                 , new String[]{String.valueOf(id), DateUtils.formatDate(calendar.getTime(), DateUtils.YYYY_MM_DD_HH_mm_ss)},
                 null, null, Diary._EVENT.concat(" ASC"));
         cursor.moveToFirst();
@@ -65,6 +97,7 @@ public class DiaryController extends Controller<Diary> {
         }
 
         return items;
+
     }
 
     @Override
@@ -108,6 +141,7 @@ public class DiaryController extends Controller<Diary> {
     public boolean update(Diary item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Diary._ID);
+        cv.remove(Diary._EVENT);
         
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -120,6 +154,7 @@ public class DiaryController extends Controller<Diary> {
     public boolean insert(Diary item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Diary._ID);
+
         
         SQLiteDatabase database = getSqLiteDatabase();
 

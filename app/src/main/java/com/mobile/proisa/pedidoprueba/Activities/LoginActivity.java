@@ -92,6 +92,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         data.putExtra("user", mUser);
         setResult(RESULT_OK, data);
         finish();
+
+
     }
 
     @Override

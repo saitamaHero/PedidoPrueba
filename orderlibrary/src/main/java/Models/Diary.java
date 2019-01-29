@@ -158,6 +158,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     public Object getRemoteId() {
         return this.remoteId;
     }
+
     public static class SortByDateDesc implements Comparator<Diary>{
 
         @Override

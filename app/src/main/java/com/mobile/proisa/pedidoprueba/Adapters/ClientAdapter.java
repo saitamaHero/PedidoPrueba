@@ -63,19 +63,18 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
             int daysCount    = (int)converter.getDays();
             int hourCount    = (int)converter.getHours();
 
-            daysCount =  (hourCount > 0) ? daysCount + 1 : daysCount;
+            daysCount =  (daysCount == 0) ? daysCount + 1 : daysCount;
             //int minutesCount = (int)converter.getMinutes();
             boolean isToday  = DateUtils.deleteTime(Calendar.getInstance().getTime()).compareTo(DateUtils.deleteTime(client.getVisitDate().getDateEvent())) == 0;
 
             Calendar calendarForTheVisit = DateUtils.getGregorianCalendarFrom(client.getVisitDate().getDateEvent());
             boolean isAM = calendarForTheVisit.get(Calendar.AM_PM) == Calendar.AM;
 
-            if(daysCount > 0){
-                holder.txtVisitEvent.setText(res.getQuantityString(R.plurals.visit_formateable, daysCount, daysCount));
-            }else if(isToday){
-
+            if(isToday){
                 holder.txtVisitEvent.setText(res.getString(R.string.today_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
                         isAM ? "AM" : "PM"));
+            }else if(daysCount > 0){
+                holder.txtVisitEvent.setText(res.getQuantityString(R.plurals.visit_formateable, daysCount, daysCount));
             }else if(hourCount > 0){
                 holder.txtVisitEvent.setText(res.getString(R.string.tomorrow_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
                         isAM ? "AM" : "PM"));

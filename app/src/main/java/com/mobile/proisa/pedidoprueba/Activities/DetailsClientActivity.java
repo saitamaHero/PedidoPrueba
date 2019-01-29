@@ -488,7 +488,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
             case R.id.action_comment:
                 startActivityForResult(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(SeeCommentsActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
+                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client), EDIT_INTENT_RESULT);
                 break;
 
             case R.id.action_diary:

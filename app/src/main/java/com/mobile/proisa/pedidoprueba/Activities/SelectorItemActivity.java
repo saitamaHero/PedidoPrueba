@@ -71,15 +71,11 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selector_item);
 
-        itemList = getExtraItems();
+        itemList       = getExtraItems();
         searchItemList = new ArrayList<>();
 
         bindUI();
         loadAdapter();
-
-        if (itemList == null || itemList.isEmpty()) {
-            setTitle(getResources().getQuantityString(R.plurals.items_selected,0, 0));
-        }
     }
 
     private void bindUI() {
