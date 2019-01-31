@@ -54,8 +54,12 @@ public class ItemSelectableAdapter extends RecyclerView.Adapter<ItemSelectableAd
         holder.txtId.setText(item.getId());
         holder.txtName.setText(item.getName());
         holder.txtPrice.setText(NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
-        holder.txtStock.setText(NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtCategory.setText(item.getCategory().getName());
+
+        String stockQuantity = holder.txtStock.getContext().getString(R.string.two_string_format,
+                NumberUtils.formatNumber(item.getStock(), NumberUtils.FORMAT_NUMER_DOUBLE),item.getUnit().getId());
+
+        holder.txtStock.setText(stockQuantity);
     }
 
     @Override

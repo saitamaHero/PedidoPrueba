@@ -180,4 +180,13 @@ Cadena que representa maniana con tiempo
     <string name="create_visit">Crear visita</string>
     <string name="invoices">Facturas</string>
     <string name="nothing_to_show">Nada para mostrar.</string>
+
+    <!--
+    Errores
+    -->
+    <string name="error_not_empty">Campo no puede estar en blanco</string>
+    <string name="error_not_valid_phone">Télefono incompleto.</string>
+    <string name="error_not_valid_rnc">Este campo es incorrecto.</string>
+    <string name="select_items">Seleccionar artículos</string>
+
 </resources>

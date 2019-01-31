@@ -60,6 +60,7 @@ import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
 import Models.Diary;
+import Models.Invoice;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
 import Sqlite.MySqliteOpenHelper;
@@ -497,8 +498,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
 
             case R.id.action_order:
+                Invoice invoice = new Invoice();
+                invoice.setClient(this.client);
                 startActivity(new Intent(this, VentaActivity.class)
-                .putExtra(VentaActivity.EXTRA_CLIENT, this.client));
+                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice));
                 break;
 
             case R.id.action_see_invoices:
@@ -655,7 +658,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onPause() {
         super.onPause();
-
 
         if(update != null)
             update.terminate();

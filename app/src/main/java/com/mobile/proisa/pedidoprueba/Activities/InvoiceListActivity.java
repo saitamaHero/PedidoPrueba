@@ -1,6 +1,7 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -45,6 +46,7 @@ public class InvoiceListActivity extends AppCompatActivity implements InvoiceLis
 
     @Override
     public void onInvoiceClick(Invoice invoice) {
-        Toast.makeText(getApplicationContext(), invoice.toString(), Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, VentaActivity.class)
+                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice));
     }
 }

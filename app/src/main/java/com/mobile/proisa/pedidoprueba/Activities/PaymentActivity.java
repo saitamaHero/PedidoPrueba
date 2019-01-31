@@ -45,6 +45,8 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
 
+        setTitle(R.string.payment);
+
         invoiceToSave = getInvoiceToShow();
         bindUI();
         loadInvoiceTypes();

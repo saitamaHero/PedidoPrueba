@@ -76,6 +76,8 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
         bindUI();
         loadAdapter();
+
+        setTitle(R.string.select_items);
     }
 
     private void bindUI() {
@@ -91,11 +93,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     private void showFilterLayout() {
         View view = findViewById(R.id.lyt_filter);
-        if (selectedCategory == null) {
-            view.setVisibility(View.GONE);
-        } else {
-            view.setVisibility(View.VISIBLE);
-        }
+        view.setVisibility( (selectedCategory == null) ? View.GONE : View.VISIBLE);
     }
 
     private List<Item> getExtraItems() {
@@ -160,8 +158,9 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         categories = getCategories();
 
-
-        builder.setSingleChoiceItems(categories, -1, new DialogInterface.OnClickListener() {
+        int checkedItem = ((ArrayAdapter<Category>)categories).getPosition(selectedCategory);
+        
+        builder.setSingleChoiceItems(categories, checkedItem, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 selectedCategory = (Category) categories.getItem(i);
@@ -332,7 +331,15 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             TextView txtView = convertView.findViewById(android.R.id.text1);
             txtView.setText(element.getName());
 
+
+
             return convertView;
+        }
+
+
+        @Override
+        public int getPosition(@Nullable SimpleElement item) {
+            return super.getPosition(item);
         }
     }
 

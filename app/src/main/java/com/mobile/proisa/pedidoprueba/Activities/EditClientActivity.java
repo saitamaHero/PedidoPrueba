@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -121,6 +122,31 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         return client;
     }
 
+
+
+    private boolean makeValidations()
+    {
+        boolean isReady = true;
+
+        TextInputEditText edtName = findViewById(R.id.client_name);
+        TextInputEditText edtPhone = findViewById(R.id.phone);
+        TextInputEditText edtCardClient = findViewById(R.id.card_client);
+
+        if(TextUtils.isEmpty(edtName.getText())) {
+            edtName.setError(getString(R.string.error_not_empty));
+            isReady = false;
+        }else if(edtPhone.getText().length() != 10) {
+            edtPhone.setError(getString(R.string.error_not_valid_phone));
+            isReady = false;
+        }else if(edtCardClient.getText().length() != 9 && edtCardClient.getText().length() != 11) {
+            edtCardClient.setError(getString(R.string.error_not_valid_rnc));
+            isReady = false;
+        }
+
+
+        return isReady;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_confirm_edit, menu);
@@ -132,14 +158,17 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         switch (item.getItemId()){
             case R.id.action_apply:
-                if(client.update(getInfo())){
-                    client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
-                    setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,client));
-                }else{
-                    setResult(RESULT_CANCELED);
+                if(makeValidations()){
+                    if(client.update(getInfo())){
+                        client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+                        setResult(RESULT_OK, new Intent().putExtra(EXTRA_DATA,client));
+                    }else{
+                        setResult(RESULT_CANCELED);
+                    }
+
+                    finish();
                 }
 
-                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
