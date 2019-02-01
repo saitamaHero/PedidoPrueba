@@ -171,7 +171,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         registerReceiver(broadcastReceiver, intentFilter);
 
-        CashPaymentDialog.newInstance(1596, null).show(getSupportFragmentManager(), "");
+        //CashPaymentDialog.newInstance(1596, null).show(getSupportFragmentManager(), "");
     }
 
     private void loadBackdrop(Uri uri) {

@@ -100,7 +100,10 @@
                     android:id="@+id/comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLength="200" />
+                    android:maxLength="200"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>

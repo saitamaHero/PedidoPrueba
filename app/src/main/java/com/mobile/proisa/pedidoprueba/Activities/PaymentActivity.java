@@ -33,8 +33,7 @@ import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
-    public static final String EXTRA_INVOICE = "com.mobile.proisa.pedidoprueba.EXTRA_INVOICE";
+public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
@@ -135,11 +134,7 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
             public void onPaymentComplete(boolean success, double money) {
                 if(success){
                     saveInvoice();
-
                 }
-
-                //Mantenerse en la actividad
-
             }
         }).show(getSupportFragmentManager(), null);
     }
@@ -162,10 +157,12 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
         if(controller.insert(mInvoice)){
             Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE)
                     .setActionTextColor(getResources().getColor(R.color.goodStatus))
-                    .setAction(R.string.retry, new View.OnClickListener() {
+                    .setAction(R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             //Posiblemente salir aquí o imprimir la factura o algo por el estilo
+                            setResult(RESULT_OK);
+                            finish();
                         }
                     }).show();
 
@@ -173,8 +170,7 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
                     .show();*/
 
             //Posiblemente intentar guardar remotamente y luego  imprimir la factura
-            setResult(RESULT_OK);
-            finish();
+
         }else{
             Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
                     .setActionTextColor(getResources().getColor(R.color.badStatus))

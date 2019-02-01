@@ -132,7 +132,7 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
             case R.id.action_save:
                 if(mInvoice.containsItems()){
                     Intent paymentActivity = new Intent(this, PaymentActivity.class);
-                    paymentActivity.putExtra(PaymentActivity.EXTRA_INVOICE, mInvoice);
+                    paymentActivity.putExtra(EXTRA_INVOICE, mInvoice);
                     startActivityForResult(paymentActivity, PAYMENT_REQUEST_CODE);
                 }
                 return true;
