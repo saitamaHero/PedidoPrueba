@@ -42,6 +42,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.BuildConfig;
 import com.mobile.proisa.pedidoprueba.Clases.ClientOptionsAdapter;
+import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.DatePickerFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
@@ -169,6 +170,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         };
 
         registerReceiver(broadcastReceiver, intentFilter);
+
+        CashPaymentDialog.newInstance(1596, null).show(getSupportFragmentManager(), "");
     }
 
     private void loadBackdrop(Uri uri) {

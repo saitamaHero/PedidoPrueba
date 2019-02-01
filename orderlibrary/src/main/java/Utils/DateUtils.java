@@ -55,8 +55,15 @@ public class DateUtils {
      */
     public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
 
-    public static final String EEE_DD_MMM_YYYY  = "EEE, DD MMM yyyy";
-    public static final String EEE_DD_MMM_YYYY_HH_mm  = "EEE, DD MMM yyyy HH:mm";
+    /**
+     * Formato para presentar en el formato nombre día, número del día mes y año
+     */
+    public static final String EEE_DD_MMM_YYYY  = "EEE, dd MMM yyyy";
+
+    /**
+     * Al igual que el formato EEE_DD_MMM_YYYY con hora y minutos en formato 12h
+     */
+    public static final String EEE_DD_MMM_YYYY_HH_mm  = "EEE, dd MMM yyyy hh:mm a";
 
 
     /**

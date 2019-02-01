@@ -28,7 +28,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import Models.ColumnsSqlite;
-import Models.ITotal;
 import Models.Invoice;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
@@ -38,7 +37,7 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
     public static final String EXTRA_INVOICE = "com.mobile.proisa.pedidoprueba.EXTRA_INVOICE";
     private Spinner spPayment;
     private Button btnCompletePayment;
-    private Invoice invoiceToSave;
+    private Invoice mInvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +46,12 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
 
         setTitle(R.string.payment);
 
-        invoiceToSave = getInvoiceToShow();
+        mInvoice = getInvoiceToShow();
         bindUI();
         loadInvoiceTypes();
 
         loadData();
+
     }
 
     private void bindUI() {
@@ -71,11 +71,11 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
 
     private void loadData(){
         TextView txtClient = findViewById(R.id.client_name);
-        txtClient.setText(invoiceToSave.getClient().getName());
+        txtClient.setText(mInvoice.getClient().getName());
         TextView txtTotal = findViewById(R.id.total);
 
-        if(invoiceToSave.getItems() != null){
-            txtTotal.setText(NumberUtils.formatNumber(NumberUtils.getTotal(new ArrayList<ITotal>(invoiceToSave.getItems())),NumberUtils.FORMAT_NUMER_DOUBLE));
+        if(mInvoice.containsItems()){
+            txtTotal.setText(NumberUtils.formatNumber(mInvoice.getTotal(),NumberUtils.FORMAT_NUMER_DOUBLE));
         }else{
             txtTotal.setText(NumberUtils.formatNumber(0.00,NumberUtils.FORMAT_NUMER_DOUBLE));
         }
@@ -107,8 +107,8 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         InvoiceType invoiceType = (InvoiceType) adapterView.getItemAtPosition(i);
-        invoiceToSave.setInvoiceType(invoiceType.getInvoicePayment());
-        Log.d("InvoiceToSave", invoiceToSave.toString());
+        mInvoice.setInvoiceType(invoiceType.getInvoicePayment());
+        Log.d("InvoiceToSave", mInvoice.toString());
     }
 
     @Override
@@ -120,8 +120,10 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_complete_payment:
-                if(invoiceToSave.getInvoiceType().equals(Invoice.InvoicePayment.CASH)){
-                    showDialogToReturnMoney(invoiceToSave);
+                if(mInvoice.getInvoiceType().equals(Invoice.InvoicePayment.CASH)){
+                    showDialogToReturnMoney(mInvoice);
+                }else{
+                    saveInvoice();
                 }
                 break;
         }
@@ -133,8 +135,7 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
             public void onPaymentComplete(boolean success, double money) {
                 if(success){
                     saveInvoice();
-                    /*setResult(RESULT_OK);
-                    finish();*/
+
                 }
 
                 //Mantenerse en la actividad
@@ -145,28 +146,38 @@ public class PaymentActivity extends AppCompatActivity implements AdapterView.On
 
     private Invoice getReadyInvoice() {
         TextInputEditText edtComment = findViewById(R.id.comment);
-        invoiceToSave.setComment(edtComment.getText().toString());
-        invoiceToSave.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
-        invoiceToSave.setDate(Calendar.getInstance().getTime());
-        invoiceToSave.setId(String.valueOf(invoiceToSave.hashCode()));
+        mInvoice.setComment(edtComment.getText().toString());
+        mInvoice.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+        mInvoice.setDate(Calendar.getInstance().getTime());
+        mInvoice.setId(String.valueOf(mInvoice.hashCode()));
 
-        return invoiceToSave;
+        return mInvoice;
     }
 
     public void saveInvoice(){
-        invoiceToSave = getReadyInvoice();
+        mInvoice = getReadyInvoice();
 
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if(controller.insert(invoiceToSave)){
-            Toast.makeText(getApplicationContext(), "Se guardó la factura "+invoiceToSave.toString(), Toast.LENGTH_LONG)
-                    .show();
+        if(controller.insert(mInvoice)){
+            Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE)
+                    .setActionTextColor(getResources().getColor(R.color.goodStatus))
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Posiblemente salir aquí o imprimir la factura o algo por el estilo
+                        }
+                    }).show();
+
+            /*Toast.makeText(getApplicationContext(), "Se guardó la factura "+ mInvoice.toString(), Toast.LENGTH_LONG)
+                    .show();*/
 
             //Posiblemente intentar guardar remotamente y luego  imprimir la factura
-            //setResult(RESULT_OK);
-            //finish();
+            setResult(RESULT_OK);
+            finish();
         }else{
             Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
+                    .setActionTextColor(getResources().getColor(R.color.badStatus))
                     .setAction(R.string.retry, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

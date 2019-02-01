@@ -188,5 +188,8 @@ Cadena que representa maniana con tiempo
     <string name="error_not_valid_phone">Télefono incompleto.</string>
     <string name="error_not_valid_rnc">Este campo es incorrecto.</string>
     <string name="select_items">Seleccionar artículos</string>
+    <string name="not_invoices">No hay facturas de %s</string>
+    <string name="clean">Borrar</string>
+    <string name="empty_money">0.00</string>
 
 </resources>

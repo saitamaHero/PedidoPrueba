@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,10 @@ import Models.Invoice;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class InvoiceListAdapter extends RecyclerView.Adapter<InvoiceListAdapter.InvoiceHolder> {
+    private static final String TAG = "InvoiceListAdapter";
     private List<Invoice> invoices;
     private int layoutResource;
     private OnInvoiceClickListener onInvoiceClickListener;
@@ -49,6 +53,9 @@ public class InvoiceListAdapter extends RecyclerView.Adapter<InvoiceListAdapter.
         holder.txtPrice.setText(NumberUtils.formatNumber(invoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
         holder.txtStock.setText(NumberUtils.formatNumber(invoice.getItems().size(), NumberUtils.FORMAT_NUMER_INTEGER));
         holder.txtDate.setText(DateUtils.formatDate(invoice.getDate(), DateUtils.EEE_DD_MMM_YYYY_HH_mm));
+
+
+        Log.d(TAG, "onBindViewHolder: dateOfInvoice -> " + invoice.getDate());
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override

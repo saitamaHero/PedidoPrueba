@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.InvoiceListAdapter;
 import com.mobile.proisa.pedidoprueba.Fragments.InvoiceListFragment;
+import com.mobile.proisa.pedidoprueba.Fragments.TextMessageFragment;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import Models.Invoice;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 
-public class InvoiceListActivity extends AppCompatActivity implements InvoiceListAdapter.OnInvoiceClickListener{
+public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceListAdapter.OnInvoiceClickListener{
     private static final String TAG = "InvoiceListActivity";
 
     private InvoiceController invoiceController;
@@ -29,19 +30,19 @@ public class InvoiceListActivity extends AppCompatActivity implements InvoiceLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invoice_list);
 
+        setTitle(R.string.invoices);
+
         Client client = getIntent().getExtras().getParcelable(DetailsClientActivity.EXTRA_CLIENT);
 
         invoiceController = new InvoiceController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
         List<Invoice> invoiceList = invoiceController.getAllById(client.getId());
 
-        setCurrentFragment(InvoiceListFragment.newInstance(invoiceList));
+        if(invoiceList.size() > 0){
+            setCurrentFragment(R.id.container, InvoiceListFragment.newInstance(invoiceList));
+        }else{
+            setCurrentFragment(R.id.container, TextMessageFragment.newInstance(getString(R.string.not_invoices, client.getName())));
+        }
 
-    }
-
-    private void setCurrentFragment(Fragment fragment) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.container, fragment);
-        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
