@@ -3,10 +3,6 @@ package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.InvoiceListAdapter;
 import com.mobile.proisa.pedidoprueba.Fragments.InvoiceListFragment;
@@ -48,6 +44,8 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     @Override
     public void onInvoiceClick(Invoice invoice) {
         startActivity(new Intent(this, VentaActivity.class)
-                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice));
+                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice)
+                .putExtra(BaseCompatAcivity.EXTRA_IS_NEW_INVOICE, false)
+        );
     }
 }

@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,10 +43,9 @@ import Utils.NumberUtils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class VendorProfileFragment extends Fragment implements View.OnClickListener, ActividadAdapter.ActividadHolder.OnActividadClick {
+    private static final String TAG = "VendorProfileFragment";
     private User mUser;
     private TextView txtName;
     private TextView txtId;
@@ -155,8 +155,14 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
     private void logout() {
         deletePreferences();
-        getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
+        boolean mDbDeleted = getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
         checkPreferences();
+
+        if(mDbDeleted){
+            Log.d(TAG, "logout: database was deleted successfull");
+        }else{
+            Log.d(TAG, "logout: database wasn't deleted");
+        }
     }
 
     @Override

@@ -13,5 +13,15 @@ public class InvoiceType {
         return invoicePayment;
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        InvoiceType other = (InvoiceType) obj;
+
+        return this.getInvoicePayment().equals(other.getInvoicePayment());
+    }
 }

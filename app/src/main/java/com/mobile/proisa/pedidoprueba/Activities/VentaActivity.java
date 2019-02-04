@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -19,12 +18,9 @@ import android.widget.Toast;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemsListSalesAdapter;
 import com.mobile.proisa.pedidoprueba.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import Models.Client;
 import Models.Constantes;
-import Models.ITotal;
 import Models.Invoice;
 import Models.Item;
 import Models.Vendor;
@@ -39,6 +35,7 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
     private RecyclerView.Adapter adapter;
 
     private Invoice mInvoice;
+    private boolean isNewInvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +51,9 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
         Vendor vendor = VendorUtil.getVendor(this);
         setTitle(vendor.getName());
         getSupportActionBar().setSubtitle(R.string.vendor);
+
+
+        isNewInvoice = getIntent().getBooleanExtra(EXTRA_IS_NEW_INVOICE, true);
     }
 
     @Override
@@ -133,6 +133,7 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
                 if(mInvoice.containsItems()){
                     Intent paymentActivity = new Intent(this, PaymentActivity.class);
                     paymentActivity.putExtra(EXTRA_INVOICE, mInvoice);
+                    paymentActivity.putExtra(EXTRA_IS_NEW_INVOICE, isNewInvoice);
                     startActivityForResult(paymentActivity, PAYMENT_REQUEST_CODE);
                 }
                 return true;

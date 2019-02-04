@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -67,6 +69,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_sing_in:
+                hideInputMethod();
                 login();
                 break;
         }
@@ -127,6 +130,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         return false;
     }
+
+    private void hideInputMethod()
+    {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
+        View view = getCurrentFocus();
+
+        if(view == null){
+            view = new View(getApplicationContext());
+        }
+
+        Toast.makeText(getApplicationContext(), view.toString(), Toast.LENGTH_SHORT).show();
+
+        inputMethodManager.hideSoftInputFromInputMethod(view.getWindowToken(), 0);
+    }
+
 
 
     public static class LogInTask extends TareaAsincrona<Void, Void, Void> {

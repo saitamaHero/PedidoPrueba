@@ -37,6 +37,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
+    private boolean isNewInvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +47,20 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         setTitle(R.string.payment);
 
         mInvoice = getInvoiceToShow();
-        bindUI();
+
+        isNewInvoice = getIntent().getBooleanExtra(EXTRA_IS_NEW_INVOICE, true);
+    }
+
+    @Override
+    protected void onBindUI() {
+        spPayment = findViewById(R.id.spPayment);
+        btnCompletePayment = findViewById(R.id.btn_complete_payment);
+        btnCompletePayment.setOnClickListener(this);
+
         loadInvoiceTypes();
 
         loadData();
 
-    }
-
-    private void bindUI() {
-        spPayment = findViewById(R.id.spPayment);
-        btnCompletePayment = findViewById(R.id.btn_complete_payment);
-        btnCompletePayment.setOnClickListener(this);
     }
 
 
@@ -66,6 +70,12 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         spPayment.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         spPayment.setOnItemSelectedListener(this);
+
+        if(!isNewInvoice){
+            InvoiceType invoiceType = new InvoiceType(mInvoice.getInvoiceType());
+            int index = ((ArrayAdapter)spPayment.getAdapter()).getPosition(invoiceType);
+            spPayment.setSelection(index);
+        }
     }
 
     private void loadData(){
@@ -154,32 +164,46 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if(controller.insert(mInvoice)){
-            Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE)
-                    .setActionTextColor(getResources().getColor(R.color.goodStatus))
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            //Posiblemente salir aquí o imprimir la factura o algo por el estilo
-                            setResult(RESULT_OK);
-                            finish();
-                        }
-                    }).show();
-
-            /*Toast.makeText(getApplicationContext(), "Se guardó la factura "+ mInvoice.toString(), Toast.LENGTH_LONG)
-                    .show();*/
-
-            //Posiblemente intentar guardar remotamente y luego  imprimir la factura
-
+        if(isNewInvoice){
+            if(controller.insert(mInvoice)) {
+                Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //Posiblemente salir aquí o imprimir la factura o algo por el estilo
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                }).show();
+            }else{
+                Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
+                        .setActionTextColor(getResources().getColor(R.color.badStatus))
+                        .setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                saveInvoice();
+                            }
+                        }).show();
+            }
         }else{
-            Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
-                    .setActionTextColor(getResources().getColor(R.color.badStatus))
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            saveInvoice();
-                        }
-                    }).show();
+            if(controller.update(mInvoice)) {
+                Snackbar.make(btnCompletePayment, "Se actualizó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //Posiblemente salir aquí o imprimir la factura o algo por el estilo
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                }).show();
+            }else{
+                Snackbar.make(btnCompletePayment, "No se actualizó la factura", Snackbar.LENGTH_LONG)
+                        .setActionTextColor(getResources().getColor(R.color.badStatus))
+                        .setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                saveInvoice();
+                            }
+                        }).show();
+            }
         }
     }
 
