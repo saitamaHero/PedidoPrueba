@@ -72,6 +72,7 @@ public class InvoiceDetailsController extends ControllerDetails<Item> {
         Item item = controller.getById(cursor.getString(cursor.getColumnIndex(Invoice.ITEM_ID)));
 
         if(item != null) {
+            item.setStock(0.0);
             item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Invoice._TAX_RATE)));
             item.setQuantity(cursor.getDouble(cursor.getColumnIndex(Invoice._QTY)));
             item.setPrice(cursor.getDouble(cursor.getColumnIndex(Invoice._PRICE)));

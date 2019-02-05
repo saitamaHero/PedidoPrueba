@@ -117,10 +117,17 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.action_save);
 
-        if(mInvoice.containsItems()){
-            menuItem.setVisible(true);
+        if(isNewInvoice){
+            if(mInvoice.containsItems()){
+                menuItem.setVisible(true);
+            }else{
+                menuItem.setVisible(false);
+            }
         }else{
+            MenuItem addIItem = menu.findItem(R.id.add_items);
+
             menuItem.setVisible(false);
+            addIItem.setVisible(false);
         }
 
         return true;
@@ -187,26 +194,31 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if(isNewInvoice){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle(R.string.msg_exit_sale);
-        builder.setTitle(R.string.msg_exit_no_save);
+            builder.setTitle(R.string.msg_exit_sale);
+            builder.setTitle(R.string.msg_exit_no_save);
 
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                finish();
-            }
-        });
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finish();
+                }
+            });
 
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
 
-        builder.create().show();
+            builder.create().show();
+        }else{
+            super.onBackPressed();
+        }
+
     }
 
     @Override

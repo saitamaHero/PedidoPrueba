@@ -37,7 +37,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
-    private boolean isNewInvoice;
+    //private boolean isNewInvoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +47,6 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         setTitle(R.string.payment);
 
         mInvoice = getInvoiceToShow();
-
-        isNewInvoice = getIntent().getBooleanExtra(EXTRA_IS_NEW_INVOICE, true);
     }
 
     @Override
@@ -63,7 +61,6 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     }
 
-
     private void loadInvoiceTypes() {
         InvoiceTypeAdapter adapter = new InvoiceTypeAdapter(getBaseContext(), R.layout.spinner_item_custom);
         adapter.addAll(getInvoiceTypes());
@@ -71,42 +68,37 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         adapter.notifyDataSetChanged();
         spPayment.setOnItemSelectedListener(this);
 
-        if(!isNewInvoice){
-            InvoiceType invoiceType = new InvoiceType(mInvoice.getInvoiceType());
-            int index = ((ArrayAdapter)spPayment.getAdapter()).getPosition(invoiceType);
-            spPayment.setSelection(index);
-        }
     }
 
-    private void loadData(){
+    private void loadData() {
         TextView txtClient = findViewById(R.id.client_name);
         txtClient.setText(mInvoice.getClient().getName());
         TextView txtTotal = findViewById(R.id.total);
 
-        if(mInvoice.containsItems()){
-            txtTotal.setText(NumberUtils.formatNumber(mInvoice.getTotal(),NumberUtils.FORMAT_NUMER_DOUBLE));
-        }else{
-            txtTotal.setText(NumberUtils.formatNumber(0.00,NumberUtils.FORMAT_NUMER_DOUBLE));
+        if (mInvoice.containsItems()) {
+            txtTotal.setText(NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+        } else {
+            txtTotal.setText(NumberUtils.formatNumber(0.00, NumberUtils.FORMAT_NUMER_DOUBLE));
         }
     }
 
     private Invoice getInvoiceToShow() {
         Intent intent = getIntent();
 
-        try{
+        try {
             Bundle extras = intent.getExtras();
             return extras.getParcelable(EXTRA_INVOICE);
-        }catch (Exception e){
+        } catch (Exception e) {
             finish();
         }
 
         return null;
     }
 
-    private List<InvoiceType> getInvoiceTypes(){
+    private List<InvoiceType> getInvoiceTypes() {
         List<InvoiceType> invoiceTypes = new ArrayList<>();
 
-        for(Invoice.InvoicePayment invoicePayment : Invoice.InvoicePayment.values()){
+        for (Invoice.InvoicePayment invoicePayment : Invoice.InvoicePayment.values()) {
             invoiceTypes.add(new InvoiceType(invoicePayment));
         }
 
@@ -127,11 +119,11 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btn_complete_payment:
-                if(mInvoice.getInvoiceType().equals(Invoice.InvoicePayment.CASH)){
+                if (mInvoice.getInvoiceType().equals(Invoice.InvoicePayment.CASH)) {
                     showDialogToReturnMoney(mInvoice);
-                }else{
+                } else {
                     saveInvoice();
                 }
                 break;
@@ -142,7 +134,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         CashPaymentDialog.newInstance(invoiceToSave, new CashPaymentDialog.OnPaymentComplete() {
             @Override
             public void onPaymentComplete(boolean success, double money) {
-                if(success){
+                if (success) {
                     saveInvoice();
                 }
             }
@@ -159,51 +151,29 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         return mInvoice;
     }
 
-    public void saveInvoice(){
+    public void saveInvoice() {
         mInvoice = getReadyInvoice();
 
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if(isNewInvoice){
-            if(controller.insert(mInvoice)) {
-                Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Posiblemente salir aquí o imprimir la factura o algo por el estilo
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                }).show();
-            }else{
-                Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG)
-                        .setActionTextColor(getResources().getColor(R.color.badStatus))
-                        .setAction(R.string.retry, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                saveInvoice();
-                            }
-                        }).show();
-            }
-        }else{
-            if(controller.update(mInvoice)) {
-                Snackbar.make(btnCompletePayment, "Se actualizó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Posiblemente salir aquí o imprimir la factura o algo por el estilo
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                }).show();
-            }else{
-                Snackbar.make(btnCompletePayment, "No se actualizó la factura", Snackbar.LENGTH_LONG)
-                        .setActionTextColor(getResources().getColor(R.color.badStatus))
-                        .setAction(R.string.retry, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                saveInvoice();
-                            }
-                        }).show();
-            }
+
+        if (controller.insert(mInvoice)) {
+            Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Posiblemente salir aquí o imprimir la factura o algo por el estilo
+                    btnCompletePayment.setEnabled(false);
+                    setResult(RESULT_OK);
+                    finish();
+                }
+            }).show();
+        } else {
+            Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    saveInvoice();
+                }
+            }).show();
         }
     }
 
@@ -227,8 +197,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         }
 
 
-        private View createView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
-        {
+        private View createView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             InvoiceType payment = getItem(position);
 
             convertView = super.getDropDownView(position, convertView, parent);
@@ -237,9 +206,9 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
             String stringResource;
 
 
-            switch (payment.getInvoicePayment()){
+            switch (payment.getInvoicePayment()) {
                 case CASH:
-                    stringResource =getContext().getString( R.string.cash_type);
+                    stringResource = getContext().getString(R.string.cash_type);
                     break;
 
                 case CREDIT:
