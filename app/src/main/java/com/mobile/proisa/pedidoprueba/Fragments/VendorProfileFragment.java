@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -185,7 +186,13 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
 
         setAdapterActividades();
+
+
+
+        Toast.makeText(getActivity(), "Vendedor Profile onResume", Toast.LENGTH_SHORT).show();
     }
+
+
 
     private void setAdapterActividades() {
         List<Actividad> actividadList = getActividades();
@@ -206,8 +213,16 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     public static List<Actividad> getActividades(){
         List<Actividad> actividads = new ArrayList<>();
 
+        Actividad.Builder builder = new Actividad.Builder();
 
-        Actividad actividad;
+        builder.addId(51)
+                .addDescription("Probando el BuilderPattern")
+                .addNumeric("100.00")
+                .addStatus(true)
+                .addInfo("Extra info");
+
+
+        /*Actividad actividad;
 
         actividad = new Actividad(1,NumberUtils.formatNumber(2,
                 NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
@@ -253,7 +268,9 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         actividad = new Actividad(11, "", "Gráficos de Ventas",
                 "Ver el gráfico para el año actual.", true);
-        actividads.add(actividad);
+        actividads.add(actividad);*/
+
+        actividads.add(builder.create());
         return actividads;
     }
 

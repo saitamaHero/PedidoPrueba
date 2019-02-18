@@ -2,6 +2,8 @@ package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -37,7 +39,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
-    //private boolean isNewInvoice;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +129,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
                     saveInvoice();
                 }
                 break;
+
         }
     }
 
@@ -158,7 +161,12 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
 
         if (controller.insert(mInvoice)) {
-            Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
+
+            btnCompletePayment.setEnabled(false);
+            setResult(RESULT_OK);
+            finish();
+
+            /*Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //Posiblemente salir aquí o imprimir la factura o algo por el estilo
@@ -166,7 +174,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
                     setResult(RESULT_OK);
                     finish();
                 }
-            }).show();
+            }).show();*/
         } else {
             Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
                 @Override

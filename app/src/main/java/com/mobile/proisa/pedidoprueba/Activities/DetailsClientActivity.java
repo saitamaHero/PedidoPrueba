@@ -78,6 +78,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private static final int CAMERA_INTENT_RESULT = 1;
     private static final int EDIT_INTENT_RESULT = 2;
     private static final int GALLERY_INTENT_RESULT = 3;
+    private static final int VENTA_REQUEST_CODE = 4;
     private static final int PERMISO_MEMORIA_REQUEST = 1000;
     private static final int PERMISO_CAMERA_REQUEST = 2000;
 
@@ -463,7 +464,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         e.printStackTrace();
                     }
                 }
+                break;
 
+            case VENTA_REQUEST_CODE:
+                finish();
                 break;
         }
     }
@@ -491,8 +495,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case R.id.action_comment:
-                startActivityForResult(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client), EDIT_INTENT_RESULT);
+                startActivity(new Intent(getApplicationContext(),SeeCommentsActivity.class)
+                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client));
                 break;
 
             case R.id.action_diary:
@@ -503,8 +507,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case R.id.action_order:
                 Invoice invoice = new Invoice();
                 invoice.setClient(this.client);
-                startActivity(new Intent(this, VentaActivity.class)
-                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice));
+                startActivityForResult(new Intent(this, VentaActivity.class)
+                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice), VENTA_REQUEST_CODE);
                 break;
 
             case R.id.action_see_invoices:

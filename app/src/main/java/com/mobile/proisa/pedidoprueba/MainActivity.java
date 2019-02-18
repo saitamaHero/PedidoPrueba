@@ -2,6 +2,7 @@ package com.mobile.proisa.pedidoprueba;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.text.UnicodeSetSpanner;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -10,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
@@ -30,9 +32,12 @@ import Models.User;
 import Models.Vendor;
 import Utils.NumberUtils;
 
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener, ClientsFragment.OnFragmentInteractionListener
+{
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN = 100;
+
+
     private ViewPager viewPager;
     private BottomNavigationView navigationView;
     private User mUser;
@@ -134,14 +139,22 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_LOGIN) {
-            if (resultCode == RESULT_OK) {
-                User mUser = data.getExtras().getParcelable("user");
-                guardarUsuario(mUser);
-            } else {
-                finish();
-            }
+
+        switch (requestCode){
+            case REQUEST_LOGIN:
+                if (resultCode == RESULT_OK) {
+                    User mUser = data.getExtras().getParcelable("user");
+                    guardarUsuario(mUser);
+                } else {
+                    finish();
+                }
+                break;
+
+            case ClientsFragment.DETAILS_CLIENT_ACTIVITY:
+                Toast.makeText(getApplicationContext(), "Saludos", Toast.LENGTH_SHORT).show();
+                break;
         }
+
     }
 
     private boolean areUserThere() {
@@ -198,4 +211,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
 
+    @Override
+    public void requestChangePage() {
+        viewPager.setCurrentItem(3);
+    }
 }

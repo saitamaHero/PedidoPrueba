@@ -4,6 +4,7 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -48,7 +49,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener, TareaAsincrona.OnFinishedProcess{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
-    private static final int DETAILS_CLIENT_ACTIVITY = 805;
+    public static final int DETAILS_CLIENT_ACTIVITY = 805;
     private static final int CREATE_CLIENT_CODE = 806;
     private static final int DEFAULT_CLIENTS_COUNT = 20;
 
@@ -57,6 +58,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
     private boolean isSearching;
+
+    private OnFragmentInteractionListener onFragmentInteractionListener;
 
     public ClientsFragment() {
         // Required empty public constructor
@@ -84,6 +87,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         if(getArguments() != null){
             clients = getArguments().getParcelableArrayList(PARAM_CLIENT_LIST);
         }
+
+        onFragmentInteractionListener = (OnFragmentInteractionListener) getActivity();
     }
 
     @Override
@@ -179,6 +184,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_search, menu);
+
+
     }
 
     @Override
@@ -214,6 +221,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         clients = getClients(newText);
         setAdapter();
+
+
         return true;
     }
 
@@ -223,7 +232,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
-
+                onFragmentInteractionListener.requestChangePage();
                 break;
 
             case CREATE_CLIENT_CODE:
@@ -380,5 +389,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             publishError(new Exception(getContext().getString(R.string.error_to_updater)));
             cancel(true);
         }
+    }
+
+
+
+    public interface  OnFragmentInteractionListener{
+        public void requestChangePage();
     }
 }

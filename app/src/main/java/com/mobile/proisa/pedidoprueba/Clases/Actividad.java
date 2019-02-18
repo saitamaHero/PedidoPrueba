@@ -10,6 +10,9 @@ public class Actividad implements Parcelable{
     private String info;
     private boolean isGood;
 
+    public Actividad() {
+    }
+
     public Actividad(int id, String numeric, String descrition) {
         this.id = id;
         this.numeric = numeric;
@@ -108,5 +111,43 @@ public class Actividad implements Parcelable{
         parcel.writeString(numeric);
         parcel.writeString(description);
         parcel.writeString(info);
+    }
+
+    public static class Builder{
+        private Actividad mActividad;
+
+        public Builder() {
+            mActividad = new Actividad();
+        }
+
+        public Builder addId(int id){
+            mActividad.setId(id);
+            return this;
+        }
+
+        public Builder addDescription(String description){
+            mActividad.setDescription(description);
+            return this;
+        }
+
+        public Builder addInfo(String info){
+            mActividad.setInfo(info);
+            return this;
+        }
+
+        public Builder addNumeric(String numeric){
+            mActividad.setNumeric(numeric);
+            return this;
+        }
+
+        public Builder addStatus(boolean isGood){
+            mActividad.setGood(isGood);
+            return this;
+        }
+
+
+        public Actividad create(){
+            return this.mActividad;
+        }
     }
 }

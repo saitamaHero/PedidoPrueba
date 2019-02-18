@@ -48,6 +48,13 @@ public abstract class Controller<T> {
         return null;
     }
 
+    public Cursor query(String[] columns,
+                        String selection, String[] selectionArgs, String groupBy,
+                        String having, String orderBy, String limit){
+
+        return null;
+    }
+
 
     public boolean exists(String field, Object object){
         return false;

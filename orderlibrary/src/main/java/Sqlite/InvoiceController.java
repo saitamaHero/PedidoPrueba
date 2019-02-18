@@ -153,6 +153,11 @@ public class InvoiceController extends Controller<Invoice> {
 
         return true;
     }
+/*
+    @Override
+    public Cursor query(String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit) {
+        Cursor cursor = getSqLiteDatabase().query(Invoice.)
+    }*/
 
     @Override
     public boolean deleteAll(List<Invoice> items) {
