@@ -119,6 +119,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
         Exception lastException = exceptions.pop();
         Toast.makeText(getApplicationContext(), lastException.getMessage(), Toast.LENGTH_SHORT).show();
+        showProgress(false);
     }
 
     @Override
@@ -141,7 +142,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             view = new View(getApplicationContext());
         }
 
-        Toast.makeText(getApplicationContext(), view.toString(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), view.toString(), Toast.LENGTH_SHORT).show();
 
         inputMethodManager.hideSoftInputFromInputMethod(view.getWindowToken(), 0);
     }
