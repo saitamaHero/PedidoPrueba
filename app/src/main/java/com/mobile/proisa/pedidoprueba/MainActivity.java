@@ -1,8 +1,8 @@
 package com.mobile.proisa.pedidoprueba;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.text.UnicodeSetSpanner;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -16,9 +16,7 @@ import android.widget.Toast;
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
-
-import Models.Constantes;
-
+import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
@@ -28,11 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import Models.Constantes;
 import Models.User;
 import Models.Vendor;
+
 import Utils.NumberUtils;
 
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener, ClientsFragment.OnFragmentInteractionListener
+
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
+        ClientsFragment.OnFragmentInteractionListener, BluetoothListFragment.OnBluetoothSelectedListener
 {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN = 100;
@@ -51,6 +53,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setUpViewPager(1);
 
         checkPreferences();
+
+
+
+        //BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
+
     }
 
     private void checkPreferences() {
@@ -214,5 +221,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     public void requestChangePage() {
         viewPager.setCurrentItem(3);
+    }
+
+    @Override
+    public void onBluetoothSelected(BluetoothDevice device) {
+        Toast.makeText(getApplicationContext(), device.getName(), Toast.LENGTH_SHORT).show();
     }
 }
