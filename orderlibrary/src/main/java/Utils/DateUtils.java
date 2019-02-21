@@ -35,6 +35,12 @@ public class DateUtils {
      */
     public static final String DD_MM_YYYY_hh_mm = "dd-MM-yyyy hh:mm";
 
+
+    /**
+     * Cadena de formato dia, mes, año, horas(12), minutos
+     */
+    public static final String DD_MM_YYYY_hh_mm_AM_PM = "dd-MM-yyyy hh:mm a";
+
     /**
      * Cadena de formato dia, mes, año, horas(24), minutos
      */
