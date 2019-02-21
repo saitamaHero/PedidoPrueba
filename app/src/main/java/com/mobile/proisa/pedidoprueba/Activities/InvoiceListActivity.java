@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.InvoiceListAdapter;
@@ -21,7 +22,7 @@ import com.mobile.proisa.pedidoprueba.BluetoothPritner.BluetoothUtils;
 import com.mobile.proisa.pedidoprueba.BluetoothPritner.MainPrinterHandler;
 import com.mobile.proisa.pedidoprueba.BluetoothPritner.PrinterHandler;
 import com.mobile.proisa.pedidoprueba.BluetoothPritner.TestTicket;
-import com.mobile.proisa.pedidoprueba.BluetoothPritner.Ticket;
+
 import Models.Client;
 import Models.Invoice;
 import Sqlite.InvoiceController;
@@ -36,6 +37,10 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     private PrinterHandler printerHandler;
     private MainPrinterHandler mainPrinterHandler;
     private AbstractTicket ticket;
+    private BluetoothDevice mBluetoohSelected;
+    private HandlerThread mHandlerThread;
+    private boolean mPrinterIsStillConnected;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,51 +69,103 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
                 .putExtra(BaseCompatAcivity.EXTRA_IS_NEW_INVOICE, false)
         );*/
 
-        BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
-
         ticket = new TestTicket(invoice);
+
+        if(!isPrinterSelected()){
+                BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
+        }else if(mPrinterIsStillConnected){
+            sendMessageToPrint(ticket.getTicket());
+        }else{
+            connectToPrinter(mBluetoohSelected);
+        }
+
+    }
+
+    private void setPrinterStatus(String status){
+        TextView txtStatus = findViewById(R.id.txt_status);
+        txtStatus.setText(status);
+    }
+
+    private boolean isPrinterSelected(){
+        return this.mBluetoohSelected != null;
     }
 
     @Override
     public void onBluetoothSelected(BluetoothDevice device) {
+        mBluetoohSelected = device;
+
         mainPrinterHandler = new MainPrinterHandler(this);
 
-        HandlerThread handlerThread = new HandlerThread("PrinterHandler");
-        handlerThread.start();
+        mHandlerThread = new HandlerThread("PrinterHandler");
+        mHandlerThread.start();
 
-        printerHandler = new PrinterHandler(handlerThread.getLooper());
+        printerHandler = new PrinterHandler(mHandlerThread.getLooper());
         printerHandler.setMainThread(mainPrinterHandler);
 
+        connectToPrinter(mBluetoohSelected);
+    }
 
+    private void connectToPrinter(BluetoothDevice device){
         Message msg = new Message();
         msg.what = PrinterHandler.REQUEST_CONNECTION;
         msg.obj  = device;
         printerHandler.sendMessage(msg);
     }
 
-    @Override
-    public void onPrinterConnected() {
+    private void sendMessageToPrint(String toPrint){
         Message message = new Message();
         message.what = PrinterHandler.PRINTER_PRINT_TEXT_TAGGED;
-        message.obj = ticket.getTicket();
+        message.obj = toPrint;
 
         printerHandler.sendMessage(message);
     }
 
     @Override
+    public void onPrinterConnected() {
+        mPrinterIsStillConnected = true;
+        sendMessageToPrint(ticket.getTicket());
+        setPrinterStatus("Impresora conectada");
+    }
+
+    @Override
+    public void onPrinting() {
+        setPrinterStatus("Imprimiendo");
+    }
+
+    @Override
+    public void onPrintingFinished() {
+        setPrinterStatus("Impresora conectada");
+        Toast.makeText(getApplicationContext(), "Impresion Terminada!", Toast.LENGTH_SHORT).show();
+        //printerHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+    }
+
+    @Override
     public void onPrinterDisconnected() {
-        Log.d(TAG, "Impresora desconectada");
+        mBluetoohSelected = null;
+        mPrinterIsStillConnected = false;
+        setPrinterStatus("Impresora Desconectada");
+    }
+
+    @Override
+    public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
+        setPrinterStatus(String.format("La impresora %s no fue encontrada", bluetoothDevice.getName()));
+        Toast.makeText(getApplicationContext(), "Por favor verifica que la impresora esté encendida", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        printerHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        if(printerHandler != null)
+            printerHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
     }
 
     @Override
-    public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
-        Toast.makeText(getApplicationContext(), "Por favor verifica que la impresora esté encendida", Toast.LENGTH_SHORT);
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(mHandlerThread != null){
+            mHandlerThread.quit();
+        }
     }
 }
