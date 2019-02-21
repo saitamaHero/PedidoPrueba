@@ -21,6 +21,8 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
     public static final int PRINTER_NOT_FOUND    = 0x6;
     public static final int PRINTER_CLOSE_CONNECTION = 0x7;
     public static final int PRINTER_PRINT_TEXT_TAGGED   = 0x8;
+    public static final int PRINTER_FINISH_PRINT = 0x9;
+    public static final int PRINTER_PRINTING   = 0xA;
 
     private Printer mPrinter;
     private BluetoothDevice mBluetoothDevice;
@@ -59,15 +61,20 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
         switch (msg.what){
             case PRINTER_PRINT_TEXT:
                 if(msg.obj instanceof String){
+                    mMainThread.sendEmptyMessage(PRINTER_PRINTING);
                     String text = String.valueOf(msg.obj);
                     printText(text);
+                    mMainThread.sendEmptyMessage(PRINTER_FINISH_PRINT);
                 }
+
                 break;
 
             case PRINTER_PRINT_TEXT_TAGGED:
                 if(msg.obj instanceof String){
+                    mMainThread.sendEmptyMessage(PRINTER_PRINTING);
                     String text = String.valueOf(msg.obj);
                     printTextTagged(text);
+                    mMainThread.sendEmptyMessage(PRINTER_FINISH_PRINT);
                 }
                 break;
 
@@ -132,6 +139,4 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
             e.printStackTrace();
         }
     }
-
-
 }

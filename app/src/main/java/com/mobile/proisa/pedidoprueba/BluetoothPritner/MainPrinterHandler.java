@@ -9,6 +9,9 @@ public class MainPrinterHandler extends Handler {
     private PrinterCallBack printerCallBack;
 
     public MainPrinterHandler(PrinterCallBack printerCallBack) {
+        if(printerCallBack == null){
+            throw new NullPointerException(PrinterCallBack.class.getSimpleName() + " is null");
+        }
         this.printerCallBack = printerCallBack;
     }
 
@@ -31,6 +34,15 @@ public class MainPrinterHandler extends Handler {
                     printerCallBack.onPrinterNotFound(bluetoothDevice);
                 }
                 break;
+            case PrinterHandler.PRINTER_FINISH_PRINT:
+                printerCallBack.onPrintingFinished();
+
+                break;
+
+            case PrinterHandler.PRINTER_PRINTING:
+                printerCallBack.onPrinting();
+
+                break;
         }
 
 
@@ -39,6 +51,8 @@ public class MainPrinterHandler extends Handler {
     public interface PrinterCallBack {
         public void onPrinterConnected();
         public void onPrinterDisconnected();
+        public void onPrinting();
+        public void onPrintingFinished();
         public void onPrinterNotFound(BluetoothDevice bluetoothDevice);
     }
 }
