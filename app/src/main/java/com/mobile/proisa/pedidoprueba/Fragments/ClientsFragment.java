@@ -232,7 +232,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
-                onFragmentInteractionListener.requestChangePage();
+                //onFragmentInteractionListener.requestChangePage();
                 break;
 
             case CREATE_CLIENT_CODE:
