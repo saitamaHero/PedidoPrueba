@@ -8,7 +8,7 @@ public abstract class AbstractTicket implements Ticket {
     }
 
     /**
-     * Devuelve crea un Ticket a partir
+     * Devuelve un string con el sticker formado
      * @param buffer
      */
     public abstract String onBuildTicket(StringBuilder buffer);
@@ -18,7 +18,11 @@ public abstract class AbstractTicket implements Ticket {
         return onBuildTicket(mStringBuilder);
     }
 
-
+    /**
+     * Método que utiliza {@link AbstractTicket#getStringWithCharacter}
+     * @param nSpaces espacios requeridos
+     * @return
+     */
     public String getStringWithSpaces(int nSpaces) {
         return getStringWithCharacter(' ', nSpaces);
     }
