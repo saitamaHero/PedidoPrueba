@@ -21,15 +21,22 @@ import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
+import com.mobile.proisa.pedidoprueba.Services.PruebaServicio;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import Models.Constantes;
+import Models.Diary;
 import Models.User;
 import Models.Vendor;
 
+import Sqlite.DiaryController;
+import Sqlite.MySqliteOpenHelper;
+import Utils.DateUtils;
 import Utils.NumberUtils;
 
 
@@ -41,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 
     private ViewPager viewPager;
-    private BottomNavigationView navigationView;
+    private BottomNavigationView mBottomNavigationView;
     private User mUser;
 
     @Override
@@ -54,10 +61,20 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
+        DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
+        List<Diary> diaryList = diaryController.getAll();
 
-        //BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
+        Date toFilter = DateUtils.deleteTime(Calendar.getInstance().getTime());
+        String toFilterFormatted =DateUtils.formatDate(toFilter,DateUtils.YYYY_MM_DD_HH_mm_ss);
 
+        for(Diary d : diaryList){
+            String df = DateUtils.formatDate(d.getDateEvent(),DateUtils.YYYY_MM_DD_HH_mm_ss);
+            int status = df.compareTo(toFilterFormatted);
+            boolean isGreater = status >= 0;
+            Log.d(TAG, String.format("%s > %s = %s (%d)",df,toFilterFormatted, isGreater, status ));
+            //Log.d(TAG, "Fecha de la visita: "+ DateUtils.formatDate(d.getDateEvent(),DateUtils.YYYY_MM_DD_HH_mm_ss));
+        }
     }
 
     private void checkPreferences() {
@@ -67,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private void setUpNavigationView() {
-        navigationView = findViewById(R.id.nav_bottom);
-        navigationView.setOnNavigationItemSelectedListener(this);
+        mBottomNavigationView = findViewById(R.id.nav_bottom);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
 
         Log.d(TAG, "setUpNavigationView: true");
     }
@@ -131,8 +148,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     public void onPageSelected(int position) {
-        MenuItem menuItem = navigationView.getMenu().getItem(position);
-        navigationView.setSelectedItemId(menuItem.getItemId());
+        MenuItem menuItem = mBottomNavigationView.getMenu().getItem(position);
+        mBottomNavigationView.setSelectedItemId(menuItem.getItemId());
 
         setTitle(menuItem.getTitle());
     }

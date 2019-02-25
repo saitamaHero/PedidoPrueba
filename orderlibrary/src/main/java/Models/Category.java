@@ -49,6 +49,13 @@ public class Category extends SimpleElement implements Parcelable, ColumnsSqlite
         return String.format("Category{id='%s' name='%s' }",getId(), getName());
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

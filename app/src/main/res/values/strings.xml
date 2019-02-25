@@ -191,5 +191,8 @@ Cadena que representa maniana con tiempo
     <string name="not_invoices">No hay facturas de %s</string>
     <string name="clean">Borrar</string>
     <string name="empty_money">0.00</string>
+    <string name="notification_message">Servicio en ejecucion</string>
+    <string name="notification_title">Prueba</string>
+    <string name="ticker_text">text ticket</string>
 
 </resources>

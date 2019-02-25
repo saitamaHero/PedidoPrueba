@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,14 +53,21 @@ public class DiaryController extends Controller<Diary> {
         Cursor cursor;
 
         Date toFilter = DateUtils.deleteTime(calendar.getTime());
-
+        Calendar maxCal = new GregorianCalendar();
+        maxCal.setTime(toFilter);
+        maxCal.set(Calendar.HOUR_OF_DAY,23);
+        maxCal.set(Calendar.MINUTE,59);
+        maxCal.set(Calendar.SECOND,59);
 
         //Log.d("toFilter",DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
+
+        String field = String.format("datetime(%s)", Diary._EVENT);
         cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
-                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ?")
+                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(field).concat( ">= ?")//.concat(" AND ").concat(field).concat( "<= ?")
                 , new String[]{String.valueOf(id), DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss)},
                 null, null, Diary._EVENT.concat(" ASC"));
+
 
 
         cursor.moveToFirst();
