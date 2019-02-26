@@ -57,10 +57,6 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
 
-
-    public static final String[] CATEGORIES = {"Bebidas", "Alimentos", "Limpieza", "Dulces"};
-
-
     public ItemListFragment() {
     }
 
@@ -174,38 +170,6 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
                 return true;
             }
         });
-    }
-
-    public static Item getItem(String id, String name) {
-        Item item = new Item(id, name);
-        Random random = new Random();
-
-
-        item.setId("COD-".concat(String.valueOf(random.nextInt(1000) * (1 + random.nextInt(99)))));
-        item.setPrice(random.nextDouble() * 100.00 + 100.00);
-        item.setQuantity(random.nextInt(10) * random.nextInt(10));
-        item.setStock(random.nextInt(100) * random.nextInt(5));
-        item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
-        item.setCategory(getRandomCategory());
-        item.setUnit(new Unit("UD", "UNIDAD"));
-
-        return item;
-    }
-
-
-    public static List<Item> createListItem(int count, int startPosition) {
-        List<Item> items = new ArrayList<>(count);
-
-        for (int i = startPosition; i < startPosition + count; i++) {
-            items.add(getItem("", "PRODUCTO DE PRUEBA " + i));
-        }
-
-        return items;
-    }
-
-    public static Category getRandomCategory() {
-        Random random = new Random();
-        return new Category("CAT-" + random.nextInt(50), CATEGORIES[random.nextInt(CATEGORIES.length)]);
     }
 
     @Override

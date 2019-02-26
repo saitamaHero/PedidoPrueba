@@ -49,11 +49,9 @@ public class DiaryController extends Controller<Diary> {
     public List<Diary> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         List<Diary> items = new ArrayList<>();
-        Cursor cursor;
 
-
-        cursor = sqLiteDatabase.query(MySqliteOpenHelper.VIEW_VISITAS_NAME, null,
-                Diary._CLIENT_ID.concat(" =?")//.concat(" AND ").concat(field).concat( ">= datetime('now')")//.concat(" AND ").concat(field).concat( "<= ?")
+        Cursor cursor = sqLiteDatabase.query(MySqliteOpenHelper.VIEW_VISITAS_NAME, null,
+                Diary._CLIENT_ID.concat(" =?")
                 , new String[]{String.valueOf(id)},
                 null, null, null);
 
@@ -69,16 +67,14 @@ public class DiaryController extends Controller<Diary> {
         return items;
     }
 
-    public List<Diary> getAllCompleteById(Object id)
-    {
+    public List<Diary> getAllCompleteById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Calendar calendar = Calendar.getInstance();
         List<Diary> items = new ArrayList<>();
-        Cursor cursor;
 
         String completeCondition = Diary._START_TIME +" IS NOT NULL AND "+Diary._END_TIME + " IS NOT NULL";
 
-        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
+        Cursor cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
                 Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ? AND ").concat(completeCondition)
                 , new String[]{String.valueOf(id), DateUtils.formatDate(calendar.getTime(), DateUtils.YYYY_MM_DD_HH_mm_ss)},
                 null, null, Diary._EVENT.concat(" ASC"));
@@ -149,7 +145,6 @@ public class DiaryController extends Controller<Diary> {
     public boolean insert(Diary item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Diary._ID);
-
         
         SQLiteDatabase database = getSqLiteDatabase();
 

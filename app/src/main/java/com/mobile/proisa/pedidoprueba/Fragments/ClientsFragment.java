@@ -155,23 +155,16 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             @Override
             public void onClientVisitClick(Client client) {
-                //if(client.getDistance() < 300.00){
-                    //Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
-
                 Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
                 seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_CLIENT, client);
                 seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_INIT_VISIT, true);
                 startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
-                //}
             }
         });
     }
 
     private List<Client> getClients(int count){
         ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-
-        //Toast.makeText(getActivity(), String.valueOf(controller.exists(Client._ID_REMOTE, "6015")), Toast.LENGTH_LONG).show();
-
         return  controller.getAll(count);
     }
 
@@ -184,8 +177,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_search, menu);
-
-
     }
 
     @Override

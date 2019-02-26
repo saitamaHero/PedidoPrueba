@@ -262,7 +262,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     }
 
-
     private void loadMenuOption(){
         Menu myMenu = new PopupMenu(this, null).getMenu();
         getMenuInflater().inflate(R.menu.menu_client, myMenu);
