@@ -109,6 +109,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "FOREIGN KEY("+Diary._CLIENT_ID+") REFERENCES "+Client.TABLE_NAME+"("+Client._ID+")"
             + ");";
 
+
+    public static final String VIEW_VISITAS_NAME = "v_get_diary_next_visits";
+
+
     /**
      * instancia unica para el OpenHelper
      */
@@ -146,6 +150,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_VISITAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
+        sqLiteDatabase.execSQL(createViewDiary());
     }
 
     @Override
@@ -176,6 +181,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP VIEW IF EXISTS "+VIEW_VISITAS_NAME);
 
             onCreate(sqLiteDatabase);
         }
@@ -201,9 +207,19 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         return trigger;
     }
 
+    public static String createViewDiary(){
+        return  "CREATE VIEW "+ VIEW_VISITAS_NAME
+                +" AS "
+                + "SELECT * FROM "+ Diary.TABLE_NAME
+                + " WHERE strftime('%s',"+Diary._EVENT
+                + ") >= strftime('%s',date('now','localtime')) ORDER BY "
+                + Diary._EVENT + " ASC;";
+    }
+
     public static MySqliteOpenHelper getInstance(Context context){
         if(instance == null){
             instance = new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
+
         }
 
         return instance;

@@ -48,27 +48,14 @@ public class DiaryController extends Controller<Diary> {
     @Override
     public List<Diary> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
-        Calendar calendar = Calendar.getInstance();
         List<Diary> items = new ArrayList<>();
         Cursor cursor;
 
-        Date toFilter = DateUtils.deleteTime(calendar.getTime());
-        Calendar maxCal = new GregorianCalendar();
-        maxCal.setTime(toFilter);
-        maxCal.set(Calendar.HOUR_OF_DAY,23);
-        maxCal.set(Calendar.MINUTE,59);
-        maxCal.set(Calendar.SECOND,59);
 
-        //Log.d("toFilter",DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss));
-
-
-        String field = String.format("datetime(%s)", Diary._EVENT);
-        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
-                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(field).concat( ">= ?")//.concat(" AND ").concat(field).concat( "<= ?")
-                , new String[]{String.valueOf(id), DateUtils.formatDate(toFilter, DateUtils.YYYY_MM_DD_HH_mm_ss)},
-                null, null, Diary._EVENT.concat(" ASC"));
-
-
+        cursor = sqLiteDatabase.query(MySqliteOpenHelper.VIEW_VISITAS_NAME, null,
+                Diary._CLIENT_ID.concat(" =?")//.concat(" AND ").concat(field).concat( ">= datetime('now')")//.concat(" AND ").concat(field).concat( "<= ?")
+                , new String[]{String.valueOf(id)},
+                null, null, null);
 
         cursor.moveToFirst();
 
