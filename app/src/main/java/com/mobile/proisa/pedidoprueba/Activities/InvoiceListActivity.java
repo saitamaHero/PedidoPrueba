@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +33,8 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     private InvoiceController invoiceController;
 
 
-    private PrinterHandler printerHandler;
-    private MainPrinterHandler mainPrinterHandler;
+    private PrinterHandler mPrinterHandler;
+    private MainPrinterHandler mMainPrinterHandler;
     private AbstractTicket ticket;
     private BluetoothDevice mBluetoohSelected;
     private HandlerThread mHandlerThread;
@@ -69,7 +68,7 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
                 .putExtra(BaseCompatAcivity.EXTRA_IS_NEW_INVOICE, false)
         );*/
 
-        ticket = new TestTicket(invoice);
+        ticket = new TestTicket(invoice, VentaActivity.VendorUtil.getVendor(this));
 
         if(!isPrinterSelected()){
                 BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
@@ -94,13 +93,13 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     public void onBluetoothSelected(BluetoothDevice device) {
         mBluetoohSelected = device;
 
-        mainPrinterHandler = new MainPrinterHandler(this);
+        mMainPrinterHandler = new MainPrinterHandler(this);
 
         mHandlerThread = new HandlerThread("PrinterHandler");
         mHandlerThread.start();
 
-        printerHandler = new PrinterHandler(mHandlerThread.getLooper());
-        printerHandler.setMainThread(mainPrinterHandler);
+        mPrinterHandler = new PrinterHandler(mHandlerThread.getLooper());
+        mPrinterHandler.setMainThread(mMainPrinterHandler);
 
         connectToPrinter(mBluetoohSelected);
     }
@@ -109,7 +108,7 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
         Message msg = new Message();
         msg.what = PrinterHandler.REQUEST_CONNECTION;
         msg.obj  = device;
-        printerHandler.sendMessage(msg);
+        mPrinterHandler.sendMessage(msg);
     }
 
     private void sendMessageToPrint(String toPrint){
@@ -117,7 +116,12 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
         message.what = PrinterHandler.PRINTER_PRINT_TEXT_TAGGED;
         message.obj = toPrint;
 
-        printerHandler.sendMessage(message);
+        mPrinterHandler.sendMessage(message);
+    }
+
+    @Override
+    public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
+        setPrinterStatus("Intentando conectar a "+bluetoothDevice.getName());
     }
 
     @Override
@@ -136,7 +140,7 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     public void onPrintingFinished() {
         setPrinterStatus("Impresora conectada");
         Toast.makeText(getApplicationContext(), "Impresion Terminada!", Toast.LENGTH_SHORT).show();
-        //printerHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        //mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
     }
 
     @Override
@@ -148,6 +152,9 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
 
     @Override
     public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
+        if(isPrinterSelected()){
+            this.mBluetoohSelected = null;
+        }
         setPrinterStatus(String.format("La impresora %s no fue encontrada", bluetoothDevice.getName()));
         Toast.makeText(getApplicationContext(), "Por favor verifica que la impresora esté encendida", Toast.LENGTH_SHORT).show();
     }
@@ -156,8 +163,8 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
     protected void onPause() {
         super.onPause();
 
-        if(printerHandler != null)
-            printerHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        if(mPrinterHandler != null)
+            mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
     }
 
     @Override

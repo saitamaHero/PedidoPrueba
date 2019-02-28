@@ -2,6 +2,7 @@ package com.mobile.proisa.pedidoprueba.BluetoothPritner;
 
 import Models.Invoice;
 import Models.Item;
+import Models.Vendor;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
@@ -11,10 +12,12 @@ import Utils.NumberUtils;
 public class TestTicket extends AbstractTicket {
     private static final String TAG = "TestTicket";
     private Invoice mInvoice;
+    private Vendor mVendor;
     private int PRINTER_CHARACTERS_LINES = 32;
 
-    public TestTicket(Invoice invoice) {
+    public TestTicket(Invoice invoice, Vendor mVendor) {
         this.mInvoice = invoice;
+        this.mVendor = mVendor;
     }
 
     @Override
@@ -27,6 +30,7 @@ public class TestTicket extends AbstractTicket {
         buffer.append(String.format("{reset}{b}Cliente:{reset}%s (%s){br}", mInvoice.getClient().getName(), mInvoice.getClient().getRemoteId()));
         buffer.append(String.format("{reset}{b}Factura:{reset}%s{br}", mInvoice.getId()));
         buffer.append(String.format("{reset}{b}Fecha:{reset}%s{br}", DateUtils.formatDate(mInvoice.getDate(), DateUtils.DD_MM_YYYY_hh_mm_AM_PM)));
+        buffer.append(String.format("{reset}{b}Vendedor:{reset}%s{br}", mVendor.getName()));
         //buffer.append("{br}");
         buffer.append(divisorString);
         buffer.append("{reset}{b}CANT | PRECIO           SUBTOTAL");

@@ -1,6 +1,5 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,7 +29,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.MyOnItemSelectedListener;
@@ -45,6 +43,7 @@ import Models.Category;
 import Models.Item;
 import Models.SimpleElement;
 import Sqlite.CategoryController;
+import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 
@@ -65,6 +64,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     private String mLastTextSearch;
     private ItemController itemController;
     private Menu defaultMenu;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -342,6 +342,8 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             return super.getPosition(item);
         }
     }
+
+
 
 
 

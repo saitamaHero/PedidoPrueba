@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -61,20 +62,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
-        DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
-
-        List<Diary> diaryList = diaryController.getAll();
-
-        Date toFilter = DateUtils.deleteTime(Calendar.getInstance().getTime());
-        String toFilterFormatted =DateUtils.formatDate(toFilter,DateUtils.YYYY_MM_DD_HH_mm_ss);
-
-        for(Diary d : diaryList){
-            String df = DateUtils.formatDate(d.getDateEvent(),DateUtils.YYYY_MM_DD_HH_mm_ss);
-            int status = df.compareTo(toFilterFormatted);
-            boolean isGreater = status >= 0;
-            Log.d(TAG, String.format("%s > %s = %s (%d)",df,toFilterFormatted, isGreater, status ));
-            //Log.d(TAG, "Fecha de la visita: "+ DateUtils.formatDate(d.getDateEvent(),DateUtils.YYYY_MM_DD_HH_mm_ss));
-        }
+        ///startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
     }
 
     private void checkPreferences() {

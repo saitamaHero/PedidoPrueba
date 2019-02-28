@@ -12,7 +12,6 @@ import java.io.IOException;
 
 public class PrinterHandler extends Handler implements Printer.ConnectionListener {
     private static final String TAG = "PrinterHandler";
-
     public static final int PRINTER_PRINT_TEXT   = 0x1;
     public static final int REQUEST_CONNECTION   = 0x2;
     public static final int PRINTER_CONNECTED    = 0x3;
@@ -23,6 +22,7 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
     public static final int PRINTER_PRINT_TEXT_TAGGED   = 0x8;
     public static final int PRINTER_FINISH_PRINT = 0x9;
     public static final int PRINTER_PRINTING   = 0xA;
+    public static final int PRINTER_CONNECTING   = 0xB;
 
     private Printer mPrinter;
     private BluetoothDevice mBluetoothDevice;
@@ -80,7 +80,17 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
 
             case REQUEST_CONNECTION:
                 mBluetoothDevice = (BluetoothDevice) msg.obj;
-                connectToBluetooth();
+
+                if(mBluetoothDevice != null){
+                    Message message = mMainThread.obtainMessage();
+                    message.what = PRINTER_CONNECTING;
+                    message.obj = mBluetoothDevice;
+
+                    mMainThread.sendMessage(message);
+
+                    connectToBluetooth();
+                }
+
                 sendPrinterStatus();
                 break;
 

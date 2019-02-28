@@ -20,6 +20,16 @@ public class MainPrinterHandler extends Handler {
         super.handleMessage(msg);
 
         switch (msg.what) {
+            case PrinterHandler.PRINTER_CONNECTING:
+                if(msg.obj instanceof BluetoothDevice){
+                    BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
+
+
+                    printerCallBack.onPrinterConnecting(bluetoothDevice);
+                }
+
+                break;
+
             case PrinterHandler.PRINTER_CONNECTED:
                 printerCallBack.onPrinterConnected();
                 break;
@@ -49,10 +59,20 @@ public class MainPrinterHandler extends Handler {
     }
 
     public interface PrinterCallBack {
+        /**
+         * Llamado cuando la impresora está intentando conectarse
+         * @param bluetoothDevice dispositivo al cual se intenta conectar
+         */
+        public void onPrinterConnecting(BluetoothDevice bluetoothDevice);
         public void onPrinterConnected();
         public void onPrinterDisconnected();
         public void onPrinting();
         public void onPrintingFinished();
+
+        /**
+         * Cuando el intento de la conexion esté metodo es llamado
+         * @param bluetoothDevice dispositivo que se trató de conectar
+         */
         public void onPrinterNotFound(BluetoothDevice bluetoothDevice);
     }
 }
