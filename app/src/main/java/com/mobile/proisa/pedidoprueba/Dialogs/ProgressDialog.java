@@ -22,7 +22,7 @@ public class ProgressDialog extends DialogFragment {
 
     private String info;
     private TextView textView;
-    private String mTitle;
+
 
     public static ProgressDialog newInstance(String info) {
         Bundle args = new Bundle();

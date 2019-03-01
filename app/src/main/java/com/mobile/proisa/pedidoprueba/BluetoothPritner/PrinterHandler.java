@@ -29,6 +29,7 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
     private Handler mMainThread;
     private BluetoothSocket mBluetoothSocket;
 
+
     public PrinterHandler(Looper looper) {
         super(looper);
     }
@@ -74,6 +75,11 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
                     mMainThread.sendEmptyMessage(PRINTER_PRINTING);
                     String text = String.valueOf(msg.obj);
                     printTextTagged(text);
+                    mMainThread.sendEmptyMessage(PRINTER_FINISH_PRINT);
+                }else if(msg.obj instanceof AbstractTicket){
+                    mMainThread.sendEmptyMessage(PRINTER_PRINTING);
+                    AbstractTicket abstractTicket = (AbstractTicket) msg.obj;
+                    printTextTaggedWithTicket(abstractTicket);
                     mMainThread.sendEmptyMessage(PRINTER_FINISH_PRINT);
                 }
                 break;
@@ -143,6 +149,25 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
         try {
             mPrinter.reset();
             mPrinter.printTaggedText(textToPrint,PrinterUtils.ISO_8859_1);
+            mPrinter.feedPaper(110);
+            mPrinter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printTextTaggedWithTicket(AbstractTicket ticket){
+        try {
+            mPrinter.reset();
+            mPrinter.printTaggedText(ticket.getTicket(),PrinterUtils.ISO_8859_1);
+
+            String infoBarcode = ticket.getBarcodeInfo();
+
+            if(infoBarcode != null && !(infoBarcode.trim().isEmpty())){
+                mPrinter.setBarcode(Printer.ALIGN_CENTER, false, 2, Printer.HRI_BELOW, 50);
+                mPrinter.printBarcode(Printer.BARCODE_CODE128, ticket.getBarcodeInfo());
+            }
+
             mPrinter.feedPaper(110);
             mPrinter.flush();
         } catch (IOException e) {

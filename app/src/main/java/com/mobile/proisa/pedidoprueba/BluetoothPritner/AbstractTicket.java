@@ -1,11 +1,16 @@
 package com.mobile.proisa.pedidoprueba.BluetoothPritner;
 
+import com.datecs.api.barcode.Barcode;
+import com.datecs.api.printer.Printer;
+
 public abstract class AbstractTicket implements Ticket {
     private StringBuilder mStringBuilder;
 
     public AbstractTicket() {
         mStringBuilder = new StringBuilder();
     }
+
+    public abstract String getBarcodeInfo();
 
     /**
      * Devuelve un string con el sticker formado

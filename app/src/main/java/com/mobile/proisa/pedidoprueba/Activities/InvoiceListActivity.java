@@ -2,44 +2,34 @@ package com.mobile.proisa.pedidoprueba.Activities;
 
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.InvoiceListAdapter;
 import com.mobile.proisa.pedidoprueba.BluetoothPritner.AbstractTicket;
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.BluetoothUtils;
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.InvoiceTicket;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
+import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
 import com.mobile.proisa.pedidoprueba.Fragments.InvoiceListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.TextMessageFragment;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.List;
 
-import com.mobile.proisa.pedidoprueba.BluetoothPritner.BluetoothUtils;
-import com.mobile.proisa.pedidoprueba.BluetoothPritner.MainPrinterHandler;
-import com.mobile.proisa.pedidoprueba.BluetoothPritner.PrinterHandler;
-import com.mobile.proisa.pedidoprueba.BluetoothPritner.TestTicket;
-
 import Models.Client;
 import Models.Invoice;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 
-public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceListAdapter.OnInvoiceClickListener, BluetoothListFragment.OnBluetoothSelectedListener, MainPrinterHandler.PrinterCallBack {
+public class InvoiceListActivity extends PrinterManagmentActivity implements InvoiceListAdapter.OnInvoiceClickListener,
+        BluetoothListFragment.OnBluetoothSelectedListener{
     private static final String TAG = "InvoiceListActivity";
-
     private InvoiceController invoiceController;
 
-
-    private PrinterHandler mPrinterHandler;
-    private MainPrinterHandler mMainPrinterHandler;
     private AbstractTicket ticket;
-    private BluetoothDevice mBluetoohSelected;
-    private HandlerThread mHandlerThread;
-    private boolean mPrinterIsStillConnected;
-
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +38,24 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
 
         setTitle(R.string.invoices);
 
-        Client client = getIntent().getExtras().getParcelable(DetailsClientActivity.EXTRA_CLIENT);
+        getClientAndSearchInvoices();
 
+    }
+
+    private void getClientAndSearchInvoices(){
+        Intent intent = getIntent();
+
+        if(intent != null){
+            Bundle extras = intent.getExtras();
+
+            if(extras != null && extras.containsKey(DetailsClientActivity.EXTRA_CLIENT)){
+                Client client = extras.getParcelable(DetailsClientActivity.EXTRA_CLIENT);
+                showInvoicesForClient(client);
+            }
+        }
+    }
+
+    private void showInvoicesForClient(Client client){
         invoiceController = new InvoiceController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
         List<Invoice> invoiceList = invoiceController.getAllById(client.getId());
 
@@ -67,114 +73,67 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
                 .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice)
                 .putExtra(BaseCompatAcivity.EXTRA_IS_NEW_INVOICE, false)
         );*/
-
-        ticket = new TestTicket(invoice, VentaActivity.VendorUtil.getVendor(this));
+        ticket = new InvoiceTicket(invoice, VentaActivity.VendorUtil.getVendor(this));
 
         if(!isPrinterSelected()){
                 BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
-        }else if(mPrinterIsStillConnected){
-            sendMessageToPrint(ticket.getTicket());
-        }else{
-            connectToPrinter(mBluetoohSelected);
+        }else if(isPrinterStillConnected()){
+            //sendMessageToPrint(ticket.getTicket());
+            sendTicketToPrint(ticket);
         }
-
     }
 
-    private void setPrinterStatus(String status){
-        TextView txtStatus = findViewById(R.id.txt_status);
-        txtStatus.setText(status);
-    }
+    private void setPrinterStatus(String status, boolean showDialog){
 
-    private boolean isPrinterSelected(){
-        return this.mBluetoohSelected != null;
+        if(showDialog && progressDialog == null){
+            progressDialog = ProgressDialog.newInstance(status);
+            progressDialog.show(getFragmentManager(), "");
+        }else if(showDialog){
+            progressDialog.changeInfo(status);
+        }else if(progressDialog != null){
+            progressDialog.dismiss();
+            progressDialog = null;
+
+            Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onBluetoothSelected(BluetoothDevice device) {
-        mBluetoohSelected = device;
-
-        mMainPrinterHandler = new MainPrinterHandler(this);
-
-        mHandlerThread = new HandlerThread("PrinterHandler");
-        mHandlerThread.start();
-
-        mPrinterHandler = new PrinterHandler(mHandlerThread.getLooper());
-        mPrinterHandler.setMainThread(mMainPrinterHandler);
-
-        connectToPrinter(mBluetoohSelected);
+        establishConnectionWithPrinter(device);
     }
 
-    private void connectToPrinter(BluetoothDevice device){
-        Message msg = new Message();
-        msg.what = PrinterHandler.REQUEST_CONNECTION;
-        msg.obj  = device;
-        mPrinterHandler.sendMessage(msg);
-    }
-
-    private void sendMessageToPrint(String toPrint){
-        Message message = new Message();
-        message.what = PrinterHandler.PRINTER_PRINT_TEXT_TAGGED;
-        message.obj = toPrint;
-
-        mPrinterHandler.sendMessage(message);
-    }
 
     @Override
     public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
-        setPrinterStatus("Intentando conectar a "+bluetoothDevice.getName());
+        setPrinterStatus("Intentando Conectar a "+bluetoothDevice.getName(), true);
     }
 
     @Override
     public void onPrinterConnected() {
-        mPrinterIsStillConnected = true;
-        sendMessageToPrint(ticket.getTicket());
-        setPrinterStatus("Impresora conectada");
+        super.onPrinterConnected();
+
+        setPrinterStatus("Impresora conectada", true);
+        sendTicketToPrint(ticket);
     }
 
     @Override
     public void onPrinting() {
-        setPrinterStatus("Imprimiendo");
-    }
-
-    @Override
-    public void onPrintingFinished() {
-        setPrinterStatus("Impresora conectada");
-        Toast.makeText(getApplicationContext(), "Impresion Terminada!", Toast.LENGTH_SHORT).show();
-        //mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        super.onPrinting();
+        setPrinterStatus("Imprimiendo", false);
     }
 
     @Override
     public void onPrinterDisconnected() {
-        mBluetoohSelected = null;
-        mPrinterIsStillConnected = false;
-        setPrinterStatus("Impresora Desconectada");
+        super.onPrinterDisconnected();
+        setPrinterStatus("Impresora Desconectada", false);
     }
 
     @Override
     public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
-        if(isPrinterSelected()){
-            this.mBluetoohSelected = null;
-        }
-        setPrinterStatus(String.format("La impresora %s no fue encontrada", bluetoothDevice.getName()));
+        super.onPrinterNotFound(bluetoothDevice);
         Toast.makeText(getApplicationContext(), "Por favor verifica que la impresora esté encendida", Toast.LENGTH_SHORT).show();
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if(mPrinterHandler != null)
-            mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if(mHandlerThread != null){
-            mHandlerThread.quit();
-        }
-    }
-
-
 }

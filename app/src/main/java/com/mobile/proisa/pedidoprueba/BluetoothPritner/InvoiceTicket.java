@@ -1,5 +1,7 @@
 package com.mobile.proisa.pedidoprueba.BluetoothPritner;
 
+import com.datecs.api.barcode.Barcode;
+
 import Models.Invoice;
 import Models.Item;
 import Models.Vendor;
@@ -9,15 +11,15 @@ import Utils.NumberUtils;
 /**
  * Clase que exitiende de {@link AbstractTicket}
  */
-public class TestTicket extends AbstractTicket {
-    private static final String TAG = "TestTicket";
+public class InvoiceTicket extends AbstractTicket {
+    private static final String TAG = "InvoiceTicket";
     private Invoice mInvoice;
     private Vendor mVendor;
     private int PRINTER_CHARACTERS_LINES = 32;
 
-    public TestTicket(Invoice invoice, Vendor mVendor) {
+    public InvoiceTicket(Invoice invoice, Vendor vendor) {
         this.mInvoice = invoice;
-        this.mVendor = mVendor;
+        this.mVendor = vendor;
     }
 
     @Override
@@ -56,5 +58,8 @@ public class TestTicket extends AbstractTicket {
         return buffer.toString();
     }
 
-
+    @Override
+    public String getBarcodeInfo() {
+        return mInvoice.getId();
+    }
 }
