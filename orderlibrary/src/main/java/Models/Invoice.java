@@ -174,7 +174,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         result = result + client.hashCode();
         result = result + date.hashCode();
 
-        return result;
+        return Math.abs(result);
     }
 
     @Override
