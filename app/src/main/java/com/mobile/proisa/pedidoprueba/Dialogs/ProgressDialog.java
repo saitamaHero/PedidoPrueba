@@ -33,12 +33,6 @@ public class ProgressDialog extends DialogFragment {
         return fragment;
     }
 
-    public static ProgressDialog newInstance(String title, String info) {
-        Bundle args = new Bundle();
-        ProgressDialog fragment = new ProgressDialog();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

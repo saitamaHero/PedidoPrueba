@@ -112,7 +112,9 @@ public class PrinterHandler extends Handler implements Printer.ConnectionListene
 
     private void closeSocket() {
         try {
-            mBluetoothSocket.close();
+            if(mBluetoothSocket != null){
+                mBluetoothSocket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

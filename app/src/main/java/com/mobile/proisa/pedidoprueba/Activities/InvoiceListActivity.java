@@ -69,10 +69,6 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
 
     @Override
     public void onInvoiceClick(Invoice invoice) {
-        /*startActivity(new Intent(this, VentaActivity.class)
-                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice)
-                .putExtra(BaseCompatAcivity.EXTRA_IS_NEW_INVOICE, false)
-        );*/
         ticket = new InvoiceTicket(invoice, VentaActivity.VendorUtil.getVendor(this));
 
         if(!isPrinterSelected()){

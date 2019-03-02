@@ -95,6 +95,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     private DetailsItemActivity.UpdateLastModificationProccessor update;
     private boolean mVisitActive;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,46 +132,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
 
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_START);
-        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
 
 
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent == null? "" : intent.getAction();
 
-                if(VisitaActivaService.ACTION_VISIT_START.equals(action)) {
-                    Toast.makeText(getApplicationContext(), "La visita ha iniciado!!!!", Toast.LENGTH_LONG).show();
 
-                    mVisitActive = true;
-
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    Log.d("tiempoDeVisita","La visita ha iniciado!!!!");
-
-                }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
-                    //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    mVisitActive = true;
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-
-                    Log.d("tiempoDeVisita","La visita esta corriendo");
-                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
-                    Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
-
-                    Log.d("tiempoDeVisita","La visita ha terminado!!!!");
-                    Log.d("tiempoDeVisita","minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
-                    mVisitActive = false;
-
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                }
-
-            }
-        };
-
-        registerReceiver(broadcastReceiver, intentFilter);
 
         //CashPaymentDialog.newInstance(1596, null).show(getSupportFragmentManager(), "");
     }
@@ -287,6 +252,48 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         checkPermissionCamera();
 
         startTimerThread();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_START);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent == null? "" : intent.getAction();
+
+                if(VisitaActivaService.ACTION_VISIT_START.equals(action)) {
+                    Toast.makeText(getApplicationContext(), "La visita ha iniciado!!!!", Toast.LENGTH_LONG).show();
+
+                    mVisitActive = true;
+
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                    Log.d("tiempoDeVisita","La visita ha iniciado!!!!");
+
+                }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
+                    //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    mVisitActive = true;
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                    //Log.d("runn", "onReceive: ");
+
+                    Log.d("tiempoDeVisita","La visita esta corriendo");
+                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
+                    Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
+                    Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
+
+                    Log.d("tiempoDeVisita","La visita ha terminado!!!!");
+                    Log.d("tiempoDeVisita","minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
+                    mVisitActive = false;
+
+                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                }
+
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override
@@ -668,6 +675,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         if(update != null)
             update.terminate();
 
+
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override

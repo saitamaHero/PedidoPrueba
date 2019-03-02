@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -21,7 +22,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.AbstractTicket;
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.BluetoothUtils;
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.InvoiceTicket;
 import com.mobile.proisa.pedidoprueba.Clases.InvoiceType;
+import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
 
@@ -35,7 +40,7 @@ import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener {
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
@@ -162,9 +167,12 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
         if (controller.insert(mInvoice)) {
 
-            btnCompletePayment.setEnabled(false);
+            BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth())
+            .show(getSupportFragmentManager(), "");
+
+            /*btnCompletePayment.setEnabled(false);
             setResult(RESULT_OK);
-            finish();
+            finish();*/
 
             /*Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
                 @Override
@@ -185,6 +193,32 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         }
     }
 
+    @Override
+    public void onBluetoothSelected(BluetoothDevice device) {
+        establishConnectionWithPrinter(device);
+    }
+
+    @Override
+    public void onPrinterConnected() {
+        super.onPrinterConnected();
+
+        Toast.makeText(getBaseContext(), "Impresora conectada", Toast.LENGTH_SHORT).show();
+
+        AbstractTicket ticket = new InvoiceTicket(mInvoice, VentaActivity.VendorUtil.getVendor(this));
+        sendTicketToPrint(ticket);
+    }
+
+
+
+    @Override
+    public void onPrintingFinished() {
+        super.onPrintingFinished();
+        closeConnection();
+
+        setResult(RESULT_OK);
+        finish();
+
+    }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
 

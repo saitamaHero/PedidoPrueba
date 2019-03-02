@@ -13,10 +13,23 @@ import com.mobile.proisa.pedidoprueba.BluetoothPritner.PrinterHandler;
 public class PrinterManagmentActivity extends BaseCompatAcivity implements MainPrinterHandler.PrinterCallBack {
     private static final String TAG = "PrinterManagmentActivit";
 
+    /**
+     * Maneja los eventos que requieren operaciones de larga duración
+     */
     private PrinterHandler mPrinterHandler;
+
+    /**
+     * Maneja los callback de los estados de la impresora, está siendo ejecutado en el hilo principal
+     */
     private MainPrinterHandler mMainPrinterHandler;
+
+    /**
+     * Bluetooth seleccionado, sino es encontrado {@link PrinterManagmentActivity#isPrinterSelected()} devolverá false
+     */
     private BluetoothDevice mBluetoohSelected;
+
     private HandlerThread mHandlerThread;
+
     private boolean mPrinterIsStillConnected;
 
 
@@ -132,5 +145,11 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         message.obj = toPrint;
 
         mPrinterHandler.sendMessage(message);
+    }
+
+    public void closeConnection(){
+        if(isPrinterStillConnected()){
+            mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        }
     }
 }
