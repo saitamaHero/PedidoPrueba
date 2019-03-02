@@ -42,6 +42,8 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         msg.what = PrinterHandler.REQUEST_CONNECTION;
         msg.obj  = printer;
         mPrinterHandler.sendMessage(msg);
+
+        this.mBluetoohSelected = printer;
     }
 
     @Override
@@ -83,6 +85,7 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
     @Override
     public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
         Log.d(TAG, "onPrinterConnecting");
+        this.mBluetoohSelected = bluetoothDevice;
     }
 
     @Override
