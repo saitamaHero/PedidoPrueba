@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba.BluetoothPritner;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class MainPrinterHandler extends Handler {
 
@@ -23,8 +24,6 @@ public class MainPrinterHandler extends Handler {
             case PrinterHandler.PRINTER_CONNECTING:
                 if(msg.obj instanceof BluetoothDevice){
                     BluetoothDevice bluetoothDevice = (BluetoothDevice) msg.obj;
-
-
                     printerCallBack.onPrinterConnecting(bluetoothDevice);
                 }
 
@@ -58,6 +57,9 @@ public class MainPrinterHandler extends Handler {
 
     }
 
+    /**
+     * CallBack que debe ser implementado en tu actividad de manera obligatoria
+     */
     public interface PrinterCallBack {
         /**
          * Llamado cuando la impresora está intentando conectarse
@@ -70,7 +72,7 @@ public class MainPrinterHandler extends Handler {
         public void onPrintingFinished();
 
         /**
-         * Cuando el intento de la conexion esté metodo es llamado
+         * Cuando el intento de la conexion falle esté metodo es llamado
          * @param bluetoothDevice dispositivo que se trató de conectar
          */
         public void onPrinterNotFound(BluetoothDevice bluetoothDevice);

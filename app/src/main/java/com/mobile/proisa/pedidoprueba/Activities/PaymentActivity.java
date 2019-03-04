@@ -1,8 +1,11 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -29,22 +32,29 @@ import com.mobile.proisa.pedidoprueba.Clases.InvoiceType;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import Models.ColumnsSqlite;
+import Models.Diary;
 import Models.Invoice;
+import Sqlite.DiaryController;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Utils.DateUtils;
 import Utils.NumberUtils;
 
 public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener {
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
+    private BroadcastReceiver broadcastReceiver;
+    private boolean mVisitActive;
 
+    private Diary mCurrentVisit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +73,51 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         btnCompletePayment.setOnClickListener(this);
 
         loadInvoiceTypes();
-
         loadData();
 
+        createBroadcastReceiver();
+        sendBroadcast(new Intent().setAction(VisitaActivaService.ACTION_IS_VISIT_RUNNING));
+    }
+
+    private void createBroadcastReceiver(){
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent == null? "" : intent.getAction();
+
+                if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
+                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    Toast.makeText(getApplicationContext(), "La visita está corriendo", Toast.LENGTH_SHORT).show();
+                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
+                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+
+
+                    DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+
+                    if(diaryController.update(mCurrentVisit)){
+                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            }
+        };
+
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+
+        unregisterReceiver(broadcastReceiver);
     }
 
     private void loadInvoiceTypes() {
@@ -132,10 +184,16 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                     showDialogToReturnMoney(mInvoice);
                 } else {
                     saveInvoice();
+
                 }
                 break;
 
         }
+    }
+
+    private void stopVisitService(){
+        Intent intent = new Intent(this, VisitaActivaService.class);
+        stopService(intent);
     }
 
     private void showDialogToReturnMoney(Invoice invoiceToSave) {
@@ -169,6 +227,8 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
 
             BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth())
             .show(getSupportFragmentManager(), "");
+
+            stopVisitService();
 
             /*btnCompletePayment.setEnabled(false);
             setResult(RESULT_OK);

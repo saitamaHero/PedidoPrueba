@@ -28,13 +28,19 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
      */
     private BluetoothDevice mBluetoohSelected;
 
+    /**
+     * HandlerThread creado para manejar los sucesos en segundo plano
+     */
     private HandlerThread mHandlerThread;
 
+    /**
+     * Indica si la impresora está un conectada
+     */
     private boolean mPrinterIsStillConnected;
 
 
     /**
-     * Establece una conexion con el dispositivo bluetooth deseado, en este caso una impresora bluetooth
+     * Establece una conexión con el dispositivo bluetooth deseado, en este caso una impresora bluetooth
      * @param printer seleccionado
      */
     protected void establishConnectionWithPrinter(BluetoothDevice printer){
@@ -42,8 +48,6 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         msg.what = PrinterHandler.REQUEST_CONNECTION;
         msg.obj  = printer;
         mPrinterHandler.sendMessage(msg);
-
-        this.mBluetoohSelected = printer;
     }
 
     @Override
@@ -85,7 +89,10 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
     @Override
     public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
         Log.d(TAG, "onPrinterConnecting");
-        this.mBluetoohSelected = bluetoothDevice;
+
+        if(!isPrinterSelected()){
+            this.mBluetoohSelected = bluetoothDevice;
+        }
     }
 
     @Override
@@ -150,6 +157,9 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         mPrinterHandler.sendMessage(message);
     }
 
+    /**
+     * Cierra la conexión con el dispositivo bluetooth conectado, si lo está
+     */
     public void closeConnection(){
         if(isPrinterStillConnected()){
             mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);

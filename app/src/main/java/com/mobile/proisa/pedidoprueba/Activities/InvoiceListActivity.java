@@ -104,6 +104,7 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
 
     @Override
     public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
+        super.onPrinterConnecting(bluetoothDevice);
         setPrinterStatus("Intentando Conectar a "+bluetoothDevice.getName(), true);
     }
 
@@ -130,6 +131,11 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
     @Override
     public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
         super.onPrinterNotFound(bluetoothDevice);
-        Toast.makeText(getApplicationContext(), "Por favor verifica que la impresora esté encendida", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), R.string.check_printer, Toast.LENGTH_LONG).show();
+
+        if(progressDialog != null){
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 }

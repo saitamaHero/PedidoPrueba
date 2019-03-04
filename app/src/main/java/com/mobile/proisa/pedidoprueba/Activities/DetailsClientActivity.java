@@ -73,6 +73,7 @@ import Utils.NumberUtils;
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
         TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
+    private static final String TAG = "DetailsClientActivity";
     public static final String EXTRA_CLIENT = "com.mobile.proisa.EXTRA_CLIENT";
     public static final String EXTRA_INIT_VISIT = "com.mobile.proisa.EXTRA_INIT_VISIT";
     private static final int CAMERA_INTENT_RESULT = 1;
@@ -130,14 +131,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         fabInitVisit.setOnClickListener(this);
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
-
-
-
-
-
-
-
-        //CashPaymentDialog.newInstance(1596, null).show(getSupportFragmentManager(), "");
     }
 
     private void loadBackdrop(Uri uri) {
@@ -269,22 +262,22 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     mVisitActive = true;
 
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    Log.d("tiempoDeVisita","La visita ha iniciado!!!!");
+                    Log.d(TAG,"La visita ha iniciado!!!!");
 
                 }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
                     //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
                     mVisitActive = true;
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    //Log.d("runn", "onReceive: ");
 
-                    Log.d("tiempoDeVisita","La visita esta corriendo");
+
+                    Log.d(TAG,"La visita esta corriendo");
                 }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
                     Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
                     DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
                     Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
 
-                    Log.d("tiempoDeVisita","La visita ha terminado!!!!");
-                    Log.d("tiempoDeVisita","minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
+                    Log.d(TAG,"La visita ha terminado!!!!");
+                    Log.d(TAG,"minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
                     mVisitActive = false;
 
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
@@ -294,6 +287,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         };
 
         registerReceiver(broadcastReceiver, intentFilter);
+
+        sendBroadcast(new Intent().setAction(VisitaActivaService.ACTION_IS_VISIT_RUNNING));
     }
 
     @Override
@@ -642,6 +637,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             Toast.makeText(getApplicationContext(),
                     getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
                     .show();
+
+
+            ClientController clientController = new ClientController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+            client = clientController.getById(this.client.getId());
+
+
         }else{
             Toast.makeText(getApplicationContext(), R.string.error_to_save, Toast.LENGTH_LONG)
                     .show();
