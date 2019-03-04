@@ -50,8 +50,10 @@ public class DiaryController extends Controller<Diary> {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         List<Diary> items = new ArrayList<>();
 
+        String incompleteCondition = Diary._START_TIME +" IS NULL AND "+Diary._END_TIME + " IS NULL";
+
         Cursor cursor = sqLiteDatabase.query(MySqliteOpenHelper.VIEW_VISITAS_NAME, null,
-                Diary._CLIENT_ID.concat(" =?")
+                Diary._CLIENT_ID.concat(" =? AND ").concat(incompleteCondition)
                 , new String[]{String.valueOf(id)},
                 null, null, null);
 
@@ -133,6 +135,7 @@ public class DiaryController extends Controller<Diary> {
         ContentValues cv = getContentValues(item);
         cv.remove(Diary._ID);
         cv.remove(Diary._EVENT);
+        cv.remove(Diary._DURATION);
         
         SQLiteDatabase database = getSqLiteDatabase();
 
@@ -191,6 +194,21 @@ public class DiaryController extends Controller<Diary> {
         return true;
     }
 
+    public Client getClient(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, Client._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            Client client = new ClientController(getSqLiteDatabase()).getDataFromCursor(cursor);
+            cursor.close();
+            return client;
+        }
+
+        return null;
+    }
+
     @Override
     public Diary getDataFromCursor(Cursor cursor) {
         Diary diary = new Diary();
@@ -200,8 +218,7 @@ public class DiaryController extends Controller<Diary> {
         diary.setComment(cursor.getString(cursor.getColumnIndex(Diary._COMMENT)));
 
         //Cliente
-        ClientController controller = new ClientController(getSqLiteDatabase());
-        Client client = controller.getById(cursor.getString(cursor.getColumnIndex(Diary._CLIENT_ID)));
+        Client client = getClient(cursor.getString(cursor.getColumnIndex(Diary._CLIENT_ID)));
         diary.setClientToVisit(client);
 
         //Duracion aprox. de la visita

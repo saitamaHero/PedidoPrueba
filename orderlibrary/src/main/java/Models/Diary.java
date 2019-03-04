@@ -38,7 +38,6 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     protected Diary(Parcel in) {
         id = in.readLong();
         comment = in.readString();
-        clientToVisit = in.readParcelable(Client.class.getClassLoader());
         dateEvent = (Date) in.readSerializable();
         lastModification = (Date) in.readSerializable();
         duration = in.readInt();
@@ -122,7 +121,6 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeLong(id);
         parcel.writeString(comment);
-        parcel.writeParcelable(clientToVisit, i);
         parcel.writeSerializable(dateEvent);
         parcel.writeSerializable(lastModification);
         parcel.writeInt(duration);

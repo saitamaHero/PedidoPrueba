@@ -107,6 +107,7 @@ public class ClientController extends Controller<Client> {
 
         if (cursor.moveToNext()) {
             Client client = getDataFromCursor(cursor);
+            client.setVisitDate(getNextVisit(client));
             cursor.close();
             return client;
         }
