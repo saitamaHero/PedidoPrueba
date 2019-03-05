@@ -195,5 +195,7 @@ Cadena que representa maniana con tiempo
     <string name="notification_title">Prueba</string>
     <string name="ticker_text">text ticket</string>
     <string name="find_printer">Buscar impresora</string>
+    <string name="check_printer">Por favor verifica que la impresora esté encendida</string>
+    <string name="visit_finished">¡La visita ha terminado!</string>
 
 </resources>
