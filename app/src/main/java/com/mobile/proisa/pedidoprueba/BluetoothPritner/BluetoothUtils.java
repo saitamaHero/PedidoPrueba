@@ -71,7 +71,7 @@ public class BluetoothUtils {
         BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if(defaultAdapter == null){
-            throw new NullPointerException();
+            return dispositivos;
         }
 
         Set<BluetoothDevice> dispositivosEmparejados = defaultAdapter.getBondedDevices();

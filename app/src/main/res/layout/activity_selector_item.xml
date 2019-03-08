@@ -9,12 +9,19 @@
         android:orientation="vertical">
 
         <include layout="@layout/item_filtreable_layout" />
-
+<!--
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
         </android.support.v7.widget.RecyclerView>
+-->
+        <ExpandableListView
+            android:id="@+id/expandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </ExpandableListView>
     </LinearLayout>
 </FrameLayout>

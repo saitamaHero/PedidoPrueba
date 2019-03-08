@@ -72,7 +72,7 @@ public class ItemUpdater extends SqlUpdater<Item> {
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT TOP(1000) AR_CODIGO, AR_DESCRI, AR_PREDET, 100.00 CTD_INV, de_codigo, AR_UNIDAD,\n"
+        String query = "SELECT TOP(80) AR_CODIGO, AR_DESCRI, AR_PREDET, 100.00 CTD_INV, de_codigo, AR_UNIDAD,\n"
                 + "(CASE AR_ITBIS \n"
                 + "   WHEN 'S' THEN (SELECT TOP 1 ITBIS FROM FABDPROC) \n"
                 + "   WHEN 'T' THEN (SELECT TOP 1 ITBIS1 FROM FABDPROC) \n"

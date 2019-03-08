@@ -26,10 +26,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.mobile.proisa.pedidoprueba.Adapters.CustomExpandableListAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.MyOnItemSelectedListener;
 import com.mobile.proisa.pedidoprueba.Clases.CountDrawable;
@@ -37,6 +39,7 @@ import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import Models.Category;
@@ -53,7 +56,12 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     public List<Item> itemList;
     public List<ItemSelectable> searchItemList;
 
-    private RecyclerView recyclerView;
+    private HashMap<Category, List<ItemSelectable>> searchItemGroup;
+
+    //private RecyclerView recyclerView;
+    private ExpandableListView expandableListView;
+    private CustomExpandableListAdapter adapter;
+
     private TextView txtCategorySelected;
     private ImageView imgDelete;
     private ItemSelectableAdapter itemSelectableAdapter;
@@ -64,7 +72,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     private String mLastTextSearch;
     private ItemController itemController;
     private Menu defaultMenu;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +85,13 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         loadAdapter();
 
         setTitle(R.string.select_items);
+
+
+
     }
 
     private void bindUI() {
-        recyclerView = findViewById(R.id.recycler_view);
+        expandableListView = findViewById(R.id.expandableListView);
         txtCategorySelected = findViewById(R.id.category_name);
         imgDelete = findViewById(R.id.img_remove);
         imgDelete.setOnClickListener(this);
@@ -110,13 +120,50 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     }
 
     private void loadAdapter() {
-        itemSelectableAdapter = new ItemSelectableAdapter(searchItemList, R.layout.item_selectable_card, true);
+        //itemSelectableAdapter = new ItemSelectableAdapter(searchItemList, R.layout.item_selectable_card, true);
 
-        recyclerView.setAdapter(itemSelectableAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        searchItemGroup = getAll();
 
-        itemSelectableAdapter.setOnItemSelectedListener(this);
+        adapter = new CustomExpandableListAdapter(this, new ArrayList<Category>(searchItemGroup.keySet()), searchItemGroup );
+        expandableListView.setAdapter(adapter);
+        //recyclerView.setAdapter(itemSelectableAdapter);
+        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //itemSelectableAdapter.setOnItemSelectedListener(this);
+
+        adapter.setOnItemSelectedListener(this);
     }
+
+    public HashMap<Category, List<ItemSelectable>> getAll(){
+
+        ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+        List<ItemSelectable> itemSelectables = ItemSelectable.getItemSelectableList(itemController.getAll());
+
+       return getOrder(itemSelectables);
+    }
+
+
+    private HashMap<Category, List<ItemSelectable>> getOrder(List<ItemSelectable> itemSelectables){
+        HashMap<Category, List<ItemSelectable>> listHashMap = new HashMap<>();
+        List<Category> categories = new CategoryController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
+
+        for(Category currentCategory : categories){
+            List<ItemSelectable> listByCategory  = new ArrayList<>();
+
+            for(ItemSelectable itemSelectable : itemSelectables){
+                if(itemSelectable.getCategory().equals(currentCategory)){
+                    listByCategory.add(itemSelectable);
+                }
+            }
+
+            if(listByCategory.size() > 0){
+                listHashMap.put(currentCategory, listByCategory);
+            }
+        }
+
+        return listHashMap;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -212,11 +259,9 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     @Override
     public boolean onQueryTextChange(String newText) {
-
         if(TextUtils.isEmpty(newText)){
             search(newText);
         }
-
 
         return true;
     }
@@ -224,30 +269,51 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     private void search(String newText) {
         mLastTextSearch = newText;
 
-        searchItemList.removeAll(searchItemList);
+        //searchItemList.removeAll(searchItemList);
+        searchItemGroup.clear();
+        adapter.notifyDataSetChanged();
 
         if(itemController == null)
             itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
-        if (TextUtils.isEmpty(newText)) {
-            List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
-            searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
+        if (TextUtils.isEmpty(newText) && selectedCategory == null) {
+            List<Item> all = itemController.getAll();
+            //List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
+            List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(all);
+            //searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
+
+            searchItemGroup.putAll(getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
         } else {
-            if (selectedCategory != null) {
+            if(TextUtils.isEmpty(newText) && selectedCategory != null){
+                String selection =  Item._CAT.concat("=?");
+                String[] selectionArgs = new String[]{selectedCategory.getId()};
+
+                List<Item> listItems = itemController.getAll(selection,  selectionArgs);
+                List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(listItems);
+                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+
+                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
+
+            } else if (selectedCategory != null) {
                 String selection =  Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?");
                 String[] selectionArgs = new String[]{selectedCategory.getId(), "%" + newText + "%"};
 
                 List<Item> listItems = itemController.getAll(selection,  selectionArgs);
-                List<ItemSelectable> list = ItemSelectable.getItemSelectableList(listItems);
-                searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+                List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(listItems);
+                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+
+                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
 
             } else {
                 List<ItemSelectable> list = ItemSelectable.getItemSelectableList(itemController.getAllLike(newText));
-                searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
+
+                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(list, this.itemList)) );
             }
         }
 
-        itemSelectableAdapter.notifyDataSetChanged();
+        //itemSelectableAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
 

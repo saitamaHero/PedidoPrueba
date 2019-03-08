@@ -1,129 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/card"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:selectableItemBackground"
-    app:cardElevation="@dimen/card_elevation"
-    app:cardPreventCornerOverlap="true">
+    android:orientation="horizontal"
+    android:background="@android:color/darker_gray"
+    >
+
+    <CheckBox
+        android:id="@+id/view_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:button="@drawable/selector_checkeable"
+        android:checked="false"
+        android:clickable="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp">
 
-        <CheckBox
-            android:id="@+id/view_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:button="@drawable/selector_checkeable"
-            android:checked="false"
-            android:clickable="true" />
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="5dp">
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            >
 
             <TextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre del producto"
+                android:text="Nombre del Producto"
                 android:textColor="@color/colorText" />
 
             <TextView
                 android:id="@+id/id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="COD-00002569" />
+                android:layout_below="@id/name"
+                android:text="00000001" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:orientation="vertical">
+                android:layout_below="@id/name"
+                android:layout_alignRight="@+id/id"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="center"
+                android:text="1,500.00"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorText"
+                android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+        </RelativeLayout>
 
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:gravity="start"
-                        android:src="@drawable/ic_inventario_cargo" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/stock"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="95"
-                        android:paddingLeft="2dp"
-                        android:text="1,553.00 PZA"
-                        android:textColor="@color/colorText" />
-                </LinearLayout>
+            <ImageView
+                android:id="@+id/stock_ic"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:gravity="start"
+                android:src="@drawable/ic_inventario_cargo" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:gravity="start"
-                        android:src="@drawable/ic_currency" />
-
-                    <TextView
-                        android:id="@+id/price"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="95"
-                        android:paddingLeft="2dp"
-                        android:textColor="@color/colorText" />
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:gravity="start"
-                        android:src="@drawable/ic_rnc" />
-
-                    <TextView
-                        android:id="@+id/category"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="95"
-                        android:paddingLeft="2dp"
-                        android:textColor="@color/colorText" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </LinearLayout>
-
-
+            <TextView
+                android:id="@+id/stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_centerHorizontal="true"
+                android:layout_toRightOf="@id/stock_ic"
+                android:paddingLeft="@dimen/padding_horizontal"
+                android:text="0 UD"
+                android:textColor="@color/colorText" />
+        </RelativeLayout>
     </LinearLayout>
-
-</android.support.v7.widget.CardView>
-
+</LinearLayout>
