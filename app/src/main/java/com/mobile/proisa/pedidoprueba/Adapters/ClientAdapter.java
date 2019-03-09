@@ -90,7 +90,7 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
 
 
         holder.txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
-        holder.txtAddress.setText(client.getAddress());
+        holder.txtAddress.setText(client.getAddress().concat(", ").concat(client.getClientZone().getName()));
 
         //holder.profilePhoto.setImageURI(client.getProfilePhoto());
 

@@ -10,12 +10,13 @@ import Models.Diary;
 import Models.Invoice;
 import Models.Item;
 import Models.Unit;
+import Models.Zone;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 7;
+    public static final int VERSION = 2;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -45,6 +46,14 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Unit._NAME    + " TEXT NOT NULL,"
             + Unit._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Unit._ID + ")"
+            + ");";
+
+    private static final String CREATE_TABLE_ZONAS
+            = "CREATE TABLE "+ Zone.TABLE_NAME
+            + "("+ Zone._ID + " TEXT NOT NULL,"
+            + Zone._NAME    + " TEXT NOT NULL,"
+            + Zone._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + "PRIMARY KEY(" + Zone._ID + ")"
             + ");";
 
     //Mantener una ID_REMOTO para mantener sincronizacion,
@@ -136,11 +145,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createTriggerUpdate(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
 
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_ZONAS);
+        sqLiteDatabase.execSQL(createTriggerUpdate(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
+
         sqLiteDatabase.execSQL(CREATE_TABLE_CLIENTES);
         sqLiteDatabase.execSQL(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
 
-        //////////////////
         sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS);
         sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS_DETALLE);
         sqLiteDatabase.execSQL(createTriggerUpdate(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
@@ -157,27 +170,32 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
         if(newVersion > oldVersion){
+            //Articulos
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Item.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Item.TABLE_NAME));
-
+            //Departamentos
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   +Category.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Category.TABLE_NAME));
-
+            //Unidades
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Unit.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Unit.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Unit.TABLE_NAME));
-
+            //Zonas de clientes
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Zone.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Zone.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Zone.TABLE_NAME));
+            //Clientes
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Client.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Client.TABLE_NAME));
-
+            //Facturas
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Invoice.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Invoice.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Invoice.TABLE_NAME_DETAILS);
-
+            //Visitas
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));
