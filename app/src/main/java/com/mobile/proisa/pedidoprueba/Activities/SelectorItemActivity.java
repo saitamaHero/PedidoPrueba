@@ -6,25 +6,13 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -32,8 +20,8 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.Adapters.CustomExpandableListAdapter;
-import com.mobile.proisa.pedidoprueba.Adapters.ItemSelectableAdapter;
 import com.mobile.proisa.pedidoprueba.Adapters.MyOnItemSelectedListener;
+import com.mobile.proisa.pedidoprueba.Adapters.SingleSimpleElementAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.CountDrawable;
 import com.mobile.proisa.pedidoprueba.Clases.ItemSelectable;
 import com.mobile.proisa.pedidoprueba.R;
@@ -44,32 +32,33 @@ import java.util.List;
 
 import Models.Category;
 import Models.Item;
-import Models.SimpleElement;
 import Sqlite.CategoryController;
-import Sqlite.Controller;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 
-public class SelectorItemActivity extends AppCompatActivity implements MyOnItemSelectedListener, SearchView.OnQueryTextListener, DialogInterface.OnClickListener, View.OnClickListener {
+public class SelectorItemActivity extends AppCompatActivity implements MyOnItemSelectedListener, DialogInterface.OnClickListener, View.OnClickListener {
     public static final String EXTRA_ITEMS = "EXTRA_ITEMS";
 
-    public List<Item> itemList;
-    public List<ItemSelectable> searchItemList;
+    /**
+     * Lista de elementos que han sido seleccionados
+     */
+    private List<Item> mItemList;
 
+    /**
+     * Información de la base de datos que es mostrada en Departamentos
+     */
     private HashMap<Category, List<ItemSelectable>> searchItemGroup;
 
-    //private RecyclerView recyclerView;
-    private ExpandableListView expandableListView;
-    private CustomExpandableListAdapter adapter;
+
+    private ExpandableListView mExpandableListView;
+    private CustomExpandableListAdapter mExpandableAdapter;
 
     private TextView txtCategorySelected;
-    private ImageView imgDelete;
-    private ItemSelectableAdapter itemSelectableAdapter;
 
     private Category selectedCategory;
 
     private ListAdapter categories;
-    private String mLastTextSearch;
+
     private ItemController itemController;
     private Menu defaultMenu;
 
@@ -78,22 +67,26 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selector_item);
 
-        itemList       = getExtraItems();
-        searchItemList = new ArrayList<>();
+        mItemList = getExtraItems();
 
         bindUI();
-        loadAdapter();
 
         setTitle(R.string.select_items);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-
+        loadAdapter();
+        showCountItems();
+        expandCategoriesWithItems();
     }
 
     private void bindUI() {
-        expandableListView = findViewById(R.id.expandableListView);
+        mExpandableListView = findViewById(R.id.expandableListView);
         txtCategorySelected = findViewById(R.id.category_name);
-        imgDelete = findViewById(R.id.img_remove);
+        ImageView imgDelete = findViewById(R.id.img_remove);
         imgDelete.setOnClickListener(this);
 
         txtCategorySelected.setOnClickListener(this);
@@ -120,28 +113,35 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     }
 
     private void loadAdapter() {
-        //itemSelectableAdapter = new ItemSelectableAdapter(searchItemList, R.layout.item_selectable_card, true);
-
         searchItemGroup = getAll();
 
-        adapter = new CustomExpandableListAdapter(this, new ArrayList<Category>(searchItemGroup.keySet()), searchItemGroup );
-        expandableListView.setAdapter(adapter);
-        //recyclerView.setAdapter(itemSelectableAdapter);
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mExpandableAdapter = new CustomExpandableListAdapter(this, new ArrayList<Category>(searchItemGroup.keySet()), searchItemGroup );
+        mExpandableListView.setAdapter(mExpandableAdapter);
 
-        //itemSelectableAdapter.setOnItemSelectedListener(this);
-
-        adapter.setOnItemSelectedListener(this);
+        mExpandableAdapter.setOnItemSelectedListener(this);
     }
 
-    public HashMap<Category, List<ItemSelectable>> getAll(){
+    private void expandCategoriesWithItems(){
+        for(Item item : mItemList){
+            int groupCount = mExpandableAdapter.getGroupCount();
 
+            for(int idx = 0; idx < groupCount; idx++){
+                Category category = (Category) mExpandableAdapter.getGroup(idx);
+
+                if(category.equals(item.getCategory()) && !mExpandableListView.isGroupExpanded(idx)){
+                    mExpandableListView.expandGroup(idx);
+                }
+            }
+        }
+    }
+
+
+    public HashMap<Category, List<ItemSelectable>> getAll(){
         ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
         List<ItemSelectable> itemSelectables = ItemSelectable.getItemSelectableList(itemController.getAll());
 
-       return getOrder(itemSelectables);
+       return getOrder(ItemSelectable.checkItemsInTheList(itemSelectables, mItemList));
     }
-
 
     private HashMap<Category, List<ItemSelectable>> getOrder(List<ItemSelectable> itemSelectables){
         HashMap<Category, List<ItemSelectable>> listHashMap = new HashMap<>();
@@ -175,12 +175,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         defaultMenu = menu;
-        MenuItem menuItem;
-
-        menuItem = menu.findItem(R.id.app_bar_search);
-        SearchView searchView = (SearchView) menuItem.getActionView();
-        searchView.setOnQueryTextListener(this);
-
         return true;
     }
 
@@ -189,7 +183,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
         switch (item.getItemId()) {
             case R.id.action_select_items:
-                if (!this.itemList.isEmpty()) {
+                if (!this.mItemList.isEmpty()) {
                     sendData();
                 }
                 break;
@@ -231,91 +225,70 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
 
     private void sendData() {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(EXTRA_ITEMS, new ArrayList<>(this.itemList));
+        resultIntent.putExtra(EXTRA_ITEMS, new ArrayList<>(this.mItemList));
         setResult(RESULT_OK, resultIntent);
         finish();
     }
 
+    private void showCountItems(){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            setTitle(getResources().getQuantityString(R.plurals.items_selected, this.mItemList.size(), this.mItemList.size()));
+        }else{
+            setCount(this, String.valueOf(this.mItemList.size()));
+        }
+    }
+
     @Override
     public void onItemSelected(ItemSelectable itemSelectable) {
-        if (!itemList.contains(itemSelectable)) {
-            itemList.add(itemSelectable);
+        if (!mItemList.contains(itemSelectable)) {
+            mItemList.add(itemSelectable);
         } else {
-            itemList.remove(itemSelectable);
+            mItemList.remove(itemSelectable);
         }
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-            setTitle(getResources().getQuantityString(R.plurals.items_selected, this.itemList.size(), this.itemList.size()));
-        }else{
-            setCount(this, String.valueOf(this.itemList.size()));
-        }
+        showCountItems();
     }
 
     @Override
-    public boolean onQueryTextSubmit(String newText) {
-        search(newText);
-        return false;
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(EXTRA_ITEMS, new ArrayList<>(mItemList));
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        if(TextUtils.isEmpty(newText)){
-            search(newText);
-        }
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
-        return true;
+        mItemList = savedInstanceState.getParcelableArrayList(EXTRA_ITEMS);
     }
 
-    private void search(String newText) {
-        mLastTextSearch = newText;
-
-        //searchItemList.removeAll(searchItemList);
+    private void search() {
         searchItemGroup.clear();
-        adapter.notifyDataSetChanged();
+        mExpandableAdapter.notifyDataSetChanged();
 
         if(itemController == null)
             itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
-        if (TextUtils.isEmpty(newText) && selectedCategory == null) {
+        if (selectedCategory == null) {
             List<Item> all = itemController.getAll();
-            //List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(this.itemList);
             List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(all);
-            //searchItemList.addAll(ItemSelectable.checkItemsInTheList(selectables, this.itemList));
 
-            searchItemGroup.putAll(getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
+            searchItemGroup.putAll(getOrder(ItemSelectable.checkItemsInTheList(selectables, this.mItemList)));
         } else {
-            if(TextUtils.isEmpty(newText) && selectedCategory != null){
+            if(selectedCategory != null){
                 String selection =  Item._CAT.concat("=?");
                 String[] selectionArgs = new String[]{selectedCategory.getId()};
 
                 List<Item> listItems = itemController.getAll(selection,  selectionArgs);
                 List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(listItems);
-                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
 
-                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
-
-            } else if (selectedCategory != null) {
-                String selection =  Item._CAT.concat("=? AND ").concat(Item._NAME).concat(" LIKE ?");
-                String[] selectionArgs = new String[]{selectedCategory.getId(), "%" + newText + "%"};
-
-                List<Item> listItems = itemController.getAll(selection,  selectionArgs);
-                List<ItemSelectable> selectables = ItemSelectable.getItemSelectableList(listItems);
-                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
-
-                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(selectables, this.itemList)));
-
-            } else {
-                List<ItemSelectable> list = ItemSelectable.getItemSelectableList(itemController.getAllLike(newText));
-                //searchItemList.addAll(ItemSelectable.checkItemsInTheList(list, this.itemList));
-
-                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(list, this.itemList)) );
+                searchItemGroup.putAll( getOrder(ItemSelectable.checkItemsInTheList(selectables, this.mItemList)));
             }
         }
 
-        //itemSelectableAdapter.notifyDataSetChanged();
-        adapter.notifyDataSetChanged();
+        mExpandableAdapter.notifyDataSetChanged();
     }
-
 
     @Override
     public void onClick(DialogInterface dialogInterface, int whichButton) {
@@ -324,7 +297,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
                 showFilterLayout();
                 showCategoryChoosed();
 
-                search(mLastTextSearch);
+                search();
                 break;
 
             case DialogInterface.BUTTON_NEGATIVE:
@@ -379,40 +352,4 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         icon.mutate();
         icon.setDrawableByLayerId(R.id.ic_count, badge);
     }
-
-
-    public static class SingleSimpleElementAdapter extends ArrayAdapter<SimpleElement> implements ListAdapter {
-
-        public SingleSimpleElementAdapter(@NonNull Context context, int resource) {
-            super(context, resource);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            SimpleElement element = getItem(position);
-
-            convertView = super.getView(position, convertView, parent);
-
-            TextView txtView = convertView.findViewById(android.R.id.text1);
-            txtView.setText(element.getName());
-
-
-
-            return convertView;
-        }
-
-
-        @Override
-        public int getPosition(@Nullable SimpleElement item) {
-            return super.getPosition(item);
-        }
-    }
-
-
-
-
-
-
-
 }

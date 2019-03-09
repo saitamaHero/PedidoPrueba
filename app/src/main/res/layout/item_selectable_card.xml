@@ -6,7 +6,7 @@
     android:focusable="true"
     android:foreground="?android:selectableItemBackground"
     android:orientation="horizontal"
-    android:background="@android:color/darker_gray"
+    android:background="@color/colorBackgroundLight"
     >
 
     <CheckBox

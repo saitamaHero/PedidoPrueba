@@ -110,6 +110,11 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
         txtPrice.setText(NumberUtils.formatNumber(childData.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
 
 
+        TextView txtStock = convertView.findViewById(R.id.stock);
+        String text = context.getString(R.string.two_string_format,NumberUtils.formatNumber(childData.getStock(), NumberUtils.FORMAT_NUMER_INTEGER),
+                childData.getUnit().getId());
+        txtStock.setText(text);
+
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
