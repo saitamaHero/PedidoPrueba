@@ -69,8 +69,7 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
     protected void onPause() {
         super.onPause();
 
-        if(mPrinterHandler != null)
-            mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+       closeConnection();
     }
 
     @Override
@@ -161,7 +160,7 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
      * Cierra la conexión con el dispositivo bluetooth conectado, si lo está
      */
     public void closeConnection(){
-        if(isPrinterStillConnected()){
+        if(isPrinterStillConnected() && mPrinterHandler != null){
             mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
         }
     }
