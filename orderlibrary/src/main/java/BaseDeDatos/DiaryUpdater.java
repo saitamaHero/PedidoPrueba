@@ -185,7 +185,7 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT * FROM CCBDVISITA WHERE COD_EMPR = 1 AND VE_CODIGO = ?";
+        String query = "SELECT * FROM CCBDVISITA WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND VIS_FEC >= CAST(GETDATE() AS DATE)";
 
         PreparedStatement preparedStatement = null;
 
