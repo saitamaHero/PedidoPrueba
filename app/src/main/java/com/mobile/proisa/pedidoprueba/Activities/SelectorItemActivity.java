@@ -79,7 +79,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         super.onResume();
 
         loadAdapter();
-        showCountItems();
+
         expandCategoriesWithItems();
     }
 
@@ -164,7 +164,6 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         return listHashMap;
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -175,6 +174,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         defaultMenu = menu;
+        showCountItems();
         return true;
     }
 
@@ -263,6 +263,8 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         mItemList = savedInstanceState.getParcelableArrayList(EXTRA_ITEMS);
     }
 
+
+
     private void search() {
         searchItemGroup.clear();
         mExpandableAdapter.notifyDataSetChanged();
@@ -328,6 +330,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
                 selectedCategory = null;
                 showCategoryChoosed();
                 showFilterLayout();
+                search();
                 break;
         }
     }
