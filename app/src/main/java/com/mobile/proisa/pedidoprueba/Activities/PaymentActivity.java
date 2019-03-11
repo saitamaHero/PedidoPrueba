@@ -62,12 +62,13 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         setContentView(R.layout.activity_payment);
 
         setTitle(R.string.payment);
-
         mInvoice = getInvoiceToShow();
     }
 
     @Override
     protected void onBindUI() {
+        mVisitActive = false;
+
         spPayment = findViewById(R.id.spPayment);
         btnCompletePayment = findViewById(R.id.btn_complete_payment);
         btnCompletePayment.setOnClickListener(this);
@@ -79,6 +80,9 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         sendBroadcast(new Intent().setAction(VisitaActivaService.ACTION_IS_VISIT_RUNNING));
     }
 
+    /**
+     * Crea un broadcast para recivir datos de la visita activida si la hay.
+     */
     private void createBroadcastReceiver(){
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -103,23 +107,22 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
             }
         };
 
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
-
         registerReceiver(broadcastReceiver, intentFilter);
     }
-
 
     @Override
     protected void onPause() {
         super.onPause();
-
-
+        //cerrar broadcastReceiver
         unregisterReceiver(broadcastReceiver);
     }
 
+    /**
+     * Carga los tipos de facturas en la base de datos
+     */
     private void loadInvoiceTypes() {
         InvoiceTypeAdapter adapter = new InvoiceTypeAdapter(getBaseContext(), R.layout.spinner_item_custom);
         adapter.addAll(getInvoiceTypes());
@@ -141,6 +144,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         }
     }
 
+    /**
+     * Obtiene la factura a mostrar en esta actividad
+     * @return
+     */
     private Invoice getInvoiceToShow() {
         Intent intent = getIntent();
 
@@ -154,6 +161,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         return null;
     }
 
+    /**
+     * Devuelve todos los tipos de facturas
+     * @return
+     */
     private List<InvoiceType> getInvoiceTypes() {
         List<InvoiceType> invoiceTypes = new ArrayList<>();
 
@@ -184,18 +195,26 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                     showDialogToReturnMoney(mInvoice);
                 } else {
                     saveInvoice();
-
                 }
                 break;
 
         }
     }
 
+    /**
+     * Detiene el servicio de la visita si hay una
+     */
     private void stopVisitService(){
-        Intent intent = new Intent(this, VisitaActivaService.class);
-        stopService(intent);
+        if(mVisitActive){
+            Intent intent = new Intent(this, VisitaActivaService.class);
+            stopService(intent);
+        }
     }
 
+    /**
+     * Muestra un dialog para introducir el dinero que se recibe
+     * @param invoiceToSave
+     */
     private void showDialogToReturnMoney(Invoice invoiceToSave) {
         CashPaymentDialog.newInstance(invoiceToSave, new CashPaymentDialog.OnPaymentComplete() {
             @Override
@@ -207,6 +226,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         }).show(getSupportFragmentManager(), null);
     }
 
+    /**
+     * Devuelve una factura lista para guardar
+     * @return
+     */
     private Invoice getReadyInvoice() {
         TextInputEditText edtComment = findViewById(R.id.comment);
         mInvoice.setComment(edtComment.getText().toString());
@@ -217,32 +240,20 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         return mInvoice;
     }
 
+    /**
+     * Guarda la factura actual de la actividad
+     */
     public void saveInvoice() {
         mInvoice = getReadyInvoice();
-
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-
         if (controller.insert(mInvoice)) {
-
-            BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth())
-            .show(getSupportFragmentManager(), "");
-
+            /**
+             * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
+             */
             stopVisitService();
-
-            /*btnCompletePayment.setEnabled(false);
             setResult(RESULT_OK);
-            finish();*/
-
-            /*Snackbar.make(btnCompletePayment, "Se guardó la factura", Snackbar.LENGTH_INDEFINITE).setActionTextColor(getResources().getColor(R.color.goodStatus)).setAction(R.string.ok, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Posiblemente salir aquí o imprimir la factura o algo por el estilo
-                    btnCompletePayment.setEnabled(false);
-                    setResult(RESULT_OK);
-                    finish();
-                }
-            }).show();*/
+            finish();
         } else {
             Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
                 @Override
@@ -255,6 +266,8 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
 
     @Override
     public void onBluetoothSelected(BluetoothDevice device) {
+
+        Toast.makeText(this, "Seleccion: "+device.getName(), Toast.LENGTH_SHORT).show();
         establishConnectionWithPrinter(device);
     }
 
@@ -262,22 +275,16 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     public void onPrinterConnected() {
         super.onPrinterConnected();
 
-        Toast.makeText(getBaseContext(), "Impresora conectada", Toast.LENGTH_SHORT).show();
-
         AbstractTicket ticket = new InvoiceTicket(mInvoice, VentaActivity.VendorUtil.getVendor(this));
         sendTicketToPrint(ticket);
     }
-
-
 
     @Override
     public void onPrintingFinished() {
         super.onPrintingFinished();
         closeConnection();
-
         setResult(RESULT_OK);
         finish();
-
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
@@ -291,7 +298,6 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             return createView(position, convertView, parent);
         }
-
 
         @Override
         public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -321,7 +327,6 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                     stringResource = getContext().getString(R.string.empty_string);
                     break;
             }
-
 
             txtView.setText(stringResource);
 
