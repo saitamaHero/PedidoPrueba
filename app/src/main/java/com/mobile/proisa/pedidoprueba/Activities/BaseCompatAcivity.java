@@ -32,7 +32,7 @@ public class BaseCompatAcivity extends AppCompatActivity {
 
     /**
      * Puedes usar este método para enlazar los componentes de tú interfaz gráfica.
-     * Este método es llamando en el onCreate de la actividad
+     * Este método es llamando en el {@link AppCompatActivity#onResume()} de la actividad.
      */
     protected void onBindUI() {
     }
