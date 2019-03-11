@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Random;
 
 import Models.Client;
+import Models.Zone;
 import Utils.DateUtils;
 
 public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHolder> {
@@ -71,6 +72,7 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
             boolean isAM = calendarForTheVisit.get(Calendar.AM_PM) == Calendar.AM;
 
             if(isToday){
+                holder.txtVisitEvent.setTextColor(res.getColor(R.color.goodStatus));
                 holder.txtVisitEvent.setText(res.getString(R.string.today_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
                         isAM ? "AM" : "PM"));
             }else if(daysCount > 0){
@@ -89,8 +91,9 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         }
 
 
-        holder.txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
-        holder.txtAddress.setText(client.getAddress().concat(", ").concat(client.getClientZone().getName()));
+        Zone zona = client.getClientZone();
+        holder.txtDistance.setText(String.format(Locale.getDefault(),"%s",zona.getName()));
+        holder.txtAddress.setText(client.getAddress());
 
         //holder.profilePhoto.setImageURI(client.getProfilePhoto());
 
