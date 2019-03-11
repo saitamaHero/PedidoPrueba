@@ -52,7 +52,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     }
 
     public void setClientZone(Zone clientZone) {
-        this.clientZone = clientZone;
+        if(clientZone != null) this.clientZone = clientZone;
     }
 
     public double getDistance() {

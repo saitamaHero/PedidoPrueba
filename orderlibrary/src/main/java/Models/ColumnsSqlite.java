@@ -108,6 +108,7 @@ public interface ColumnsSqlite {
         String TABLE_NAME = "clients_table";
         String _CR_LIMIT  = "_credit_limit";
         String _CR_STATUS = "_credit_status";
+        String _ZONE_ID   = "_zone_id";
     }
 
     /**

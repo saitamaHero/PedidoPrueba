@@ -8,7 +8,7 @@ import android.os.Parcelable;
  * para más detalle vea {@link SimpleElement}
  */
 public class Zone extends SimpleElement implements Parcelable, ColumnsSqlite.ColumnsZone {
-    public static final Zone UNKNOWN_ZONE = new Zone("","Desconocido");
+    public static final Zone UNKNOWN_ZONE = new Zone("","");
 
     public Zone() {
     }
@@ -46,7 +46,7 @@ public class Zone extends SimpleElement implements Parcelable, ColumnsSqlite.Col
 
     @Override
     public String toString() {
-        return String.format("Category{id='%s' name='%s' }",getId(), getName());
+        return String.format("Zone{id='%s' name='%s' }",getId(), getName());
     }
 
     @Override
