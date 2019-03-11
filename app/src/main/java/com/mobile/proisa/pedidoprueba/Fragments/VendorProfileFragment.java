@@ -122,7 +122,8 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
     private void checkPreferences() {
         if(!areUserThere()){
-            getActivity().startActivityForResult(new Intent(getActivity(), LoginActivity.class),100);
+            //getActivity().startActivityForResult(new Intent(getActivity(), LoginActivity.class),100);
+            getActivity().finish();
         }else{
 
         }
