@@ -8,8 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mobile.proisa.pedidoprueba.BluetoothPritner.BluetoothUtils;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.ArrayList;
@@ -51,6 +53,12 @@ public class BluetoothAdapter extends BaseAdapter {
         BluetoothDevice device = (BluetoothDevice) getItem(position);
 
         convertView = LayoutInflater.from(mContext).inflate(mLayoutResource,parent, false);
+
+        ImageView imageView = convertView.findViewById(R.id.bluetooth_type);
+
+        if(BluetoothUtils.isBluetoothPrinter(device)){
+            imageView.setImageResource(R.drawable.printer);
+        }
 
         TextView txtName = convertView.findViewById(R.id.bluetooth_name);
         txtName.setText(device.getName());
