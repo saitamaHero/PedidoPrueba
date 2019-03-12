@@ -42,7 +42,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.BuildConfig;
 import com.mobile.proisa.pedidoprueba.Clases.ClientOptionsAdapter;
-import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.DatePickerFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
@@ -54,7 +53,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 
 import Models.Client;
@@ -92,7 +90,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private Client client;
     private Uri currentPhotoItem;
     private Calendar mCalendar;
-    private Diary nextVisit; /*Proxima Visita*/
+    private Diary mNextVisit; /*Proxima Visita*/
 
     private DetailsItemActivity.UpdateLastModificationProccessor update;
     private boolean mVisitActive;
@@ -324,19 +322,24 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
             //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
             //client.setDistance(500);
-
-
             intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
             startService(intent);
         }else if(mVisitActive){
             stopService(intent);
         }else if(showMessageToCreate){
             View v = findViewById(R.id.card);
-            Snackbar.make(v,R.string.not_visit_in_diary, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.create_visit, new View.OnClickListener() {
+            Snackbar.make(v,R.string.question_start_visit, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.start_now, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            initVisitCreation();
+                            Diary diary = new Diary();
+                            diary.setClientToVisit(client);
+                            diary.setDateEvent(Calendar.getInstance().getTime());
+                            diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+                            diary.setDuration(0);
+
+                            client.setVisitDate(diary);
+                            initOrCancelVisit(false);
                         }
                     }).show();
         }
@@ -504,7 +507,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 initVisitCreation();
                 break;
 
-
             case R.id.action_order:
                 Invoice invoice = new Invoice();
                 invoice.setClient(this.client);
@@ -599,11 +601,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public void onValueSet(int value) {
-        nextVisit = new Diary();
-        nextVisit.setClientToVisit(client);
-        nextVisit.setDuration(value);
-        nextVisit.setComment("");
-        nextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+        mNextVisit = new Diary();
+        mNextVisit.setClientToVisit(client);
+        mNextVisit.setDuration(value);
+        mNextVisit.setComment("");
+        mNextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
         DatePickerFragment
                 .newInstance(this, null, Calendar.getInstance().getTime())
@@ -629,11 +631,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         mCalendar.set(Calendar.SECOND, 0);
         mCalendar.set(Calendar.MILLISECOND, 0);
 
-        nextVisit.setDateEvent(mCalendar.getTime());
+        mNextVisit.setDateEvent(mCalendar.getTime());
 
         DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if(diaryController.insert(nextVisit)){
+        if(diaryController.insert(mNextVisit)){
             Toast.makeText(getApplicationContext(),
                     getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
                     .show();
@@ -648,7 +650,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     .show();
         }
 
-        Log.d("nextVisit",nextVisit.toString());
+        Log.d("mNextVisit", mNextVisit.toString());
 
     }
 
