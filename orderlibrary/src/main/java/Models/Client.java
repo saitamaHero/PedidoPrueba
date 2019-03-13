@@ -26,11 +26,13 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     private int status;
     private String remoteId;
     private char creditStatus;
+    private Zone clientZone;
 
 
     public Client() {
         super();
         distance = 0.0;
+        clientZone = Zone.UNKNOWN_ZONE;
     }
 
     protected Client(Parcel in) {
@@ -42,6 +44,15 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         status = in.readInt();
         remoteId = in.readString();
         creditStatus = (char) in.readInt();
+        clientZone = in.readParcelable(Zone.class.getClassLoader());
+    }
+
+    public Zone getClientZone() {
+        return clientZone;
+    }
+
+    public void setClientZone(Zone clientZone) {
+        if(clientZone != null) this.clientZone = clientZone;
     }
 
     public double getDistance() {
@@ -112,6 +123,7 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         dest.writeInt(status);
         dest.writeString(remoteId);
         dest.writeInt(creditStatus);
+        dest.writeParcelable(clientZone, flags);
     }
 
     public char getCreditStatus() {

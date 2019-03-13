@@ -1,8 +1,10 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -10,19 +12,30 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ListAdapter;
 
+import com.mobile.proisa.pedidoprueba.Adapters.SingleSimpleElementAdapter;
 import com.mobile.proisa.pedidoprueba.Dialogs.DatePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import Models.Category;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
 import Models.Person;
+import Models.Zone;
+import Sqlite.CategoryController;
+import Sqlite.Controller;
+import Sqlite.MySqliteOpenHelper;
+import Sqlite.ZoneController;
 import Utils.DateUtils;
 
 public class EditClientActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
@@ -30,6 +43,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
     public static String EXTRA_INFO = "extra_info";
     public static String EXTRA_DATA = "extra_data";
     private Client client;
+    private Zone mSelectedZone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +90,6 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
             e.printStackTrace();
         }
 
-
         TextInputEditText edtEmail = findViewById(R.id.email);
         edtEmail.setText(client.getEmail());
 
@@ -91,6 +104,13 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         TextInputEditText edtCardClient = findViewById(R.id.card_client);
         edtCardClient.setText(client.getIdentityCard());
+
+        Button btnZone = findViewById(R.id.zone);
+        btnZone.setOnClickListener(this);
+
+        if(!client.getClientZone().equals(Zone.UNKNOWN_ZONE)){
+            btnZone.setText(client.getClientZone().getName());
+        }
 
     }
 
@@ -195,9 +215,56 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        if(view.getId() == R.id.birth_date){
-            DatePickerFragment.newInstance(this, client.getBirthDate()).show(getFragmentManager(),
-                    "");
+        switch (view.getId()){
+            case R.id.birth_date:
+                DatePickerFragment.newInstance(this, client.getBirthDate()).show(getFragmentManager(),
+                        "");
+                break;
+            case R.id.zone:
+                showDialogToChoose();
+                break;
         }
+    }
+
+    private void showDialogToChoose() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        final ListAdapter zones = getZones();
+
+        int checkedItem = ((ArrayAdapter<Zone>)zones).getPosition(client.getClientZone());
+
+        builder.setSingleChoiceItems(zones, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mSelectedZone = (Zone) zones.getItem(i);
+            }
+        });
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                client.setClientZone (mSelectedZone == null ? Zone.UNKNOWN_ZONE : mSelectedZone);
+                mSelectedZone = null;
+                loadInfo(client);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
+    }
+    private ListAdapter getZones() {
+        ArrayAdapter listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+        Controller categoryController = new ZoneController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+        List<Zone> categories = categoryController.getAll();
+        listAdapter.addAll(categories);
+
+        return listAdapter;
     }
 }

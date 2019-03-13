@@ -13,4 +13,6 @@
 
     <dimen name="height_edittext">50dp</dimen>
     <dimen name="number_text_size">20sp</dimen>
+    <dimen name="padding_vertical">20dp</dimen>
+    <dimen name="padding_horizontal">20dp</dimen>
 </resources>

@@ -48,7 +48,6 @@ public class BluetoothListFragment extends DialogFragment implements AdapterView
         return fragment;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -62,8 +61,6 @@ public class BluetoothListFragment extends DialogFragment implements AdapterView
         if(getArguments() != null){
             bluetoothDeviceList = getArguments().getParcelableArrayList(PARAM_LIST);
         }
-
-
 
         onBluetoothSelectedListener = (OnBluetoothSelectedListener) getActivity();
     }
@@ -82,7 +79,6 @@ public class BluetoothListFragment extends DialogFragment implements AdapterView
 
         btnPair = view.findViewById(R.id.btn_pair);
         btnPair.setOnClickListener(this);
-
     }
 
     @Override
@@ -100,7 +96,6 @@ public class BluetoothListFragment extends DialogFragment implements AdapterView
             getActivity().startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
         }
     }
-
 
     public interface OnBluetoothSelectedListener{
         public void onBluetoothSelected(BluetoothDevice device);

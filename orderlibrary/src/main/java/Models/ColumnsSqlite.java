@@ -64,6 +64,16 @@ public interface ColumnsSqlite {
     }
 
     /**
+     * Columnas de la tabla de zonas de clientes
+     */
+    public interface ColumnsZone extends ColumnModification{
+        String TABLE_NAME = "clients_zone";
+        String _ID = "_id";
+        String _NAME = "_name";
+    }
+
+
+    /**
      * Columnas de la tabla de unidades de un producto
      */
     public interface ColumnsUnit extends ColumnModification{
@@ -98,6 +108,7 @@ public interface ColumnsSqlite {
         String TABLE_NAME = "clients_table";
         String _CR_LIMIT  = "_credit_limit";
         String _CR_STATUS = "_credit_status";
+        String _ZONE_ID   = "_zone_id";
     }
 
     /**

@@ -19,6 +19,7 @@ import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Diary;
 import Models.Unit;
+import Models.Zone;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
@@ -232,6 +233,10 @@ public class ClientController extends Controller<Client> {
 
         client.setLatlng(lat, lng);
 
+        String zoneId = cursor.getString(cursor.getColumnIndex(Client._ZONE_ID));
+        Zone zone = new ZoneController(getSqLiteDatabase()).getById(zoneId);
+        client.setClientZone(zone);
+
         //Fecha de cumpleaño
         String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
         client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
@@ -272,6 +277,7 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._LAT,      item.getLatlng().x);
         cv.put(Client._LNG,      item.getLatlng().y);
         cv.put(Client._ADDRESS,  item.getAddress());
+        cv.put(Client._ZONE_ID,  item.getClientZone().getId());
 
         if(!item.getPhoneNumbers().isEmpty())
         {

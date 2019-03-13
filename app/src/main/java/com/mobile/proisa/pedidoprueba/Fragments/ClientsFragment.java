@@ -39,10 +39,12 @@ import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.DiaryUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
+import BaseDeDatos.ZoneUpdater;
 import Models.Client;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.ZoneController;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -345,6 +347,16 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
                 //Obtener visitas que estan en el servidor
                 diaryUpdater.retriveData();
+            }
+
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                ZoneController zoneController = new ZoneController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                ZoneUpdater zoneUpdater = new ZoneUpdater(getContext().getApplicationContext(), connection, zoneController);
+
+                zoneUpdater.retriveData();
             }
             return null;
         }

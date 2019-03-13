@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -22,22 +21,14 @@ import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
-import com.mobile.proisa.pedidoprueba.Services.PruebaServicio;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import Models.Constantes;
-import Models.Diary;
 import Models.User;
 import Models.Vendor;
-
-import Sqlite.DiaryController;
-import Sqlite.MySqliteOpenHelper;
-import Utils.DateUtils;
 import Utils.NumberUtils;
 
 
@@ -160,10 +151,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 } else {
                     finish();
                 }
-                break;
-
-            case ClientsFragment.DETAILS_CLIENT_ACTIVITY:
-                Toast.makeText(getApplicationContext(), "Saludos", Toast.LENGTH_SHORT).show();
                 break;
         }
 

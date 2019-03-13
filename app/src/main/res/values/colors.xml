@@ -15,4 +15,7 @@
     <color name="goodSelection">#a4c639</color>
     <color name="transparent">@android:color/transparent</color>
     <color name="background_color">@color/colorAccent</color>
+
+
+    <color name="colorBackgroundLight">#eaffff</color>
 </resources>

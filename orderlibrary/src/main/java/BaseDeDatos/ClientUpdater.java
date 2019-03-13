@@ -19,6 +19,7 @@ import java.util.List;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
+import Models.Zone;
 import Sqlite.Controller;
 import Utils.FileUtils;
 
@@ -75,6 +76,8 @@ public class ClientUpdater extends SqlUpdater<Client> {
             client.addPhone(rs.getString("CL_TELEF1").trim());
             client.setAddress(rs.getString("CL_DIREC1").trim());
 
+            client.setClientZone(new Zone(rs.getString("ZO_CODIGO"), ""));
+
 
             InputStream binaryStream = rs.getBinaryStream("CL_FOTO2");
 
@@ -110,7 +113,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         String query = "SELECT \n"
                 + "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1,\n"
                 + "CL_LIMCRE, CL_ESTADO, CL_FECNAC, CL_FECING, \n"
-                + "CL_RNC, CL_EMAIL, CL_FOTO2\n"
+                + "CL_RNC, CL_EMAIL, CL_FOTO2, ZO_CODIGO\n"
                 + "FROM CCBDCLIE WHERE VE_CODIGO = ?";
 
         PreparedStatement preparedStatement = null;

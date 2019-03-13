@@ -197,5 +197,8 @@ Cadena que representa maniana con tiempo
     <string name="find_printer">Buscar impresora</string>
     <string name="check_printer">Por favor verifica que la impresora esté encendida</string>
     <string name="visit_finished">¡La visita ha terminado!</string>
+    <string name="start_now">Comenzar</string>
+    <string name="question_start_visit">¿Comenzar una visita ahora?</string>
+    <string name="choose_zone">Elegir Zona</string>
 
 </resources>

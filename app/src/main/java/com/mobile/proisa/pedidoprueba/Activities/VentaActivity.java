@@ -44,9 +44,9 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
 
         if(savedInstanceState == null){
             this.mInvoice = getInvoiceFromIntent();
-        }else{
+        }/*else{
             this.mInvoice = savedInstanceState.getParcelable(EXTRA_INVOICE);
-        }
+        }*/
 
         Vendor vendor = VendorUtil.getVendor(this);
         setTitle(vendor.getName());
@@ -63,6 +63,19 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
 
         loadAdapter();
         loadData();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_INVOICE, mInvoice);
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        this.mInvoice = savedInstanceState.getParcelable(EXTRA_INVOICE);
     }
 
     private void loadAdapter(){
@@ -171,7 +184,10 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
                     mInvoice.setItems(items);
 
                     //notify Adapter
-                    adapter.notifyItemRangeInserted(count , adapter.getItemCount());
+
+                    if(adapter != null){
+                        adapter.notifyItemRangeInserted(count , adapter.getItemCount());
+                    }
 
                     //Invalidar el menu de opciones para que se re-dibuje
                     invalidateOptionsMenu();
@@ -234,11 +250,6 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_INVOICE, mInvoice);
-    }
 
 
 
