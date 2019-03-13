@@ -6,5 +6,7 @@
     android:singleLine="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="@dimen/text_size_titles"
+    android:padding="@dimen/padding_vertical"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    android:textColor="@color/colorText"
     />

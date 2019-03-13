@@ -95,8 +95,9 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     }
 
     private void showFilterLayout() {
+        boolean hide =  (selectedCategory == null);
         View view = findViewById(R.id.lyt_filter);
-        view.setVisibility( (selectedCategory == null) ? View.GONE : View.VISIBLE);
+        view.setVisibility( hide ? View.GONE : View.VISIBLE);
     }
 
     private List<Item> getExtraItems() {
@@ -135,6 +136,15 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
         }
     }
 
+    private void expandAll(){
+        int groupCount = mExpandableAdapter.getGroupCount();
+
+        for(int idx = 0; idx < groupCount; idx++){
+            if(!mExpandableListView.isGroupExpanded(idx)){
+                mExpandableListView.expandGroup(idx);
+            }
+        }
+    }
 
     public HashMap<Category, List<ItemSelectable>> getAll(){
         ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
@@ -298,13 +308,14 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
             case DialogInterface.BUTTON_POSITIVE:
                 showFilterLayout();
                 showCategoryChoosed();
-
                 search();
+                expandAll();
                 break;
 
             case DialogInterface.BUTTON_NEGATIVE:
                 selectedCategory = null;
                 showFilterLayout();
+                search();
                 break;
         }
     }

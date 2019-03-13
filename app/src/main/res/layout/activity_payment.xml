@@ -17,55 +17,7 @@
             android:layout_margin="5dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="5dp"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/client"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="@dimen/text_size_subtitles" />
-
-                <TextView
-                    android:id="@+id/client_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:textColor="@color/colorText"
-                    android:textSize="@dimen/text_size_titles"
-
-                    />
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="5dp"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/total_payment"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="@dimen/text_size_subtitles" />
-
-                <TextView
-                    android:id="@+id/total"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorText"
-                    android:textSize="@dimen/text_size_titles" />
-
-            </LinearLayout>
-
+            <include layout="@layout/client_total_data"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -83,12 +35,9 @@
                 <Spinner
                     android:id="@+id/spPayment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </Spinner>
-
+                    android:layout_height="wrap_content"
+                    />
             </LinearLayout>
-
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -103,6 +52,7 @@
                     android:maxLength="200"
                     android:imeOptions="actionDone"
                     android:inputType="text"
+                    android:focusable="false"
                     />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -119,6 +69,9 @@
             android:layout_height="70dp"
             android:layout_gravity="center|bottom"
             android:text="@string/close_payment"
-            android:textSize="@dimen/text_size_titles" />
+            android:textSize="@dimen/text_size_titles"
+            android:fitsSystemWindows="true"
+
+            />
     </FrameLayout>
 </LinearLayout>
