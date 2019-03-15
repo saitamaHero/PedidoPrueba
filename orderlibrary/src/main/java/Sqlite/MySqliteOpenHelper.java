@@ -33,6 +33,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Item._CAT      + " TEXT,"
             + Item._UNIT     + " TEXT,"
             + Item._STOCK    + " NUMERIC DEFAULT 0,"
+            + Item._COST     + " NUMERIC DEFAULT 0,"
             + Item._PHOTO    + " TEXT,"
             + Item._LASTMOD  + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Item._ID + ")"

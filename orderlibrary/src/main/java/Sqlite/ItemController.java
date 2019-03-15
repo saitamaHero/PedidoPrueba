@@ -196,6 +196,7 @@ public class ItemController extends Controller<Item> {
         item.setStock(cursor.getDouble(cursor.getColumnIndex(Item._STOCK)));
         item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Item._TAX_RATE)));
         item.setQuantity(1);
+        item.setCost(cursor.getDouble(cursor.getColumnIndex(Item._COST)));
 
         CategoryController categoryController = new CategoryController(getSqLiteDatabase());
         Category category  = categoryController.getById(cursor.getString(cursor.getColumnIndex(Item._CAT)));
@@ -227,6 +228,7 @@ public class ItemController extends Controller<Item> {
         cv.put(Item._PRICE, item.getPrice());
         cv.put(Item._PHOTO, item.getPhoto().getPath());
         cv.put(Item._STOCK, item.getStock());
+        cv.put(Item._COST, item.getCost());
         cv.put(Item._TAX_RATE, item.getTaxRate());
 
         if (!Category.UNKNOWN_CATEGORY.equals(item.getCategory())) {
