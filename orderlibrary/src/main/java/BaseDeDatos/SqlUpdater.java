@@ -24,11 +24,13 @@ public abstract class SqlUpdater<T> extends Updater<T> {
     private Controller<T> controller;
     private OnDataUpdateListener<T> onDataUpdateListener;
     private OnErrorListener onErrorListener;
+    private boolean hasMasterDetailRelationship;
 
     public SqlUpdater(Context context, SqlConnection connection, Controller<T> controller) {
         this.context = context;
         this.connection = connection;
         this.controller = controller;
+        this.hasMasterDetailRelationship = false;
     }
 
     public SqlConnection getConnection() {
@@ -145,6 +147,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         }
     }
 
+
     @Override
     public void apply() {
         if (!isDataReady()) {
@@ -171,18 +174,33 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
         if (connection.isConnected()) {
             try {
-                PreparedStatement preparedStatement = getQueryToRetriveData();
-                ResultSet rs = preparedStatement.executeQuery();
+                if(hasMasterDetailRelationship){
+                    PreparedStatement preparedStatement = getQueryToRetriveData();
+                    ResultSet rs = preparedStatement.executeQuery();
 
-                while (rs.next()) {
-                    T item = getItemFromResultSet(rs);
+                    while (rs.next()) {
+                        T item = getItemFromResultSet(rs);
 
-                    if (item != null) {
-                        Log.d("dataFromDB", item.toString());
-                        onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                        if (item != null) {
+                            item = getDetailsFromResultSet(item, getQueryDetailsToRetriveData(item).executeQuery());
+
+                            onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                        }
+                    }
+
+                }else {
+                    PreparedStatement preparedStatement = getQueryToRetriveData();
+                    ResultSet rs = preparedStatement.executeQuery();
+
+                    while (rs.next()) {
+                        T item = getItemFromResultSet(rs);
+
+                        if (item != null) {
+                            Log.d("dataFromDB", item.toString());
+                            onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                        }
                     }
                 }
-
 
             } catch (SQLException e) {
                 fail(Updater.ERROR);
@@ -244,8 +262,23 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     public abstract T getItemFromResultSet(ResultSet rs);
 
+    public T getDetailsFromResultSet(T data, ResultSet rs){
+        return null;
+    }
+
     public abstract PreparedStatement getQueryToRetriveData();
 
+    public boolean hasMasterDetailRelationship() {
+        return hasMasterDetailRelationship;
+    }
+
+    public void setHasMasterDetailRelationship(boolean hasMasterDetailRelationship) {
+        this.hasMasterDetailRelationship = hasMasterDetailRelationship;
+    }
+
+    public PreparedStatement getQueryDetailsToRetriveData(T id){
+        return null;
+    }
 
     public interface OnDataUpdateListener<T> {
         int ACTION_INSERT_REMOTE = 0;
@@ -253,9 +286,8 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         int ACTION_INSERT_LOCAL = 2;
         int ACTION_UPDATE_LOCAL = 3;
 
-        public void onDataUpdate(T data, int action);
-
-        public void onDataUpdated(T data);
+        void onDataUpdate(T data, int action);
+        void onDataUpdated(T data);
     }
 
 
