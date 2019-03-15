@@ -52,6 +52,7 @@ public interface ColumnsSqlite {
         String _UNIT = "_unit";
         String _STOCK = "_stock";
         String _TAX_RATE = "_tax_rate";
+        String _COST = "_cost";
     }
 
     /**
