@@ -162,7 +162,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         double total = 0.0;
 
         for (Item i : items) {
-            total += i.getTotal();
+            total += i == null? 0 : i.getTotal();
         }
         return total;
     }

@@ -37,12 +37,15 @@ import java.util.Stack;
 
 import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.DiaryUpdater;
+import BaseDeDatos.InvoiceUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.ZoneUpdater;
 import Models.Client;
+import Models.Invoice;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
+import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.ZoneController;
 
@@ -357,6 +360,15 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                 ZoneUpdater zoneUpdater = new ZoneUpdater(getContext().getApplicationContext(), connection, zoneController);
 
                 zoneUpdater.retriveData();
+            }
+
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                InvoiceController invoiceController = new InvoiceController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext().getApplicationContext(), connection, invoiceController);
+                invoiceUpdater.retriveData();
             }
             return null;
         }

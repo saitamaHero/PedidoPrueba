@@ -39,12 +39,14 @@ public class InvoiceTicket extends AbstractTicket {
         buffer.append(divisorString);
 
         for (Item item : mInvoice.getItems()) {
-            buffer.append(String.format("{reset}%s{br}", item.getName()));
+            if(item != null) {
+                buffer.append(String.format("{reset}%s{br}", item.getName()));
 
-            String quantityByPrice = String.format("%s * %s", NumberUtils.formatNumber(item.getQuantity(), NumberUtils.FORMAT_NUMER_INTEGER), NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
-            String totalItem = String.format("%s", NumberUtils.formatNumber(item.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+                String quantityByPrice = String.format("%s * %s", NumberUtils.formatNumber(item.getQuantity(), NumberUtils.FORMAT_NUMER_INTEGER), NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
+                String totalItem = String.format("%s", NumberUtils.formatNumber(item.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
 
-            buffer.append(concatWithSpaces(quantityByPrice, totalItem, PRINTER_CHARACTERS_LINES));
+                buffer.append(concatWithSpaces(quantityByPrice, totalItem, PRINTER_CHARACTERS_LINES));
+            }
         }
         buffer.append(divisorString + "{reset}{b}");
 

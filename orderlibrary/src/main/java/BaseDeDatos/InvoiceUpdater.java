@@ -8,9 +8,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import Models.Client;
+import Models.ColumnsSqlite;
 import Models.Invoice;
 import Models.Item;
+import Sqlite.ClientController;
 import Sqlite.Controller;
+import Sqlite.MySqliteOpenHelper;
 
 public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
@@ -33,13 +37,30 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
     public Invoice getItemFromResultSet(ResultSet rs) {
         Invoice invoice = new Invoice();
 
-        /*try {
-            //unit.setId(rs.getString("UN_CODIGO").trim());
-            //unit.setName(rs.getString("UN_DESCRI").trim());
+        try {
+            MySqliteOpenHelper mySqliteOpenHelper = MySqliteOpenHelper.getInstance(getContext());
+            ClientController clientController = new ClientController(mySqliteOpenHelper.getReadableDatabase());
+
+            invoice.setId(rs.getString("HE_FACTURA").trim());
+            invoice.setDate(rs.getDate("HE_FECHA"));
+
+            Client client = clientController.getById(Client._ID_REMOTE, rs.getString("CL_CODIGO").trim());
+
+            if(client != null) {
+                invoice.setClient(client);
+            }
+
+            invoice.setComment("");
+            int type = rs.getString("HE_TIPO") == "1" ? 0 : 1;
+            invoice.setInvoiceType(Invoice.InvoicePayment.values()[type]);
+
+            invoice.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
+            invoice.setRemoteId(rs.getString("HE_FACTURA").trim());
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        }*/
+        }
 
         return invoice;
     }
@@ -54,14 +75,11 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
             while (rs.next()) {
                 Item item = new Item();
                 item.setId(     rs.getString("AR_CODIGO").trim());
-                item.setName(   rs.getString("AR_DESCRI").trim());
-                item.setPrice(  rs.getDouble("AR_PREDET"));
+                //item.setName(   rs.getString("AR_DESCRI").trim());
+                item.setPrice(  rs.getDouble("DE_PRECIO"));
                 item.setTaxRate(rs.getDouble("ITBIS"));
-                //item.setStock(rs.getDouble("CTD_INV"));
-                //item.setCost(   rs.getDouble("AR_ULTCOS"));
+                item.setQuantity(rs.getDouble("DE_CANTID"));
 
-                //item.setCategory(new Category(rs.getString("DE_CODIGO").trim(), ""));
-                //item.setUnit(new Unit(rs.getString("AR_UNIDAD").trim(), ""));
                 itemList.add(item);
             }
         } catch(SQLException e){
@@ -76,13 +94,13 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT * FROM IVBDHEPE";
+        String query = "SELECT * FROM IVBDHEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND HE_FACTURA = '0000201900'";
 
         PreparedStatement preparedStatement = null;
 
         try {
             preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
-            //preparedStatement.setString(1, getVendor().getId());
+            preparedStatement.setString(1, getVendor().getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -92,10 +110,21 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
     @Override
     public PreparedStatement getQueryDetailsToRetriveData(Invoice id) {
+        String query = "SELECT \n"
+                + "AR_CODIGO, DE_PRECIO, DE_CANTID, 18.00 ITBIS "
+                + "FROM IVBDDEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND DE_FACTURA = '0000201900'";
+
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
+            preparedStatement.setString(1, getVendor().getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
 
-
-        return super.getQueryDetailsToRetriveData(id);
+        return preparedStatement;
     }
 
 
