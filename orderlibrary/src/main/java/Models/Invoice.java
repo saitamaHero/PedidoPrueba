@@ -151,7 +151,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     }
 
     public boolean containsItems(){
-        if(this.items != null && this.items.size() > 0){
+        if(this.items != null && !(this.items.isEmpty())){
             return true;
         }
 
@@ -164,6 +164,16 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         for (Item i : items) {
             total += i == null? 0 : i.getTotal();
         }
+        return total;
+    }
+
+    public double getTotalTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getTaxes();
+        }
+
         return total;
     }
 
