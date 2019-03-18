@@ -139,7 +139,8 @@ public interface ColumnsSqlite {
 
         //Datos referentes al detalle del articulo
         String TABLE_NAME_DETAILS = "invoice_details";
-        String ITEM_ID = "_item_id";
+        String _ITEM_ID = "_item_id";
+        String _ITEM_NAME = "_item_name";
         String _QTY = "_quantity";
         String _PRICE = "_price";
         String _TAX_RATE = "_tax_rate";
