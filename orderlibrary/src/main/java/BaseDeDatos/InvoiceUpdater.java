@@ -51,7 +51,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
             }
 
             invoice.setComment("");
-            int type = rs.getString("HE_TIPO") == "1" ? 0 : 1;
+            int type = rs.getString("HE_TIPO").equals("1") ? 0 : 1;
             invoice.setInvoiceType(Invoice.InvoicePayment.values()[type]);
 
             invoice.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
@@ -70,15 +70,13 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
         List<Item> itemList = new ArrayList<>();
 
         try {
-
-
             while (rs.next()) {
                 Item item = new Item();
-                item.setId(     rs.getString("AR_CODIGO").trim());
-                //item.setName(   rs.getString("AR_DESCRI").trim());
-                item.setPrice(  rs.getDouble("DE_PRECIO"));
-                item.setTaxRate(rs.getDouble("ITBIS"));
-                item.setQuantity(rs.getDouble("DE_CANTID"));
+                item.setId(         rs.getString("AR_CODIGO").trim());
+                item.setName(       rs.getString("DE_DESCRI").trim());
+                item.setPrice(      rs.getDouble("DE_PRECIO"));
+                item.setTaxRate(    rs.getDouble("ITBIS"));
+                item.setQuantity(   rs.getDouble("DE_CANTID"));
 
                 itemList.add(item);
             }
@@ -94,7 +92,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT * FROM IVBDHEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND HE_FACTURA = '0000201900'";
+        String query = "SELECT * FROM IVBDHEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND HE_FACTURA = '0000201901'";
 
         PreparedStatement preparedStatement = null;
 
@@ -111,8 +109,9 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
     @Override
     public PreparedStatement getQueryDetailsToRetriveData(Invoice id) {
         String query = "SELECT \n"
-                + "AR_CODIGO, DE_PRECIO, DE_CANTID, 18.00 ITBIS "
-                + "FROM IVBDDEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND DE_FACTURA = '0000201900'";
+                + "AR_CODIGO, DE_PRECIO, DE_CANTID,  DE_DESCRI,\n "
+                + "ROUND((DE_ITBIS / (DE_PRECIO - DE_ITBIS)) * 100.00,0) ITBIS\n "
+                + "FROM IVBDDEPE WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND DE_FACTURA = '0000201901'";
 
         PreparedStatement preparedStatement = null;
 

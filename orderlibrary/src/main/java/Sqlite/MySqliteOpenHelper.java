@@ -104,7 +104,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_FACTURAS_DETALLE
             = "CREATE TABLE "    + Invoice.TABLE_NAME_DETAILS
             + "("+ Invoice._ID   + " TEXT NOT NULL,"
-            + Invoice.ITEM_ID    + " TEXT NOT NULL,"
+            + Invoice._ITEM_ID   + " TEXT NOT NULL,"
+            + Invoice._ITEM_NAME + " TEXT NOT NULL,"
             + Invoice._QTY       + " NUMERIC DEFAULT 1,"
             + Invoice._PRICE     + " NUMERIC DEFAULT 1,"
             + Invoice._TAX_RATE  + " NUMERIC DEFAULT 0,"

@@ -184,7 +184,9 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                         if (item != null) {
                             item = getDetailsFromResultSet(item, getQueryDetailsToRetriveData(item).executeQuery());
 
-                            onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                            if(item != null){
+                                onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                            }
                         }
                     }
 
