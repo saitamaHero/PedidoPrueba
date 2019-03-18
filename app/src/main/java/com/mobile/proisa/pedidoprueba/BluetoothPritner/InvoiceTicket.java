@@ -40,7 +40,9 @@ public class InvoiceTicket extends AbstractTicket {
 
         for (Item item : mInvoice.getItems()) {
             if(item != null) {
-                buffer.append(String.format("{reset}%s{br}", item.getName()));
+                String tag = item.isFreeTaxes() ? Item.FREE_TAXES : Item.INCLUDE_TAXES;
+
+                buffer.append(String.format("{reset}%s(%s){br}", item.getName(), tag));
 
                 String quantityByPrice = String.format("%s * %s", NumberUtils.formatNumber(item.getQuantity(), NumberUtils.FORMAT_NUMER_INTEGER), NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE));
                 String totalItem = String.format("%s", NumberUtils.formatNumber(item.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
@@ -52,6 +54,12 @@ public class InvoiceTicket extends AbstractTicket {
 
         String totalLabel = "TOTAL:";
         String totalFormatted = NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE);
+        buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+
+
+
+        totalLabel = "ITBIS:";
+        totalFormatted = NumberUtils.formatNumber(mInvoice.getTotalTaxes(), NumberUtils.FORMAT_NUMER_DOUBLE);
         buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
         buffer.append(divisorString);
         buffer.append("{center}{b}¡Gracias por Preferinos!{br}");

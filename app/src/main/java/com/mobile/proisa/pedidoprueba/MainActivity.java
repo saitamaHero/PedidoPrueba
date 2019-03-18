@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -54,6 +55,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         checkPreferences();
 
         ///startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+
+
+        Log.d(TAG, "User: "+Build.MODEL + " Marca: "+Build.BRAND + ":"+Build.ID +":: "+getPhoneName());
+    }
+
+
+    private String getPhoneName(){
+        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
     }
 
     private void checkPreferences() {
