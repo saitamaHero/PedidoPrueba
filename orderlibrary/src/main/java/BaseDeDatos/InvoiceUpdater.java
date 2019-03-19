@@ -1,7 +1,12 @@
 package BaseDeDatos;
 
 import android.content.Context;
+import android.content.Entity;
 
+import net.sourceforge.jtds.jdbc.JtdsPreparedStatement;
+
+import java.lang.reflect.Parameter;
+import java.security.Policy;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

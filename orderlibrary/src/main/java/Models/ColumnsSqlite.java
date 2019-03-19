@@ -83,6 +83,15 @@ public interface ColumnsSqlite {
         String _NAME = "_name";
     }
 
+    /**
+     * Columnas de la tabla de numeros de comprobante fiscal
+     */
+    public interface ColumnsNcf extends ColumnModification{
+        String TABLE_NAME = "clients_ncf";
+        String _ID = "_id";
+        String _NAME = "_name";
+        String _TYPE = "_type";
+    }
 
     /**
      * Columnas base para tabla con campos de persona por ejemplo
@@ -110,6 +119,7 @@ public interface ColumnsSqlite {
         String _CR_LIMIT  = "_credit_limit";
         String _CR_STATUS = "_credit_status";
         String _ZONE_ID   = "_zone_id";
+        String _NCF_ID    = "_ncf_id";
     }
 
     /**

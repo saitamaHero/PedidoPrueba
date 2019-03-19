@@ -18,6 +18,7 @@ import Models.Client;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Diary;
+import Models.NCF;
 import Models.Unit;
 import Models.Zone;
 import Utils.DateUtils;
@@ -237,6 +238,11 @@ public class ClientController extends Controller<Client> {
         Zone zone = new ZoneController(getSqLiteDatabase()).getById(zoneId);
         client.setClientZone(zone);
 
+
+        String ncfId = cursor.getString(cursor.getColumnIndex(Client._NCF_ID));
+        NCF ncf  = new NCFController(getSqLiteDatabase()).getById(ncfId);
+        client.setNcf(ncf);
+
         //Fecha de cumpleaño
         String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
         client.setBirthDate(DateUtils.convertToDate(bdate, DateUtils.YYYY_MM_DD));
@@ -278,6 +284,7 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._LNG,      item.getLatlng().y);
         cv.put(Client._ADDRESS,  item.getAddress());
         cv.put(Client._ZONE_ID,  item.getClientZone().getId());
+        cv.put(Client._NCF_ID,   item.getNcf().getId());
 
         if(!item.getPhoneNumbers().isEmpty())
         {

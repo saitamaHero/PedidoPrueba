@@ -15,6 +15,7 @@ import Models.Client;
 import Models.Diary;
 import Models.Invoice;
 import Models.Item;
+import Models.NCF;
 import Models.Unit;
 import Models.Zone;
 
@@ -22,7 +23,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 3;
+    public static final int VERSION = 5;
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -45,6 +46,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Category._NAME    + " TEXT NOT NULL,"
             + Category._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Category._ID + ")"
+            + ");\n";
+
+    private static final String CREATE_TABLE_NCF
+            = "CREATE TABLE "   + NCF.TABLE_NAME
+            + "("+ NCF._ID + " TEXT NOT NULL,"
+            + NCF._NAME    + " TEXT NOT NULL,"
+            + NCF._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + NCF._TYPE    + " TEXT DEFAULT '',"
+            + "PRIMARY KEY(" + NCF._ID + ")"
             + ");\n";
 
     private static final String CREATE_TABLE_UNIDADES
@@ -84,6 +94,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Client._CR_STATUS + " TEXT NOT NULL DEFAULT '"+Client.CREDIT_OPENED+"',"
             + Client._ID_REMOTE + " TEXT,"
             + Client._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Client._NCF_ID    + " TEXT DEFAULT '',"
             + "PRIMARY KEY(" + Client._ID + ")"
             + ");\n";
 
@@ -154,10 +165,13 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createTriggerUpdate(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
 
-
         sqLiteDatabase.execSQL(CREATE_TABLE_ZONAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_NCF);
+        sqLiteDatabase.execSQL(createTriggerUpdate(NCF.TABLE_NAME, NCF._LASTMOD, NCF._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(NCF.TABLE_NAME, NCF._LASTMOD, NCF._ID));
 
         sqLiteDatabase.execSQL(CREATE_TABLE_CLIENTES);
         sqLiteDatabase.execSQL(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
@@ -167,7 +181,6 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS_DETALLE);
         sqLiteDatabase.execSQL(createTriggerUpdate(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
-
 
         sqLiteDatabase.execSQL(CREATE_TABLE_VISITAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
@@ -248,12 +261,9 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             instance = new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
 
         }
-
         //instance.generateFile();
-
         return instance;
     }
-
 
     public void generateFile(){
         StringBuilder builder = new StringBuilder();
