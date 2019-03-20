@@ -27,6 +27,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     private String comment;
     private int status;
     private String remoteId;
+    private String ncfSequence;
+    private double moneyReceived;
 
     public Invoice() {
         super();
@@ -142,6 +144,14 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         this.discount = discount;
     }
 
+    public double getMoneyReceived() {
+        return moneyReceived;
+    }
+
+    public void setMoneyReceived(double moneyReceived) {
+        this.moneyReceived = moneyReceived;
+    }
+
     public InvoicePayment getInvoiceType() {
         return invoiceType;
     }
@@ -167,6 +177,16 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         return total;
     }
 
+    public double getTotalFreeTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getPriceFreeTaxes() * i.getQuantity();
+        }
+
+        return total;
+    }
+
     public double getTotalTaxes(){
         double total = 0.0;
 
@@ -175,6 +195,50 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         }
 
         return total;
+    }
+
+    public double getTotalCost(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getCost();
+        }
+
+        return total;
+    }
+
+
+    public double getTotal(String which){
+        double total = 0.0;
+
+        switch (which){
+            case Item.FREE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+
+            case Item.INCLUDE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && !item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+        }
+
+
+        return total;
+    }
+
+    public String getNcfSequence() {
+        return ncfSequence;
+    }
+
+    public void setNcfSequence(String ncfSequence) {
+        this.ncfSequence = ncfSequence;
     }
 
     @Override

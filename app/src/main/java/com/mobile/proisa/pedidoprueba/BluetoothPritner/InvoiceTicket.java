@@ -30,7 +30,7 @@ public class InvoiceTicket extends AbstractTicket {
         buffer.append("{center}{b}(809-860-8075){br}");
         buffer.append(divisorString);
         buffer.append(String.format("{reset}{b}Cliente:{reset}%s (%s){br}", mInvoice.getClient().getName(), mInvoice.getClient().getRemoteId()));
-        buffer.append(String.format("{reset}{b}Factura:{reset}%s{br}", mInvoice.getId()));
+        buffer.append(String.format("{reset}{b}Factura:{reset}%s{br}", mInvoice.getRemoteId()));
         buffer.append(String.format("{reset}{b}Fecha:{reset}%s{br}", DateUtils.formatDate(mInvoice.getDate(), DateUtils.DD_MM_YYYY_hh_mm_AM_PM)));
         buffer.append(String.format("{reset}{b}Vendedor:{reset}%s{br}", mVendor.getName()));
         //buffer.append("{br}");
@@ -52,15 +52,19 @@ public class InvoiceTicket extends AbstractTicket {
         }
         buffer.append(divisorString + "{reset}{b}");
 
-        String totalLabel = "TOTAL:";
-        String totalFormatted = NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE);
+
+        String totalLabel = "TOTAL BRUTO:";
+        String totalFormatted = NumberUtils.formatNumber(mInvoice.getTotalFreeTaxes(), NumberUtils.FORMAT_NUMER_DOUBLE);
         buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
 
-
-
-        totalLabel = "ITBIS:";
+        totalLabel = "TOTAL ITBIS:";
         totalFormatted = NumberUtils.formatNumber(mInvoice.getTotalTaxes(), NumberUtils.FORMAT_NUMER_DOUBLE);
         buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+
+        totalLabel = "TOTAL NETO:";
+        totalFormatted = NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE);
+        buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+
         buffer.append(divisorString);
         buffer.append("{center}{b}¡Gracias por Preferinos!{br}");
 

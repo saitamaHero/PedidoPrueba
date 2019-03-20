@@ -3,6 +3,7 @@ package Utils;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import Models.ITotal;
 
@@ -69,5 +70,10 @@ public class NumberUtils {
         }
 
         return total;
+    }
+
+    public static String generateSequence(int nZeros, int sequence){
+        String format = String.format(Locale.getDefault(), "%%0%dd",nZeros);
+        return String.format(format,sequence);
     }
 }
