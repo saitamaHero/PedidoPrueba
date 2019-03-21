@@ -375,7 +375,13 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                 InvoiceController invoiceController = new InvoiceController(mySqliteOpenHelper.getWritableDatabase());
                 //Updater de las visitas
                 InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext().getApplicationContext(), connection, invoiceController);
-                invoiceUpdater.retriveData();
+
+
+                invoiceUpdater.apply();
+
+
+
+                //invoiceUpdater.retriveData();
             }
             return null;
         }

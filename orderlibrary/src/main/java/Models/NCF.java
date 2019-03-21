@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Clase que representa la unidad de un {@link Item}
+ * Clase que representa el numero de comprobante fiscal
  * para más detalle vea {@link SimpleElement}
  */
 public class NCF extends SimpleElement implements Parcelable, ColumnsSqlite.ColumnsNcf{
@@ -21,6 +21,7 @@ public class NCF extends SimpleElement implements Parcelable, ColumnsSqlite.Colu
 
     protected NCF(Parcel in) {
         super(in);
+        type = in.readString();
     }
 
     public void setType(String type) {
@@ -34,6 +35,7 @@ public class NCF extends SimpleElement implements Parcelable, ColumnsSqlite.Colu
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
+        dest.writeString(type);
     }
 
     @Override

@@ -140,7 +140,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
 
-        Glide.with(this)
+            Glide
+                .with(this)
                 .load(uri)
                 .thumbnail(0.1f)
                 .apply(RequestOptions.centerCropTransform())
@@ -169,7 +170,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         TextView txtAddress = findViewById(R.id.address);
-        txtAddress.setText(client.getNcf().getName());
+        txtAddress.setText(client.getNcf().getType());
 
         TextView txtEmail = findViewById(R.id.email);
         txtEmail.setText(client.getEmail());
@@ -700,6 +701,4 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             super.onBackPressed();
         }
     }
-
-
 }

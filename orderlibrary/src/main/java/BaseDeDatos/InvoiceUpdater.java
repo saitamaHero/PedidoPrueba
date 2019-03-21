@@ -2,6 +2,7 @@ package BaseDeDatos;
 
 import android.content.Context;
 import android.content.Entity;
+import android.util.Log;
 
 import net.sourceforge.jtds.jdbc.JtdsPreparedStatement;
 
@@ -38,13 +39,14 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
         try {
             PreparedStatement preparedStatement;
 
+            /*Verificar el tipo de la factura*/
             if(data.isCredit()){
-                query = "UPDATE IVBDPROC SET FACTURA=FACTURA+1,CREDITO=CREDITO+1 WHERE COD_CODEMPR = 1 AND COD_SUCU = 1;";
+                query = "UPDATE IVBDPROC SET FACTURA=FACTURA+1,CREDITO=CREDITO+1 WHERE COD_EMPR = 1 AND COD_SUCU = 1;";
             }else{
-                query = "UPDATE IVBDPROC SET FACTURA=FACTURA+1,CONTADO=CONTADO+1 WHERE COD_CODEMPR = 1 AND COD_SUCU = 1;";
+                query = "UPDATE IVBDPROC SET FACTURA=FACTURA+1,CONTADO=CONTADO+1 WHERE COD_EMPR = 1 AND COD_SUCU = 1;";
             }
 
-            query = query.concat("SELECT FACTURA,CREDITO,CONTADO FROM IVBDPROC WHERE COD_CODEMPR = 1 AND COD_SUCU = 1;");
+            query = query.concat("SELECT FACTURA,CREDITO,CONTADO FROM IVBDPROC WHERE COD_EMPR = 1 AND COD_SUCU = 1;");
 
             preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
@@ -64,7 +66,8 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                     numContado = NumberUtils.generateSequence(10, numeracion);
                 }
 
-                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_CODEMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_CODEMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO = ?";
+                /*Secuencia del NCF*/
+                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO = ?";
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
                 preparedStatement.setString(1, data.getClient().getNcf().getId());
@@ -88,7 +91,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         + "HE_NUMCHE,  HE_BENEF, HE_NETONCF, HE_BRUTNCF, HE_ITBINCF, HE_OGAS,\n"
                         + "\n"
                         + "--DATOS DEL CLIENTE\n"
-                        + "CL_CODIGO, HE_NOMBRE, HE_NCF,    IM_CODIGO,  HE_RNC,    HE_VALDESC, HE_DESC,   HE_DIRE1, HE_DIRE2, HE_TELE1,\n"
+                        + "CL_CODIGO, HE_NOMBRE, HE_NCF, IM_CODIGO,HE_RNC, HE_VALDESC, HE_DESC, HE_DIRE1, HE_DIRE2, HE_TELE1,\n"
                         + "HE_TIPDES, HE_MONREC, HE_ETARJE, HE_ECHEQUE, HE_BONIFI, HE_NUMDEV,  HE_VCREDI, cl_rncid,\n"
                         + "\n" + "-- DATOS DE QUIEN ATIENDE\n"
                         + "VE_CODIGO,HE_TURNO,HE_CAJA,HE_USUARIO, HE_TERMINAL,HE_HORA,HE_ITBIS1,\n"
@@ -97,13 +100,15 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         + "(\n"
                         + "-- DATOS DE LA FACTURA\n"
                         + "1,1, ?, CAST(GETDATE() AS DATE), ?, ?, ?, 0, ?, ?, ?, '01',\n"
-                        + "?, ?,?,?, '', '', '', '', '', '',\n" + "'','', '', 0, 0, 0,\n"
+                        + "?, ?,?,?, '', '', '', '', '', '',\n"
+                        + "'','', 0, 0, 0, 0,\n"
                         + "\n"
                         + "--DATOS DEL CLIENTE\n"
-                        + "?, ?, ?,   ?, ?, '', ?, '', '', '',\n"
-                        + "0, ?, 0,0,0,'',0, 0,\n" + "\n"
+                        + "?, ?, ?, ?, ?, 0, ?, '', '', '',\n"
+                        + "0, ?, 0,0,0,'',0, 0,\n"
+                        + "\n"
                         + "-- DATOS DE QUIEN ATIENDE\n"
-                        + "?, 1,'','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0\n" + ");";
+                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0\n" + ");";
 
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
@@ -122,7 +127,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                 preparedStatement.setDouble(11,data.getTotal(Item.INCLUDE_TAXES));
 
                 Client client = data.getClient();
-                preparedStatement.setString(12, client.getId());
+                preparedStatement.setString(12, String.valueOf(client.getRemoteId()));
                 preparedStatement.setString(13, client.getName());
                 preparedStatement.setString(14, data.getNcfSequence());
                 preparedStatement.setString(15, client.getNcf().getId());
@@ -131,7 +136,6 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                 preparedStatement.setDouble(18, data.getMoneyReceived());
                 preparedStatement.setString(19, getVendor().getId());
 
-
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 if(rowsAffected > 0){
@@ -139,23 +143,23 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                     query = "-- DETAILS\n" +
                             "INSERT INTO IVBDDEPE \n" +
                             "(\n" + "-- DATOS DE LA FACTURA\n" +
-                            "COD_EMPR, COD_SUCU,DE_FACTURA, DE_FECHA, DE_TIPO,DE_CREGEN,DE_CONGEN,DE_PEDIDO,CL_CODIGO,VE_CODIGO,\n" +
+                            "COD_EMPR, COD_SUCU,DE_FACTURA, DE_FECHA, DE_TIPO,DE_CREGEN,DE_CONGEN,DE_PEDIDO,VE_CODIGO,\n" +
                             "\n" +
                             "-- DATOS DEL ARTICULO\n" +
                             "AR_CODIGO,AR_CODIGO2,DE_DESCRI,DE_CANTID,DE_FRACION,DE_ITBIS,DE_COSTO,DE_PRECIO,\n" +
                             "DE_PRECIO2,AL_CODIGO,DE_UNIDAD,DE_EXENTO,DE_GRAVADO,\n" + "\n" +
                             "--CLIENTE\n" +
-                            "DE_NOMBRE,DE_NCF,IM_CODIGO,DE_OFERTA,DE_CAJA, DE_TURNO,DE_USUARIO,DE_PRENCF,\n" +
+                            "CL_CODIGO,DE_NOMBRE,DE_NCF,IM_CODIGO,DE_OFERTA,DE_CAJA, DE_TURNO,DE_USUARIO,DE_PRENCF,\n" +
                             "DE_TERMINAL,DE_PUNTOS,DE_DESC,AR_ID\n" + ")\n" +
                             "VALUES\n" +
                             "(\n" +
                             "-- DATOS DE LA FACTURA\n" +
-                            " 1, 1,  ?, CAST(GETDATE() AS DATE), ?, ?, ?,'', ?,\n" +
+                            " 1, 1, ?, CAST(GETDATE() AS DATE), ?, ?, ?,'', ?,\n" +
                             "-- DATOS DEL ARTICULO\n" +
                             "?,'',?, ?,'',?,?,?,0,'01',?,\n" +
                             "?, ?,\n" +
                             "--CLIENTE\n" +
-                            "?, ?, ?, ?, 0,'', '','', 0, 0, 0, 0, 0\n" + "); ";
+                            "?, ?, ?, ?, 0,'01', '1','', 0, 0, 0, 0, 0\n" + "); ";
 
 
                     preparedStatement =  getConnection().getSqlConnection().prepareStatement(query);
@@ -175,13 +179,12 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         preparedStatement.setDouble(8, item.getQuantity());
                         preparedStatement.setDouble(9, item.getTaxes());
                         preparedStatement.setDouble(10, item.getCost());
-                        preparedStatement.setDouble(10, item.getCost());
                         preparedStatement.setDouble(11, item.getPrice());
                         preparedStatement.setString(12, item.getUnit().getId());
                         preparedStatement.setDouble(13, isFreeTaxes ? item.getPrice() : 0);
                         preparedStatement.setDouble(14, isFreeTaxes ? 0 : item.getPrice());
 
-                        preparedStatement.setString(15, client.getId());
+                        preparedStatement.setString(15, String.valueOf(client.getRemoteId()));
                         preparedStatement.setString(16, client.getName());
                         preparedStatement.setString(17, data.getNcfSequence());
                         preparedStatement.setString(18, client.getNcf().getId());
@@ -191,7 +194,6 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         if(rowsAffected <= 0){
                             break;
                         }
-
                     }
 
                     query = "INSERT INTO IVBDHIS \n" +
@@ -201,7 +203,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                             "HI_REFER,HI_TIPO2,HI_TIPOI,HI_CONDU,HI_FACTURA,HI_NCF,AR_ID)\n" +
                             "VALUES \n" +
                             "(\n" +
-                            "1, ?,'3',?,?,CAST(GETDATE() AS DATE), ?, '01',\n" +
+                            "1, ?, '3', ?, ?,  CAST(GETDATE() AS DATE), ?, '01',\n" +
                             "?,' ',?,?,' ', CAST(GETDATE() AS DATE),\n" +
                             "' ',' ',' ',' ',?,?, 0);";
 
@@ -214,10 +216,10 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         preparedStatement.setDouble(3, item.getQuantity());
                         preparedStatement.setDouble(4, item.getCost());
                         preparedStatement.setString(5, getVendor().getId());
-                        preparedStatement.setString(6, client.getId());
-                        preparedStatement.setString(7, String.valueOf(data.getRemoteId()));
-                        preparedStatement.setString(8, data.getNcfSequence());
-                        preparedStatement.setDouble(9, item.getPrice());
+                        preparedStatement.setString(6, String.valueOf(client.getRemoteId()));
+                        preparedStatement.setDouble(7, item.getPrice());
+                        preparedStatement.setString(8, String.valueOf(data.getRemoteId()));
+                        preparedStatement.setString(9, data.getNcfSequence());
 
                         rowsAffected =  preparedStatement.executeUpdate();
 
@@ -228,10 +230,15 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                 }
             }
 
+            getConnection().getSqlConnection().commit();
         } catch (SQLException e) {
+            try {
+                getConnection().getSqlConnection().rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             return false;
         }
-
 
         return true;
     }

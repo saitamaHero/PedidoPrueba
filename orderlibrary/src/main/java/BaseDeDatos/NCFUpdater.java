@@ -43,7 +43,7 @@ public class NCFUpdater extends SqlUpdater<NCF> {
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT IM_CODIGO, IM_DESCRI, IM_TIPONCF FROM IMBDNCF WHERE IM_CODIGO IN ('01','02','14','15')";
+        String query = "SELECT IM_CODIGO, IM_DESCRI, IM_TIPONCF FROM IMBDNCF WHERE COD_EMPR = 1 AND IM_CODIGO IN ('01','02','14','15')";
 
         PreparedStatement preparedStatement = null;
 
