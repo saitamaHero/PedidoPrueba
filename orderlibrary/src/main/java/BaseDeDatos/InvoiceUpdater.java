@@ -108,7 +108,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         + "0, ?, 0,0,0,'',0, 0,\n"
                         + "\n"
                         + "-- DATOS DE QUIEN ATIENDE\n"
-                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0\n" + ");";
+                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0);";
 
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
@@ -228,6 +228,8 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         }
                     }
                 }
+
+                data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
             }
 
             getConnection().getSqlConnection().commit();
@@ -258,6 +260,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
             invoice.setId(rs.getString("HE_FACTURA").trim());
             invoice.setDate(rs.getDate("HE_FECHA"));
+            invoice.setNcfSequence(rs.getString("HE_NCF"));
 
             Client client = clientController.getById(Client._ID_REMOTE, rs.getString("CL_CODIGO").trim());
 

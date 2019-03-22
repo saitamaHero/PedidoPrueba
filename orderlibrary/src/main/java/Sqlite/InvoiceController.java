@@ -30,14 +30,14 @@ public class InvoiceController extends Controller<Invoice> {
         List<Invoice> invoices = new ArrayList<>();
         Cursor cursor;
 
-        InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
+        //InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
 
         cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
             Invoice invoice = getDataFromCursor(cursor);
-            invoice.setItems(controller.getAllById(invoice.getId()));
+            //invoice.setItems(controller.getAllById(invoice.getId()));
 
             invoices.add(invoice);
 
@@ -144,20 +144,13 @@ public class InvoiceController extends Controller<Invoice> {
 
     @Override
     public boolean insertAll(List<Invoice> items) {
-
         for (Invoice i : items) {
             if (!insert(i)) {
                 return false;
             }
         }
-
         return true;
     }
-/*
-    @Override
-    public Cursor query(String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit) {
-        Cursor cursor = getSqLiteDatabase().query(Invoice.)
-    }*/
 
     @Override
     public boolean deleteAll(List<Invoice> items) {
@@ -184,6 +177,7 @@ public class InvoiceController extends Controller<Invoice> {
         int invoiceType = cursor.getInt(cursor.getColumnIndex(Invoice._INV_TYPE));
         invoice.setInvoiceType(Invoice.InvoicePayment.values()[invoiceType]);
         invoice.setComment(cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
+        invoice.setNcfSequence(cursor.getString(cursor.getColumnIndex(Invoice._NCF_SEQ)));
 
         String date = cursor.getString(cursor.getColumnIndex(Invoice._DATE));
         invoice.setDate(DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss));
@@ -222,6 +216,7 @@ public class InvoiceController extends Controller<Invoice> {
         cv.put(Invoice._COMMENT, item.getComment());
         cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD_HH_mm_ss));
         cv.put(Invoice._INV_TYPE, item.getInvoiceType().ordinal());
+        cv.put(Invoice._NCF_SEQ, item.getNcfSequence());
 
         ColumnsSqlite.ColumnsRemote columnsRemote = item;
         cv.put(Invoice._STATUS, columnsRemote.getStatus());

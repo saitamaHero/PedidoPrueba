@@ -146,6 +146,7 @@ public interface ColumnsSqlite {
         String _CLIENT = "_client";
         String _INV_TYPE = "_invoice_type";
         String _DISCOUNT = "_discount";
+        String _NCF_SEQ  = "_ncf_sequence";
 
         //Datos referentes al detalle del articulo
         String TABLE_NAME_DETAILS = "invoice_details";

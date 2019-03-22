@@ -67,7 +67,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                         ColumnsSqlite.ColumnsRemote remoteData = (ColumnsSqlite.ColumnsRemote) itemPeek;
 
                         if (remoteData.isPending()) {
-                            if (remoteData.getRemoteId() == null || remoteData.getRemoteId().equals("null")) {
+                            if (isNullOrEmpty(remoteData.getRemoteId())) {
                                 if (onDataUpdateListener != null)
                                     onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_INSERT_REMOTE);
 
@@ -77,7 +77,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                                     fail(SERVER_NOT_FOUND);
                                     break;
                                 }
-                            } else if (remoteData.getRemoteId() != null && !remoteData.getRemoteId().equals("")) {
+                            } else if (!isNullOrEmpty(remoteData.getRemoteId())) {
                                 if (onDataUpdateListener != null)
                                     onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_UPDATE_REMOTE);
 
@@ -93,8 +93,6 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                         e.printStackTrace();
                         break;
                     }
-
-
                 }
             } catch (SQLException e) {
                 fail(Updater.ERROR);
@@ -105,9 +103,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
             fail(Updater.SERVER_NOT_FOUND);
         }
 
-
         closeSqlConnection();
-
     }
 
     @Override
@@ -295,5 +291,9 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     public interface OnErrorListener {
         void onError(int error);
+    }
+
+    public static boolean isNullOrEmpty(Object object) {
+        return object == null || object.equals("null") || object.toString().isEmpty();
     }
 }
