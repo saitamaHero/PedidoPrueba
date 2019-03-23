@@ -67,23 +67,26 @@ public class InvoiceTicket extends AbstractTicket {
         buffer.append(divisorString + "{reset}{b}");
 
 
-        String totalLabel = "ITBIS GRAVADO:";
-        String totalFormatted =  NumberUtils.formatNumber(mInvoice.getTotalTaxes(), NumberUtils.FORMAT_NUMER_DOUBLE);
-        buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+        buffer.append(createTotal("TOTAL ARTICULOS:",   NumberUtils.formatNumber(mInvoice.getItems().size(),     NumberUtils.FORMAT_NUMER_INTEGER) ));
 
-        totalLabel = "TOTAL ARTICULOS:";
-        totalFormatted = NumberUtils.formatNumber(mInvoice.getItems().size(), NumberUtils.FORMAT_NUMER_INTEGER);
-        buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+        if(mInvoice.hasDiscount() ){
+            buffer.append(createTotal("DESCUENTO",
+                    NumberUtils.formatNumber(mInvoice.getDiscount() * 100.0, NumberUtils.FORMAT_NUMER_INTEGER) + "%"));
+        }
 
-        totalLabel = "NETO A PAGAR:";
-        totalFormatted = NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE);
-        buffer.append(concatWithSpaces(totalLabel, totalFormatted, PRINTER_CHARACTERS_LINES));
+
+        buffer.append(createTotal("MONTO BRUTO:",       NumberUtils.formatNumber(mInvoice.getTotalFreeTaxes(),   NumberUtils.FORMAT_NUMER_DOUBLE)));
+        buffer.append(createTotal("ITBIS GRAVADO:",     NumberUtils.formatNumber(mInvoice.getTotalTaxes(),       NumberUtils.FORMAT_NUMER_DOUBLE)));
+        buffer.append(createTotal("NETO A PAGAR:",      NumberUtils.formatNumber(mInvoice.getTotal(),            NumberUtils.FORMAT_NUMER_DOUBLE)));
 
         buffer.append(divisorString);
         buffer.append("{center}{b}¡Gracias por Preferinos!{br}");
 
-
         return buffer.toString();
+    }
+
+    private String createTotal(String label, String totalFormatted){
+        return concatWithSpaces(label, totalFormatted, PRINTER_CHARACTERS_LINES);
     }
 
     @Override

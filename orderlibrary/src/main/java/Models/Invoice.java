@@ -140,6 +140,10 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         return discount > 1 ? discount / 100.00 : discount;
     }
 
+    public boolean hasDiscount(){
+        return Double.compare(discount, 0.0d) > 0;
+    }
+
     public void setDiscount(double discount) {
         this.discount = discount;
     }
