@@ -32,6 +32,7 @@ import Models.ColumnsSqlite;
 import Models.Constantes;
 import Models.NCF;
 import Models.Person;
+import Models.SimpleElement;
 import Models.Zone;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.NCFController;
@@ -265,7 +266,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
     private void showDialogToChooseNcf() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final ListAdapter zones = getZones();
+        final ListAdapter zones = getNcfs();
 
         int checkedItem = ((ArrayAdapter<NCF>)zones).getPosition(client.getNcf());
 
@@ -297,14 +298,14 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
     }
 
     private ListAdapter getZones() {
-        ArrayAdapter listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+        ArrayAdapter<SimpleElement> listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
         List<Zone> categories = new ZoneController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
         listAdapter.addAll(categories);
         return listAdapter;
     }
 
     private ListAdapter getNcfs() {
-        ArrayAdapter listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+        ArrayAdapter<SimpleElement> listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
         List<NCF> categories = new NCFController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
         listAdapter.addAll(categories);
         return listAdapter;

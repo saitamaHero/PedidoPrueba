@@ -220,6 +220,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
             @Override
             public void onPaymentComplete(boolean success, double money) {
                 if (success) {
+                    mInvoice.setMoneyReceived(money);
                     saveInvoice();
                 }
             }

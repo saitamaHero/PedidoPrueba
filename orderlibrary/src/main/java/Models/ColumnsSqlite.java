@@ -98,16 +98,16 @@ public interface ColumnsSqlite {
      * {@link ColumnsClient Client}
      */
     public interface ColumnsPerson extends ColumnModification, ColumnPhoto{
-        String _ID = "_id";
-        String _NAME = "_name";
-        String _IDCARD = "_id_card"; /*Cedula o RNC*/
-        String _BIRTH = "_birth_date";
+        String _ID      = "_id";
+        String _NAME    = "_name";
+        String _IDCARD  = "_id_card"; /*Cedula o RNC*/
+        String _BIRTH   = "_birth_date";
         String _ENTERED = "_entered_date";
-        String _EMAIL = "_email";
+        String _EMAIL   = "_email";
         String _ADDRESS = "_address";
-        String _LAT = "_latitude";
-        String _LNG = "_longitude";
-        String _PHONE = "_phone";
+        String _LAT     = "_latitude";
+        String _LNG     = "_longitude";
+        String _PHONE   = "_phone";
     }
 
     /**
@@ -126,13 +126,13 @@ public interface ColumnsSqlite {
      * Columnas de la tabla de las visitas del {@link Vendor}
      */
     public interface ColumnsDiary extends  ColumnModification, ColumnComment, ColumnsRemote{
-        String TABLE_NAME = "vendor_diary";
-        String _ID = "_id";
-        String _EVENT = "_date_event";
-        String _CLIENT_ID = "_client_id";
-        String _DURATION = "_duration";
+        String TABLE_NAME  = "vendor_diary";
+        String _ID         = "_id";
+        String _EVENT      = "_date_event";
+        String _CLIENT_ID  = "_client_id";
+        String _DURATION   = "_duration";
         String _START_TIME = "_start_time";
-        String _END_TIME = "_end_time";
+        String _END_TIME   = "_end_time";
     }
 
 
@@ -141,21 +141,30 @@ public interface ColumnsSqlite {
      */
     public interface ColumnsInvoice extends ColumnModification, ColumnComment, ColumnsRemote{
         String TABLE_NAME = "invoice_table";
-        String _DATE = "_creation_date";
-        String _ID = "_id_invoice";
-        String _CLIENT = "_client";
-        String _INV_TYPE = "_invoice_type";
-        String _DISCOUNT = "_discount";
-        String _NCF_SEQ  = "_ncf_sequence";
+        String _DATE      = "_creation_date";
+        String _ID        = "_id_invoice";
+        String _CLIENT    = "_client";
+        String _INV_TYPE  = "_invoice_type";
+        String _DISCOUNT  = "_discount";
+        String _NCF_SEQ   = "_ncf_sequence";
+        String _MONEY     = "_money_received";
 
         //Datos referentes al detalle del articulo
         String TABLE_NAME_DETAILS = "invoice_details";
-        String _ITEM_ID = "_item_id";
-        String _ITEM_NAME = "_item_name";
-        String _QTY = "_quantity";
-        String _PRICE = "_price";
-        String _TAX_RATE = "_tax_rate";
+        String _ITEM_ID           = "_item_id";
+        String _ITEM_NAME         = "_item_name";
+        String _QTY               = "_quantity";
+        String _PRICE             = "_price";
+        String _TAX_RATE          = "_tax_rate";
 
+    }
+
+
+    public interface ColumnsCompany{
+        String TABLE_NAME       = "company_info";
+        String _COMPANY_NAME    = "_company_name";
+        String _COMPANY_ADDRESS = "_company_address";
+        String _COMPANY_INFO    = "_company_info";
     }
 
 

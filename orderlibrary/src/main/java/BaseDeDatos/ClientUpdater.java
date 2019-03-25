@@ -135,7 +135,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         Connection connection = getConnection().getSqlConnection();
         String query = "INSERT INTO CCBDCLIE(" +
                 "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1, CL_RNC, CL_TIPORNC, CL_EMAIL," +
-                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2 "        +
+                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2, IM_CODIGO "        +
                 ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
@@ -176,6 +176,9 @@ public class ClientUpdater extends SqlUpdater<Client> {
                     e.printStackTrace();
                     preparedStatement.setNull(13, Types.VARBINARY);
                 }
+
+
+                preparedStatement.setString(14, data.getNcf().getId());
 
                 int rowsAffected = preparedStatement.executeUpdate();
 

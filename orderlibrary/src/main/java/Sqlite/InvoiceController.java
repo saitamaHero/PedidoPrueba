@@ -173,16 +173,17 @@ public class InvoiceController extends Controller<Invoice> {
     public Invoice getDataFromCursor(Cursor cursor) {
         Invoice invoice = new Invoice();
 
-        invoice.setId(cursor.getString(cursor.getColumnIndex(Invoice._ID)));
+        invoice.setId(cursor.getString( cursor.getColumnIndex(Invoice._ID)));
         int invoiceType = cursor.getInt(cursor.getColumnIndex(Invoice._INV_TYPE));
         invoice.setInvoiceType(Invoice.InvoicePayment.values()[invoiceType]);
-        invoice.setComment(cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
-        invoice.setNcfSequence(cursor.getString(cursor.getColumnIndex(Invoice._NCF_SEQ)));
+        invoice.setComment(      cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
+        invoice.setNcfSequence(  cursor.getString(cursor.getColumnIndex(Invoice._NCF_SEQ)));
+        invoice.setMoneyReceived(cursor.getDouble(cursor.getColumnIndex(Invoice._MONEY)));
 
         String date = cursor.getString(cursor.getColumnIndex(Invoice._DATE));
         invoice.setDate(DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
-       // invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
+        invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
 
         //Fecha de la ultima modificacion del archivo
         date = cursor.getString(cursor.getColumnIndex(Invoice._LASTMOD));
@@ -212,7 +213,8 @@ public class InvoiceController extends Controller<Invoice> {
 
         cv.put(Invoice._ID, item.getId());
         cv.put(Invoice._CLIENT, item.getClient().getId());
-        //cv.put(Invoice._DISCOUNT, item.getDiscount());
+        cv.put(Invoice._DISCOUNT, item.getDiscount());
+        cv.put(Invoice._MONEY, item.getMoneyReceived());
         cv.put(Invoice._COMMENT, item.getComment());
         cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD_HH_mm_ss));
         cv.put(Invoice._INV_TYPE, item.getInvoiceType().ordinal());

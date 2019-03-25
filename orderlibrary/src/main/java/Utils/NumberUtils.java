@@ -38,6 +38,13 @@ public class NumberUtils {
         return formatNumber(number, format);
     }
 
+    public static String formatToDouble(double number){
+        return formatNumber(number, FORMAT_NUMER_DOUBLE);
+    }
+
+    public static String formatToInteger(double number){
+        return formatNumber(number, FORMAT_NUMER_INTEGER);
+    }
 
     public static DecimalFormat getDefaultDecimalFormat(){
         DecimalFormat decimalFormat = new DecimalFormat();

@@ -53,13 +53,13 @@ public class InvoiceTicket extends AbstractTicket {
                 buffer.append(String.format("{reset}{b}%s{br}", description));
 
                 String quantityByPrice = String.format("%-8s%6s    %s",
-                        NumberUtils.formatNumber(item.getQuantity(), NumberUtils.FORMAT_NUMER_INTEGER),
-                        NumberUtils.formatNumber(item.getPrice(), NumberUtils.FORMAT_NUMER_DOUBLE),
-                        NumberUtils.formatNumber(item.getTaxes(), NumberUtils.FORMAT_NUMER_DOUBLE));
+                        NumberUtils.formatToInteger(item.getQuantity()),
+                        NumberUtils.formatToDouble(item.getPrice()),
+                        NumberUtils.formatToDouble(item.getTaxes()));
 
 
 
-                String totalItem = String.format("%s", NumberUtils.formatNumber(item.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+                String totalItem = String.format("%s", NumberUtils.formatToDouble(item.getTotal()));
 
                 buffer.append("{reset}" + concatWithSpaces(quantityByPrice, totalItem, PRINTER_CHARACTERS_LINES));
             }
@@ -67,20 +67,29 @@ public class InvoiceTicket extends AbstractTicket {
         buffer.append(divisorString + "{reset}{b}");
 
 
-        buffer.append(createTotal("TOTAL ARTICULOS:",   NumberUtils.formatNumber(mInvoice.getItems().size(),     NumberUtils.FORMAT_NUMER_INTEGER) ));
+        buffer.append(createTotal("TOTAL ARTICULOS:",   NumberUtils.formatToInteger(mInvoice.getItems().size()) ));
 
         if(mInvoice.hasDiscount() ){
             buffer.append(createTotal("DESCUENTO",
-                    NumberUtils.formatNumber(mInvoice.getDiscount() * 100.0, NumberUtils.FORMAT_NUMER_INTEGER) + "%"));
+                    NumberUtils.formatToInteger(mInvoice.getDiscount() * 100.0) + "%"));
         }
 
 
-        buffer.append(createTotal("MONTO BRUTO:",       NumberUtils.formatNumber(mInvoice.getTotalFreeTaxes(),   NumberUtils.FORMAT_NUMER_DOUBLE)));
-        buffer.append(createTotal("ITBIS GRAVADO:",     NumberUtils.formatNumber(mInvoice.getTotalTaxes(),       NumberUtils.FORMAT_NUMER_DOUBLE)));
-        buffer.append(createTotal("NETO A PAGAR:",      NumberUtils.formatNumber(mInvoice.getTotal(),            NumberUtils.FORMAT_NUMER_DOUBLE)));
+        buffer.append(createTotal("MONTO BRUTO:",       NumberUtils.formatToDouble(mInvoice.getTotalFreeTaxes())));
+        buffer.append(createTotal("ITBIS GRAVADO:",     NumberUtils.formatToDouble(mInvoice.getTotalTaxes())));
+        buffer.append(createTotal("NETO A PAGAR:",      NumberUtils.formatToDouble(mInvoice.getTotal())));
 
-        buffer.append(divisorString);
-        buffer.append("{center}{b}¡Gracias por Preferinos!{br}");
+        buffer.append(getStringWithCharacter('_',PRINTER_CHARACTERS_LINES));
+
+        if(mInvoice.isCash()){
+            buffer.append("{reset}{b}EFECTIVO:{br}");
+            buffer.append("{reset}"+ concatWithSpaces("RECIBIDO:", NumberUtils.formatToDouble(mInvoice.getMoneyReceived()), PRINTER_CHARACTERS_LINES));
+            buffer.append("{reset}"+ concatWithSpaces("DEVUELTA:", NumberUtils.formatToDouble(mInvoice.getMoneyReceived() - mInvoice.getTotal()), PRINTER_CHARACTERS_LINES));
+        }
+
+        buffer.append(getStringWithCharacter('_',PRINTER_CHARACTERS_LINES));
+
+        buffer.append("{reset}{center}{b}¡Gracias por Preferinos!{br}");
 
         return buffer.toString();
     }
