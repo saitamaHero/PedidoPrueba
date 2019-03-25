@@ -3,13 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
-
         <ImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
@@ -17,7 +14,6 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_account_user"
             android:tint="@color/colorPrimaryDark" />
-
         <TextView
             android:id="@+id/client_name"
             android:layout_width="match_parent"
@@ -26,27 +22,23 @@
             android:layout_toEndOf="@id/icon"
             android:layout_toRightOf="@id/icon"
             android:paddingLeft="@dimen/padding_horizontal"
-            android:text="Dionicio Acevedo"
+            android:paddingStart="@dimen/padding_vertical"
+            android:paddingRight="@dimen/padding_vertical"
+            android:paddingEnd="@dimen/padding_vertical"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorText"
             android:textStyle="bold" />
     </RelativeLayout>
-<!--
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:paddingLeft="@dimen/padding_horizontal"
-        android:text="@string/total_payment"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/colorAccent"
-        android:layout_above="@id/icon2"
-        />-->
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
-
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:id="@+id/viewTotal"
+        >
         <ImageView
             android:id="@+id/icon2"
             android:layout_width="wrap_content"
@@ -54,7 +46,6 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_money"
             android:tint="@color/goodStatus" />
-
 
         <TextView
             android:id="@+id/total"
@@ -64,7 +55,9 @@
             android:layout_toRightOf="@id/icon2"
             android:layout_toEndOf="@id/icon2"
             android:paddingLeft="@dimen/padding_horizontal"
-            android:text="8,000.00"
+            android:paddingStart="@dimen/padding_vertical"
+            android:paddingRight="@dimen/padding_vertical"
+            android:paddingEnd="@dimen/padding_vertical"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorText"
             android:textStyle="bold"
