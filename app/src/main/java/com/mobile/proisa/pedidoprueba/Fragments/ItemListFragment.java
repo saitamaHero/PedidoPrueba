@@ -37,14 +37,17 @@ import java.util.Random;
 import java.util.Stack;
 
 import BaseDeDatos.CategoryUpdater;
+import BaseDeDatos.CompanyUpdater;
 import BaseDeDatos.ItemUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.UnitUpdater;
 import Models.Category;
+import Models.Company;
 import Models.Item;
 import Models.Unit;
 import Sqlite.CategoryController;
+import Sqlite.CompanyController;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.UnitController;
@@ -237,6 +240,10 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             UnitUpdater unitUpdater = new UnitUpdater(getContext().getApplicationContext(), connection, unitController);
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             unitUpdater.retriveData();
+
+
+            CompanyUpdater updater = new CompanyUpdater(getContext().getApplicationContext(), connection, new CompanyController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
+            updater.retriveData();
 
             return null;
         }

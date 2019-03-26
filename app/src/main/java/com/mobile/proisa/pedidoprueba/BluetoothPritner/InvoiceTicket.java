@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.datecs.api.barcode.Barcode;
 
+import Models.Company;
 import Models.Invoice;
 import Models.Item;
 import Models.Vendor;
@@ -17,19 +18,29 @@ public class InvoiceTicket extends AbstractTicket {
     private static final String TAG = "InvoiceTicket";
     private Invoice mInvoice;
     private Vendor mVendor;
+    private Company mCompany;
+
     private int PRINTER_CHARACTERS_LINES = 32;
 
     public InvoiceTicket(Invoice invoice, Vendor vendor) {
         this.mInvoice = invoice;
-        this.mVendor = vendor;
+        this.mVendor  = vendor;
+        this.mCompany = new Company();
+    }
+
+    public InvoiceTicket(Invoice invoice, Vendor vendor, Company company) {
+        this.mInvoice = invoice;
+        this.mVendor  = vendor;
+        this.mCompany = company;
     }
 
     @Override
     public String onBuildTicket(StringBuilder buffer) {
         String divisorString = getStringWithCharacter('-', PRINTER_CHARACTERS_LINES);
-        buffer.append("{center}{b}PROISA{br}");
-        buffer.append("{center}{b}Av. Estrella Sadhala, mod. 101{br}");
-        buffer.append("{center}{b}(809-860-8075){br}");
+        buffer.append("{center}{b}"+ mCompany.getName()                      + "{br}");
+        String address = mCompany.getAddress();
+        buffer.append("{reset}{center}"+ (address.length() > PRINTER_CHARACTERS_LINES ? address.substring(0, PRINTER_CHARACTERS_LINES) : address));
+        buffer.append("{reset}{center}"+ mCompany.getContactInfo()               + "{br}");
         buffer.append(divisorString);
         buffer.append(String.format("{reset}{center}{b}%s{br}", mInvoice.isCash() ? "VENTA DE CONTADO" : "VENTA A CREDITO"));
         buffer.append(divisorString);
@@ -79,17 +90,16 @@ public class InvoiceTicket extends AbstractTicket {
         buffer.append(createTotal("ITBIS GRAVADO:",     NumberUtils.formatToDouble(mInvoice.getTotalTaxes())));
         buffer.append(createTotal("NETO A PAGAR:",      NumberUtils.formatToDouble(mInvoice.getTotal())));
 
-        buffer.append(getStringWithCharacter('_',PRINTER_CHARACTERS_LINES));
-
         if(mInvoice.isCash()){
+            buffer.append(divisorString);
             buffer.append("{reset}{b}EFECTIVO:{br}");
             buffer.append("{reset}"+ concatWithSpaces("RECIBIDO:", NumberUtils.formatToDouble(mInvoice.getMoneyReceived()), PRINTER_CHARACTERS_LINES));
             buffer.append("{reset}"+ concatWithSpaces("DEVUELTA:", NumberUtils.formatToDouble(mInvoice.getMoneyReceived() - mInvoice.getTotal()), PRINTER_CHARACTERS_LINES));
         }
 
-        buffer.append(getStringWithCharacter('_',PRINTER_CHARACTERS_LINES));
+        buffer.append(divisorString);
 
-        buffer.append("{reset}{center}{b}¡Gracias por Preferinos!{br}");
+        buffer.append("{reset}{center}{b}¡GRACIAS POR PREFERIRNOS!{br}");
 
         return buffer.toString();
     }

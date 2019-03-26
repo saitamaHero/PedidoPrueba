@@ -61,17 +61,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         ///startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
 
 
-        Log.d(TAG, "User: "+Build.MODEL + " Marca: "+Build.BRAND + ":"+Build.ID +":: "+getPhoneName());
-        Object o = null;
-        String x = null;
+
+        Log.d("phoneModel", String.format("%s,   %s,   %s,   %s",Build.MODEL, Build.BRAND, Build.BOARD, Build.ID));
 
 
-        List<Invoice> invoices = new InvoiceController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
-
-        for(Invoice i: invoices){
-            Log.d(TAG, i.getId() + ", client= " + i.getClient().getName() + ", remoteId="+i.getRemoteId() + "("+SqlUpdater.isNullOrEmpty(i.getRemoteId())+")");
-        }
-
+        MySqliteOpenHelper.generateFile(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
     }
 
 
