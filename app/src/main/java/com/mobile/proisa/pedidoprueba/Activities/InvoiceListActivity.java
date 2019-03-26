@@ -19,7 +19,9 @@ import com.mobile.proisa.pedidoprueba.R;
 import java.util.List;
 
 import Models.Client;
+import Models.Company;
 import Models.Invoice;
+import Sqlite.CompanyController;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 
@@ -69,7 +71,7 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
 
     @Override
     public void onInvoiceClick(Invoice invoice) {
-        ticket = new InvoiceTicket(invoice, VentaActivity.VendorUtil.getVendor(this));
+        ticket = new InvoiceTicket(invoice, VentaActivity.VendorUtil.getVendor(this), CompanyController.getCompany(MySqliteOpenHelper.getInstance(this).getReadableDatabase()));
 
         if(!isPrinterSelected()){
                 BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");

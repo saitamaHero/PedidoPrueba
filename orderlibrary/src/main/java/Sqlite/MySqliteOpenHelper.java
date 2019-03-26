@@ -26,14 +26,14 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 7;
+    public static final int VERSION = 9;
 
     private static final String CREATE_TABLE_COMPANY
             = "CREATE TABLE "   + Company.TABLE_NAME
             + "("
             +  Company._COMPANY_NAME      + " TEXT NOT NULL,"
             +  Company._COMPANY_ADDRESS   + " TEXT NOT NULL DEFAULT '',"
-            +  Company._COMPANY_INFO      +  "TEXT NOT NULL DEFAULT ''"
+            +  Company._COMPANY_INFO      + " TEXT NOT NULL DEFAULT ''"
             + ");\n";
 
     private static final String CREATE_TABLE_ARTICULOS
@@ -208,7 +208,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
 
         if(newVersion > oldVersion){
             //Información de la empresa
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Company.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Company.TABLE_NAME);
             //Articulos
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Item.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
@@ -312,7 +312,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         }
 
         try {
-            FileOutputStream stream = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "dbcreate.txt"));
+            FileOutputStream stream = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "dbcreate.sql"));
             String sqlStatements = builder.toString();
             stream.write(sqlStatements.getBytes(), 0, sqlStatements.length());
         } catch (FileNotFoundException e) {

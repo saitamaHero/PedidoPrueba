@@ -161,7 +161,7 @@ public interface ColumnsSqlite {
 
 
     public interface ColumnsCompany{
-        String TABLE_NAME       = "company_info";
+        String TABLE_NAME       = "company_info_table";
         String _COMPANY_NAME    = "_company_name";
         String _COMPANY_ADDRESS = "_company_address";
         String _COMPANY_INFO    = "_company_info";
