@@ -53,6 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import Models.Client;
@@ -63,6 +64,7 @@ import Models.Invoice;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.NCFController;
 import Utils.DateUtils;
 import Utils.FileUtils;
 import Utils.NumberUtils;
@@ -85,7 +87,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private boolean mPermissionStorage;
     private boolean mPermissionCamera;
     private FloatingActionButton fabInitVisit;
-
 
     private Client client;
     private Uri currentPhotoItem;
@@ -131,11 +132,16 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
     }
 
+    public static void printToLog(Object o){
+        Log.d("InfoDetails", o.toString() );
+    }
+
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
 
-        Glide.with(this)
+            Glide
+                .with(this)
                 .load(uri)
                 .thumbnail(0.1f)
                 .apply(RequestOptions.centerCropTransform())
@@ -164,7 +170,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         TextView txtAddress = findViewById(R.id.address);
-        txtAddress.setText(client.getAddress());
+        txtAddress.setText(client.getNcf().getType());
 
         TextView txtEmail = findViewById(R.id.email);
         txtEmail.setText(client.getEmail());
@@ -695,6 +701,4 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             super.onBackPressed();
         }
     }
-
-
 }

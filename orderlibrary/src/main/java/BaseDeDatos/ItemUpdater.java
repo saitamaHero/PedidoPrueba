@@ -43,6 +43,7 @@ public class ItemUpdater extends SqlUpdater<Item> {
             item.setPrice(rs.getDouble("AR_PREDET"));
             item.setTaxRate(rs.getDouble("ITBIS"));
             item.setStock(rs.getDouble("CTD_INV"));
+            item.setCost(rs.getDouble("AR_ULTCOS"));
 
             item.setCategory(new Category(rs.getString("DE_CODIGO").trim(),""));
             item.setUnit(new Unit(rs.getString("AR_UNIDAD").trim(), ""));
@@ -77,7 +78,7 @@ public class ItemUpdater extends SqlUpdater<Item> {
                 + "   WHEN 'S' THEN (SELECT TOP 1 ITBIS FROM FABDPROC) \n"
                 + "   WHEN 'T' THEN (SELECT TOP 1 ITBIS1 FROM FABDPROC) \n"
                 + "   ELSE 0.0  \n"
-                + "END) AS ITBIS, AR_IMAGEN2\n"
+                + "END) AS ITBIS, AR_IMAGEN2, AR_ULTCOS\n"
                 + "FROM IVBDARTI --WHERE AR_IMAGEN2 != ''";
 
         PreparedStatement preparedStatement = null;

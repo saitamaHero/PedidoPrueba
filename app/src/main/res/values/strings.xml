@@ -200,5 +200,7 @@ Cadena que representa maniana con tiempo
     <string name="start_now">Comenzar</string>
     <string name="question_start_visit">¿Comenzar una visita ahora?</string>
     <string name="choose_zone">Elegir Zona</string>
+    <string name="choose_ncf">Elegir NCF</string>
+    <string name="should_choose_ncf">Selecciona el NCF</string>
 
 </resources>

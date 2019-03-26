@@ -19,6 +19,7 @@ import java.util.List;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
+import Models.NCF;
 import Models.Zone;
 import Sqlite.Controller;
 import Utils.FileUtils;
@@ -77,6 +78,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
             client.setAddress(rs.getString("CL_DIREC1").trim());
 
             client.setClientZone(new Zone(rs.getString("ZO_CODIGO"), ""));
+            client.setNcf(new NCF(rs.getString("IM_CODIGO"), ""));
 
 
             InputStream binaryStream = rs.getBinaryStream("CL_FOTO2");
@@ -113,7 +115,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         String query = "SELECT \n"
                 + "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1,\n"
                 + "CL_LIMCRE, CL_ESTADO, CL_FECNAC, CL_FECING, \n"
-                + "CL_RNC, CL_EMAIL, CL_FOTO2, ZO_CODIGO\n"
+                + "CL_RNC, CL_EMAIL, CL_FOTO2, ZO_CODIGO, IM_CODIGO\n"
                 + "FROM CCBDCLIE WHERE VE_CODIGO = ?";
 
         PreparedStatement preparedStatement = null;
@@ -133,7 +135,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         Connection connection = getConnection().getSqlConnection();
         String query = "INSERT INTO CCBDCLIE(" +
                 "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1, CL_RNC, CL_TIPORNC, CL_EMAIL," +
-                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2 "        +
+                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2, IM_CODIGO "        +
                 ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
@@ -174,6 +176,9 @@ public class ClientUpdater extends SqlUpdater<Client> {
                     e.printStackTrace();
                     preparedStatement.setNull(13, Types.VARBINARY);
                 }
+
+
+                preparedStatement.setString(14, data.getNcf().getId());
 
                 int rowsAffected = preparedStatement.executeUpdate();
 

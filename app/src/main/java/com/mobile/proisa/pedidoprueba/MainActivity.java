@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -26,9 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import BaseDeDatos.SqlUpdater;
 import Models.Constantes;
+import Models.Invoice;
 import Models.User;
 import Models.Vendor;
+import Sqlite.InvoiceController;
+import Sqlite.MySqliteOpenHelper;
 import Utils.NumberUtils;
 
 
@@ -54,6 +59,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         checkPreferences();
 
         ///startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+
+
+        Log.d(TAG, "User: "+Build.MODEL + " Marca: "+Build.BRAND + ":"+Build.ID +":: "+getPhoneName());
+        Object o = null;
+        String x = null;
+
+
+        List<Invoice> invoices = new InvoiceController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
+
+        for(Invoice i: invoices){
+            Log.d(TAG, i.getId() + ", client= " + i.getClient().getName() + ", remoteId="+i.getRemoteId() + "("+SqlUpdater.isNullOrEmpty(i.getRemoteId())+")");
+        }
+
+    }
+
+
+    private String getPhoneName(){
+        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
     }
 
     private void checkPreferences() {

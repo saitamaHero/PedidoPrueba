@@ -1,6 +1,7 @@
 package Sqlite;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
@@ -9,12 +10,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import Models.Category;
 import Models.Client;
+import Models.Company;
 import Models.Diary;
 import Models.Invoice;
 import Models.Item;
+import Models.NCF;
 import Models.Unit;
 import Models.Zone;
 
@@ -22,7 +26,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 3;
+    public static final int VERSION = 7;
+
+    private static final String CREATE_TABLE_COMPANY
+            = "CREATE TABLE "   + Company.TABLE_NAME
+            + "("
+            +  Company._COMPANY_NAME      + " TEXT NOT NULL,"
+            +  Company._COMPANY_ADDRESS   + " TEXT NOT NULL DEFAULT '',"
+            +  Company._COMPANY_INFO      +  "TEXT NOT NULL DEFAULT ''"
+            + ");\n";
 
     private static final String CREATE_TABLE_ARTICULOS
             = "CREATE TABLE "+ Item.TABLE_NAME
@@ -33,6 +45,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Item._CAT      + " TEXT,"
             + Item._UNIT     + " TEXT,"
             + Item._STOCK    + " NUMERIC DEFAULT 0,"
+            + Item._COST     + " NUMERIC DEFAULT 0,"
             + Item._PHOTO    + " TEXT,"
             + Item._LASTMOD  + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Item._ID + ")"
@@ -44,6 +57,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Category._NAME    + " TEXT NOT NULL,"
             + Category._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
             + "PRIMARY KEY(" + Category._ID + ")"
+            + ");\n";
+
+    private static final String CREATE_TABLE_NCF
+            = "CREATE TABLE "   + NCF.TABLE_NAME
+            + "("+ NCF._ID + " TEXT NOT NULL,"
+            + NCF._NAME    + " TEXT NOT NULL,"
+            + NCF._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + NCF._TYPE    + " TEXT DEFAULT '',"
+            + "PRIMARY KEY(" + NCF._ID + ")"
             + ");\n";
 
     private static final String CREATE_TABLE_UNIDADES
@@ -83,6 +105,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Client._CR_STATUS + " TEXT NOT NULL DEFAULT '"+Client.CREDIT_OPENED+"',"
             + Client._ID_REMOTE + " TEXT,"
             + Client._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + Client._NCF_ID    + " TEXT DEFAULT '',"
             + "PRIMARY KEY(" + Client._ID + ")"
             + ");\n";
 
@@ -94,16 +117,19 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + Invoice._INV_TYPE  + " INTEGER NOT NULL,"
             + Invoice._DISCOUNT  + " NUMERIC DEFAULT 0,"
             + Invoice._DATE      + " TEXT DEFAULT '',"
+            + Invoice._NCF_SEQ   + " TEXT DEFAULT '',"
             + Invoice._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + Client._STATUS     + " INTEGER NOT NULL,"
-            + Client._ID_REMOTE  + " TEXT,"
+            + Invoice._STATUS     + " INTEGER NOT NULL,"
+            + Invoice._ID_REMOTE  + " TEXT,"
+            + Invoice._MONEY      + " NUMERIC DEFAULT 0,"
             + "PRIMARY KEY(" + Invoice._ID + ")"
             + ");\n";
 
     private static final String CREATE_TABLE_FACTURAS_DETALLE
             = "CREATE TABLE "    + Invoice.TABLE_NAME_DETAILS
             + "("+ Invoice._ID   + " TEXT NOT NULL,"
-            + Invoice.ITEM_ID    + " TEXT NOT NULL,"
+            + Invoice._ITEM_ID   + " TEXT NOT NULL,"
+            + Invoice._ITEM_NAME + " TEXT NOT NULL,"
             + Invoice._QTY       + " NUMERIC DEFAULT 1,"
             + Invoice._PRICE     + " NUMERIC DEFAULT 1,"
             + Invoice._TAX_RATE  + " NUMERIC DEFAULT 0,"
@@ -140,6 +166,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL(CREATE_TABLE_COMPANY);
+
         sqLiteDatabase.execSQL(CREATE_TABLE_ARTICULOS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
@@ -152,10 +180,13 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createTriggerUpdate(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
 
-
         sqLiteDatabase.execSQL(CREATE_TABLE_ZONAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_NCF);
+        sqLiteDatabase.execSQL(createTriggerUpdate(NCF.TABLE_NAME, NCF._LASTMOD, NCF._ID));
+        sqLiteDatabase.execSQL(createTriggerInsert(NCF.TABLE_NAME, NCF._LASTMOD, NCF._ID));
 
         sqLiteDatabase.execSQL(CREATE_TABLE_CLIENTES);
         sqLiteDatabase.execSQL(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
@@ -165,7 +196,6 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_FACTURAS_DETALLE);
         sqLiteDatabase.execSQL(createTriggerUpdate(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
-
 
         sqLiteDatabase.execSQL(CREATE_TABLE_VISITAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
@@ -177,6 +207,8 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
         if(newVersion > oldVersion){
+            //Información de la empresa
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Company.TABLE_NAME);
             //Articulos
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Item.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Item.TABLE_NAME));
@@ -193,6 +225,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Zone.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Zone.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Zone.TABLE_NAME));
+            //NCF
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + NCF.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(NCF.TABLE_NAME));
+            sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(NCF.TABLE_NAME));
             //Clientes
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Client.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Client.TABLE_NAME));
@@ -246,70 +282,39 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             instance = new MySqliteOpenHelper(context, MySqliteOpenHelper.DBNAME, null, MySqliteOpenHelper.VERSION);
 
         }
-
         //instance.generateFile();
-
         return instance;
     }
 
 
-    public void generateFile(){
+    public static boolean deleteDataFromDb(Context context) {
+        SQLiteDatabase database = getInstance(context).getWritableDatabase();
+
+        Cursor cursor = database.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+
+
+        while(cursor.moveToNext()){
+           database.delete(cursor.getString(0),"1",null);
+        }
+
+        return true;
+    }
+
+
+
+    public static void generateFile(SQLiteDatabase database){
         StringBuilder builder = new StringBuilder();
+        Cursor cursor = database.rawQuery("SELECT sql FROM sqlite_master WHERE type IN ('table', 'trigger', 'view');", null);
 
-
-        builder.append(CREATE_TABLE_ARTICULOS);
-        builder.append(createTriggerUpdate(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
-        builder.append(createTriggerInsert(Item.TABLE_NAME, Item._LASTMOD, Item._ID));
-        builder.append('\n');
-
-        builder.append(CREATE_TABLE_DEPARTAMENTOS);
-        builder.append(createTriggerUpdate(Category.TABLE_NAME, Category._LASTMOD, Category._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Category.TABLE_NAME, Category._LASTMOD, Category._ID));
-        builder.append('\n');
-
-        builder.append(CREATE_TABLE_UNIDADES);
-        builder.append(createTriggerUpdate(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Unit.TABLE_NAME, Unit._LASTMOD, Unit._ID));
-        builder.append('\n');
-
-        builder.append(CREATE_TABLE_ZONAS);
-        builder.append('\n');
-        builder.append(createTriggerUpdate(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Zone.TABLE_NAME, Zone._LASTMOD, Zone._ID));
-
-        builder.append(CREATE_TABLE_CLIENTES);
-        builder.append('\n');
-        builder.append(createTriggerUpdate(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Client.TABLE_NAME, Client._LASTMOD, Client._ID));
-        builder.append('\n');
-
-        builder.append(CREATE_TABLE_FACTURAS);
-        builder.append('\n');
-        builder.append(CREATE_TABLE_FACTURAS_DETALLE);
-        builder.append('\n');
-        builder.append(createTriggerUpdate(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Invoice.TABLE_NAME, Invoice._LASTMOD, Invoice._ID));
-        builder.append('\n');
-
-        builder.append(CREATE_TABLE_VISITAS);
-        builder.append('\n');
-        builder.append(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
-        builder.append('\n');
-        builder.append(createTriggerInsert(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
-        builder.append('\n');
-        builder.append(createViewDiary());
-        builder.append('\n');
+        while(cursor.moveToNext()){
+            builder.append(cursor.getString(0));
+            builder.append('\n');
+        }
 
         try {
             FileOutputStream stream = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "dbcreate.txt"));
-            String createStatement = builder.toString();
-
-            stream.write(createStatement.getBytes(), 0, createStatement.length());
+            String sqlStatements = builder.toString();
+            stream.write(sqlStatements.getBytes(), 0, sqlStatements.length());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

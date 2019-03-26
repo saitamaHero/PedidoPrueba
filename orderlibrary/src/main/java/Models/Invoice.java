@@ -27,6 +27,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     private String comment;
     private int status;
     private String remoteId;
+    private String ncfSequence;
+    private double moneyReceived;
 
     public Invoice() {
         super();
@@ -138,8 +140,20 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         return discount > 1 ? discount / 100.00 : discount;
     }
 
+    public boolean hasDiscount(){
+        return Double.compare(discount, 0.0d) > 0;
+    }
+
     public void setDiscount(double discount) {
         this.discount = discount;
+    }
+
+    public double getMoneyReceived() {
+        return moneyReceived;
+    }
+
+    public void setMoneyReceived(double moneyReceived) {
+        this.moneyReceived = moneyReceived;
     }
 
     public InvoicePayment getInvoiceType() {
@@ -151,7 +165,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     }
 
     public boolean containsItems(){
-        if(this.items != null && this.items.size() > 0){
+        if(this.items != null && !(this.items.isEmpty())){
             return true;
         }
 
@@ -162,9 +176,73 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         double total = 0.0;
 
         for (Item i : items) {
-            total += i.getTotal();
+            total += i == null? 0 : i.getTotal();
         }
         return total;
+    }
+
+    public double getTotalFreeTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getPriceFreeTaxes() * i.getQuantity();
+        }
+
+        return total;
+    }
+
+    public double getTotalTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getTaxes();
+        }
+
+        return total;
+    }
+
+    public double getTotalCost(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getCost();
+        }
+
+        return total;
+    }
+
+
+    public double getTotal(String which){
+        double total = 0.0;
+
+        switch (which){
+            case Item.FREE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+
+            case Item.INCLUDE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && !item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+        }
+
+
+        return total;
+    }
+
+    public String getNcfSequence() {
+        return ncfSequence;
+    }
+
+    public void setNcfSequence(String ncfSequence) {
+        this.ncfSequence = ncfSequence;
     }
 
     @Override

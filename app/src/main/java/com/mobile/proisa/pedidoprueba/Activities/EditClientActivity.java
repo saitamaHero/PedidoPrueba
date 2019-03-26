@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListAdapter;
+import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.SingleSimpleElementAdapter;
 import com.mobile.proisa.pedidoprueba.Dialogs.DatePickerFragment;
@@ -26,15 +27,15 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import Models.Category;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Constantes;
+import Models.NCF;
 import Models.Person;
+import Models.SimpleElement;
 import Models.Zone;
-import Sqlite.CategoryController;
-import Sqlite.Controller;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.NCFController;
 import Sqlite.ZoneController;
 import Utils.DateUtils;
 
@@ -44,6 +45,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
     public static String EXTRA_DATA = "extra_data";
     private Client client;
     private Zone mSelectedZone;
+    private NCF mSelectedNCF;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +60,9 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         loadInfo(client);
 
-
         getSupportActionBar().setTitle(R.string.empty_string);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
 
     private Client getClient(){
         Intent intent = getIntent();
@@ -76,18 +76,15 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         return null;
     }
 
-
     private void loadInfo(Client client){
         TextInputEditText edtName = findViewById(R.id.client_name);
         edtName.setText(client.getName());
 
-        try {
+        if(!client.getPhoneNumbers().isEmpty()){
             TextInputEditText edtPhone = findViewById(R.id.phone);
             String phone = client.getPhone(0);
             phone = phone.replaceAll(Constantes.REGEX_PHONE_CHARATERS,"");
             edtPhone.setText(phone);
-        }catch (IndexOutOfBoundsException e){
-            e.printStackTrace();
         }
 
         TextInputEditText edtEmail = findViewById(R.id.email);
@@ -110,6 +107,13 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         if(!client.getClientZone().equals(Zone.UNKNOWN_ZONE)){
             btnZone.setText(client.getClientZone().getName());
+        }
+
+        Button btnNcf = findViewById(R.id.ncf);
+        btnNcf.setOnClickListener(this);
+
+        if(!client.getNcf().equals(NCF.UNKNOWN_NCF)){
+            btnNcf.setText(client.getNcf().getName());
         }
 
     }
@@ -142,29 +146,26 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         return client;
     }
 
-
-
-    private boolean makeValidations()
-    {
-        boolean isReady = true;
-
+    private boolean makeValidations() {
         TextInputEditText edtName = findViewById(R.id.client_name);
         TextInputEditText edtPhone = findViewById(R.id.phone);
         TextInputEditText edtCardClient = findViewById(R.id.card_client);
 
         if(TextUtils.isEmpty(edtName.getText())) {
             edtName.setError(getString(R.string.error_not_empty));
-            isReady = false;
+            return false;
         }else if(edtPhone.getText().length() != 10) {
             edtPhone.setError(getString(R.string.error_not_valid_phone));
-            isReady = false;
+            return false;
         }else if(edtCardClient.getText().length() != 9 && edtCardClient.getText().length() != 11) {
             edtCardClient.setError(getString(R.string.error_not_valid_rnc));
-            isReady = false;
+            return false;
+        }else if(client.getNcf().equals(NCF.UNKNOWN_NCF)){
+            Toast.makeText(this, R.string.should_choose_ncf, Toast.LENGTH_SHORT).show();
+            return false;
         }
 
-
-        return isReady;
+        return true;
     }
 
     @Override
@@ -221,14 +222,17 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
                         "");
                 break;
             case R.id.zone:
-                showDialogToChoose();
+                showDialogToChooseZones();
+                break;
+
+            case R.id.ncf:
+                showDialogToChooseNcf();
                 break;
         }
     }
 
-    private void showDialogToChoose() {
+    private void showDialogToChooseZones() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         final ListAdapter zones = getZones();
 
         int checkedItem = ((ArrayAdapter<Zone>)zones).getPosition(client.getClientZone());
@@ -259,12 +263,51 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
 
         builder.create().show();
     }
-    private ListAdapter getZones() {
-        ArrayAdapter listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
-        Controller categoryController = new ZoneController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
-        List<Zone> categories = categoryController.getAll();
-        listAdapter.addAll(categories);
 
+    private void showDialogToChooseNcf() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final ListAdapter zones = getNcfs();
+
+        int checkedItem = ((ArrayAdapter<NCF>)zones).getPosition(client.getNcf());
+
+        builder.setSingleChoiceItems(zones, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mSelectedNCF = (NCF) zones.getItem(i);
+            }
+        });
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                client.setNcf (mSelectedNCF == null ? NCF.UNKNOWN_NCF : mSelectedNCF);
+                mSelectedNCF = null;
+                loadInfo(client);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private ListAdapter getZones() {
+        ArrayAdapter<SimpleElement> listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+        List<Zone> categories = new ZoneController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
+        listAdapter.addAll(categories);
+        return listAdapter;
+    }
+
+    private ListAdapter getNcfs() {
+        ArrayAdapter<SimpleElement> listAdapter = new SingleSimpleElementAdapter(this, android.R.layout.select_dialog_singlechoice);
+        List<NCF> categories = new NCFController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
+        listAdapter.addAll(categories);
         return listAdapter;
     }
 }

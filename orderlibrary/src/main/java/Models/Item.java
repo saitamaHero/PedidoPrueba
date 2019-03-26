@@ -3,12 +3,15 @@ package Models;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Date;
 
 import Models.ColumnsSqlite.ColumnsItem;
 
 public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsItem{
+    public static final String INCLUDE_TAXES = "IE";
+    public static final String FREE_TAXES = "E";
     private double stock;
     private double quantity;
     private double cost;
@@ -139,7 +142,15 @@ public class Item extends SimpleElement implements ITotal, Parcelable, ColumnsIt
     }
 
     public double getTaxes(){
-        return getTotal() * getTaxRate();
+        return getQuantity() * getPriceFreeTaxes()  * getTaxRate();
+    }
+
+    public double getPriceFreeTaxes(){
+        return this.price / (1 + getTaxRate());
+    }
+
+    public boolean isFreeTaxes(){
+        return Double.compare(getTaxRate(),0.0) == 0;
     }
 
     @Override

@@ -37,13 +37,19 @@ import java.util.Stack;
 
 import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.DiaryUpdater;
+import BaseDeDatos.InvoiceUpdater;
+import BaseDeDatos.NCFUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.ZoneUpdater;
 import Models.Client;
+import Models.Invoice;
+import Models.NCF;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
+import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.NCFController;
 import Sqlite.ZoneController;
 
 import static android.app.Activity.RESULT_OK;
@@ -351,12 +357,31 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             //Si ocurre un error con los clientes no continuar y acabar el proceso
             if(!isCancelled()) {
-                /*Visitas*/
+                /*Zonas*/
                 ZoneController zoneController = new ZoneController(mySqliteOpenHelper.getWritableDatabase());
                 //Updater de las visitas
                 ZoneUpdater zoneUpdater = new ZoneUpdater(getContext().getApplicationContext(), connection, zoneController);
-
                 zoneUpdater.retriveData();
+
+                /*NCF*/
+                NCFController ncfController = new NCFController(mySqliteOpenHelper.getWritableDatabase());
+                NCFUpdater ncfUpdater = new NCFUpdater(getContext().getApplicationContext(), connection, ncfController);
+                ncfUpdater.retriveData();
+            }
+
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                InvoiceController invoiceController = new InvoiceController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext().getApplicationContext(), connection, invoiceController);
+
+
+                invoiceUpdater.apply();
+
+
+
+                //invoiceUpdater.retriveData();
             }
             return null;
         }
