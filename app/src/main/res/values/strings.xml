@@ -202,5 +202,11 @@ Cadena que representa maniana con tiempo
     <string name="choose_zone">Elegir Zona</string>
     <string name="choose_ncf">Elegir NCF</string>
     <string name="should_choose_ncf">Selecciona el NCF</string>
+    <string name="print">Imprimir</string>
+    <string name="not_code">(FACTURA NO REGISTRADA)</string>
+    <string name="printing_ticket">¡Imprimiendo Ticket!</string>
+    <string name="printer_disconnected">¡Impresora Desconectada!</string>
+    <string name="printer_connecting">Conectando a %s</string>
+    <string name="invoice_details">Detalles de Factura</string>
 
 </resources>

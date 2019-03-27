@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,11 +34,17 @@ import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
+import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
+import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Stack;
 
+import BaseDeDatos.InvoiceUpdater;
+import BaseDeDatos.SqlConnection;
+import BaseDeDatos.SqlUpdater;
 import Models.ColumnsSqlite;
 import Models.Diary;
 import Models.Invoice;
@@ -47,7 +54,8 @@ import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener {
+public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener, TareaAsincrona.OnFinishedProcess {
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
@@ -253,8 +261,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
              * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
              */
             stopVisitService();
-            setResult(RESULT_OK);
-            finish();
+
+            new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
+            /*setResult(RESULT_OK);
+            finish();*/
         } else {
             Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
                 @Override
@@ -286,6 +296,23 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         closeConnection();
         setResult(RESULT_OK);
         finish();
+    }
+
+    @Override
+    public void onFinishedProcess(TareaAsincrona task) {
+        if(!task.hasErrors()){
+            switch (task.getId()){
+                case 0:
+                    Invoice invoice = task.getData().getParcelable(EXTRA_INVOICE);
+                    startActivity(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice));
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onErrorOccurred(int id, Stack<Exception> exceptions) {
+
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
@@ -336,4 +363,48 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
 
+    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void > implements SqlUpdater.OnDataUpdateListener<Invoice> {
+
+        public SaveInvoiceTask(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
+            super(id, context, listener, mDialogShow);
+        }
+
+        @Override
+        protected Void doInBackground(Invoice... invoices) {
+            if(invoices == null || invoices.length  == 0){
+                return null;
+            }
+
+            Invoice invoiceToSave =  invoices[0];
+
+            publishProgress(getContext().getString(R.string.starting));
+
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+
+            InvoiceUpdater invoiceUpdater =
+                    new InvoiceUpdater(getContext(),
+                                       connection,
+                                       new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
+
+
+            invoiceUpdater.addData(invoiceToSave);
+
+            invoiceUpdater.setOnDataUpdateListener(this);
+
+            invoiceUpdater.apply();
+
+            return null;
+        }
+
+
+        @Override
+        public void onDataUpdate(Invoice data, int action) {
+            publishProgress("Guardando Factura");
+        }
+
+        @Override
+        public void onDataUpdated(Invoice data) {
+            getData().putParcelable(EXTRA_INVOICE, data);
+        }
+    }
 }

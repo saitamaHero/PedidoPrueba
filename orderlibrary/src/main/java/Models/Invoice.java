@@ -61,6 +61,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         invoiceType = InvoicePayment.valueOf(in.readString());
         comment = in.readString();
         remoteId = in.readString();
+        ncfSequence = in.readString();
+        date = (Date) in.readSerializable();
     }
 
     @Override
@@ -73,6 +75,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         dest.writeString(invoiceType.name());
         dest.writeString(comment);
         dest.writeString(remoteId);
+        dest.writeString(ncfSequence);
+        dest.writeSerializable(date);
     }
 
     @Override
