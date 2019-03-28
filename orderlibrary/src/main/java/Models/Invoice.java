@@ -63,6 +63,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         remoteId = in.readString();
         ncfSequence = in.readString();
         date = (Date) in.readSerializable();
+        moneyReceived = in.readDouble();
     }
 
     @Override
@@ -77,6 +78,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         dest.writeString(remoteId);
         dest.writeString(ncfSequence);
         dest.writeSerializable(date);
+        dest.writeDouble(moneyReceived);
     }
 
     @Override
