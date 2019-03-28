@@ -294,8 +294,8 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     public void onPrintingFinished() {
         super.onPrintingFinished();
         closeConnection();
-        setResult(RESULT_OK);
-        finish();
+        /*setResult(RESULT_OK);
+        finish();*/
     }
 
     @Override
@@ -304,9 +304,20 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
             switch (task.getId()){
                 case 0:
                     Invoice invoice = task.getData().getParcelable(EXTRA_INVOICE);
-                    startActivity(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice));
+                    startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice), REQUEST_CODE_INVOICE_DETAILS);
                     break;
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode){
+            case REQUEST_CODE_INVOICE_DETAILS:
+                finish();
+                break;
         }
     }
 
@@ -381,9 +392,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
 
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
 
-            InvoiceUpdater invoiceUpdater =
-                    new InvoiceUpdater(getContext(),
-                                       connection,
+            InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext(), connection,
                                        new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
 
 

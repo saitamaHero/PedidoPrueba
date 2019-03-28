@@ -21,6 +21,7 @@ public class BaseCompatAcivity extends AppCompatActivity {
     public static final int REQUEST_CODE_CAMERA  = 1000;
     public static final int REQUEST_CODE_STORAGE = 1001;
     public static final int REQUEST_CODE_GALLERY = 1002;
+    public static final int REQUEST_CODE_INVOICE_DETAILS = 1003;
     //public static final int REQUEST_CODE_
 
     @Override

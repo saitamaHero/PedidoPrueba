@@ -16,10 +16,6 @@ public class BluetoothUtils {
     public static final int PRINT_BLUETOOTH_MAJOR = 1664;
 
 
-    public BluetoothUtils() {
-
-    }
-
     public static BluetoothSocket getBluetoothSocket(BluetoothDevice device) throws IOException {
         if (device ==  null) return null;
 
@@ -39,6 +35,8 @@ public class BluetoothUtils {
 
         if(defaultAdapter == null){
             throw new NullPointerException();
+        }else if(!defaultAdapter.isEnabled()){
+            return dispositivos;
         }
 
         Set<BluetoothDevice> dispositivosEmparejados = defaultAdapter.getBondedDevices();
@@ -71,6 +69,8 @@ public class BluetoothUtils {
         BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if(defaultAdapter == null){
+            return dispositivos;
+        }else if(!defaultAdapter.isEnabled()){
             return dispositivos;
         }
 

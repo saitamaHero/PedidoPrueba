@@ -477,7 +477,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case VENTA_REQUEST_CODE:
-                finish();
+
                 break;
         }
     }

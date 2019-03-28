@@ -195,9 +195,9 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
                 }
                 break;
             case PAYMENT_REQUEST_CODE:
-                if(resultCode == RESULT_OK){
+                //if(resultCode == RESULT_OK){
                     finish();
-                }
+                //}
                 break;
         }
     }
