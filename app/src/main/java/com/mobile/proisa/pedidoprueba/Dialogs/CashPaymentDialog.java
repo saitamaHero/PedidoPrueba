@@ -85,6 +85,7 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
         txtAmount.setText(NumberUtils.formatNumber(mTotal, NumberUtils.FORMAT_NUMER_DOUBLE));
 
         builder.setPositiveButton(R.string.ok, this);
+        builder.setNeutralButton(R.string.payment_exact, this);
 
         return builder.create();
     }
@@ -125,7 +126,7 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
     }
 
     public boolean isPaymentComplete(double money, double total){
-        return money > total;
+        return money >= total;
     }
 
     @Override
@@ -136,6 +137,12 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
                 //Call listener to send the mMoney
                 if(onPaymentComplete != null && isPaymentComplete(mMoney, mTotal)){
                     onPaymentComplete.onPaymentComplete(true, mMoney);
+                }
+                break;
+
+            case DialogInterface.BUTTON_NEUTRAL:
+                if(onPaymentComplete != null){
+                    onPaymentComplete.onPaymentComplete(true, mTotal);
                 }
                 break;
         }
