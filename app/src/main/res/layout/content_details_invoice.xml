@@ -1,32 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    >
-
-    <include layout="@layout/invoice_code_layout"
-        android:id="@+id/viewCodeLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.CardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
+        app:cardElevation="@dimen/card_elevation">
 
-    <include layout="@layout/client_total_data"
-        android:id="@+id/viewTotalData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/viewCodeLayout"
-        />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <include
+                android:id="@+id/viewCodeLayout"
+                layout="@layout/invoice_code_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-    <include layout="@layout/payment_type_layout"
-        android:id="@+id/viewPaymentType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/viewTotalData"
-        />
+            <include
+                android:id="@+id/viewTotalData"
+                layout="@layout/client_total_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/viewCodeLayout" />
+
+            <include
+                android:id="@+id/viewPaymentType"
+                layout="@layout/payment_type_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/viewTotalData" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/viewPaymentType"
-        />
+        android:layout_below="@id/card" />
 </RelativeLayout>
