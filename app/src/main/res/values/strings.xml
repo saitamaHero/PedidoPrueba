@@ -196,6 +196,7 @@ Cadena que representa maniana con tiempo
     <string name="ticker_text">text ticket</string>
     <string name="find_printer">Buscar impresora</string>
     <string name="check_printer">Por favor verifica que la impresora esté encendida</string>
+    <string name="check_printer_s">Por favor verifica que la impresora %s esté encendida</string>
     <string name="visit_finished">¡La visita ha terminado!</string>
     <string name="start_now">Comenzar</string>
     <string name="question_start_visit">¿Comenzar una visita ahora?</string>
@@ -208,5 +209,8 @@ Cadena que representa maniana con tiempo
     <string name="printer_disconnected">¡Impresora Desconectada!</string>
     <string name="printer_connecting">Conectando a %s</string>
     <string name="invoice_details">Detalles de Factura</string>
+    <string name="bluetooth_not_enabled">Bluetooth  está apagado!</string>
+    <string name="payment_exact">Pago exacto</string>
+    <string name="registers_pending">Hay registros pendientes. No puede salir.</string>
 
 </resources>

@@ -34,8 +34,6 @@ import Utils.NumberUtils;
 
 public class InvoiceDetailsActivity extends PrinterManagmentActivity implements View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener{
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
