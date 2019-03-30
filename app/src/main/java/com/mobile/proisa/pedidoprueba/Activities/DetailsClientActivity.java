@@ -146,7 +146,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 .thumbnail(0.1f)
                 .apply(RequestOptions.centerCropTransform())
                 .into(imageView);
-
     }
 
     private void loadInfo(Client client){
@@ -220,8 +219,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 String.format("%d dias, %d horas, %d minutos, %d segundos",
                         converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
         );
-
-
     }
 
     private void loadMenuOption(){
@@ -243,10 +240,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         loadBackdrop(client.getProfilePhoto());
         loadMenuOption();
         loadInfo(client);
-
-
-        checkPermissionStorage();
-        checkPermissionCamera();
 
         startTimerThread();
 
@@ -278,13 +271,21 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
                     Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
                     DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
-                    Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
 
                     Log.d(TAG,"La visita ha terminado!!!!");
                     Log.d(TAG,"minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
                     mVisitActive = false;
 
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+
+
+
+                    DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+
+                    if(diaryController.update(diary)){
+                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                    }
                 }
 
             }
@@ -477,7 +478,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case VENTA_REQUEST_CODE:
-
+                Intent intent = new Intent(this, VisitaActivaService.class);
+                stopService(intent);
                 break;
         }
     }
@@ -494,9 +496,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (menuItem.getItemId()){
             case R.id.action_take_photo:
-                PhotoActionDialog dialog = new PhotoActionDialog();
-                dialog.setOnActionPressedListener(this);
-                dialog.show(getSupportFragmentManager(), "");
+                checkPermissionStorage();
+                checkPermissionCamera();
                 break;
 
             case R.id.action_edit:
@@ -528,6 +529,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    private void showDialogPhotoChoose() {
+        PhotoActionDialog dialog = new PhotoActionDialog();
+        dialog.setOnActionPressedListener(this);
+        dialog.show(getSupportFragmentManager(), "");
+    }
+
     private void initVisitCreation(){
         DialogDurationPicker dialogDurationPicker = DialogDurationPicker.newInstance(Diary.ONE_HOUR);
         dialogDurationPicker.setOnValueSetListener(this);
@@ -552,6 +559,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         }else{
             mPermissionCamera = true;
+            showDialogPhotoChoose();
         }
     }
 
@@ -589,18 +597,15 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (requestCode){
             case PERMISO_MEMORIA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionStorage = true;
-                }else{
-                    mPermissionStorage = false;
-                }
+                mPermissionStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
             case PERMISO_CAMERA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionCamera = true;
-                }else{
-                    mPermissionCamera = false;
-                }
+               mPermissionCamera = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+               if(mPermissionStorage && mPermissionCamera){
+                   showDialogPhotoChoose();
+               }
+
                 break;
         }
     }
@@ -649,8 +654,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
             ClientController clientController = new ClientController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
             client = clientController.getById(this.client.getId());
-
-
         }else{
             Toast.makeText(getApplicationContext(), R.string.error_to_save, Toast.LENGTH_LONG)
                     .show();
@@ -659,6 +662,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         Log.d("mNextVisit", mNextVisit.toString());
 
     }
+
 
     @Override
     public void onActionPressed(int action) {

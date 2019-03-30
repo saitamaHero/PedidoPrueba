@@ -38,9 +38,7 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invoice_details);
-
         setTitle(R.string.invoice_details);
-
     }
 
     @Override

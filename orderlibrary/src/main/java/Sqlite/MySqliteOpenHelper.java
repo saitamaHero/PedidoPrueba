@@ -26,10 +26,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 12;
+    public static final int VERSION = 1;
 
     private static final String CREATE_TABLE_COMPANY
-            = "CREATE TABLE "   + Company.TABLE_NAME
+            = "CREATE TABLE "  + Company.TABLE_NAME
             + "("
             +  Company._COMPANY_NAME      + " TEXT NOT NULL,"
             +  Company._COMPANY_ADDRESS   + " TEXT NOT NULL DEFAULT '',"
@@ -55,7 +55,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String TRIGGER_REDUCE_STOCK = "reduce_stock_products";
 
     private static final String CREATE_PROCEDURE_STOCK
-            = "CREATE TRIGGER " + TRIGGER_REDUCE_STOCK
+            = "CREATE TRIGGER "   + TRIGGER_REDUCE_STOCK
             + " AFTER INSERT ON " + Invoice.TABLE_NAME_DETAILS
             + " FOR EACH ROW"
             + " BEGIN "
@@ -69,32 +69,32 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "("+ Category._ID + " TEXT NOT NULL,"
             + Category._NAME    + " TEXT NOT NULL,"
             + Category._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + "PRIMARY KEY(" + Category._ID + ")"
+            + "PRIMARY KEY("    + Category._ID + ")"
             + ");";
 
     private static final String CREATE_TABLE_NCF
-            = "CREATE TABLE "   + NCF.TABLE_NAME
-            + "("+ NCF._ID + " TEXT NOT NULL,"
-            + NCF._NAME    + " TEXT NOT NULL,"
-            + NCF._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + NCF._TYPE    + " TEXT DEFAULT '',"
-            + "PRIMARY KEY(" + NCF._ID + ")"
+            = "CREATE TABLE " + NCF.TABLE_NAME
+            + "("+ NCF._ID    + " TEXT NOT NULL,"
+            + NCF._NAME       + " TEXT NOT NULL,"
+            + NCF._LASTMOD    + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + NCF._TYPE       + " TEXT DEFAULT '',"
+            + "PRIMARY KEY("  + NCF._ID + ")"
             + ");\n";
 
     private static final String CREATE_TABLE_UNIDADES
-            = "CREATE TABLE "+ Unit.TABLE_NAME
-            + "("+ Unit._ID + " TEXT NOT NULL,"
-            + Unit._NAME    + " TEXT NOT NULL,"
-            + Unit._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + "PRIMARY KEY(" + Unit._ID + ")"
+            = "CREATE TABLE " + Unit.TABLE_NAME
+            + "("+ Unit._ID   + " TEXT NOT NULL,"
+            + Unit._NAME      + " TEXT NOT NULL,"
+            + Unit._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + "PRIMARY KEY("  + Unit._ID + ")"
             + ");\n";
 
     private static final String CREATE_TABLE_ZONAS
-            = "CREATE TABLE "+ Zone.TABLE_NAME
-            + "("+ Zone._ID + " TEXT NOT NULL,"
-            + Zone._NAME    + " TEXT NOT NULL,"
-            + Zone._LASTMOD + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-            + "PRIMARY KEY(" + Zone._ID + ")"
+            = "CREATE TABLE " + Zone.TABLE_NAME
+            + "("+ Zone._ID   + " TEXT NOT NULL,"
+            + Zone._NAME      + " TEXT NOT NULL,"
+            + Zone._LASTMOD   + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+            + "PRIMARY KEY("  + Zone._ID + ")"
             + ");\n";
 
     //Mantener una ID_REMOTO para mantener sincronizacion,
@@ -231,7 +231,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Item.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + TRIGGER_REDUCE_STOCK);
             //Departamentos
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   +Category.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Category.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Category.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Category.TABLE_NAME));
             //Unidades
@@ -259,7 +259,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_NAME);
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));
-            sqLiteDatabase.execSQL("DROP VIEW IF EXISTS "+VIEW_VISITAS_NAME);
+            sqLiteDatabase.execSQL("DROP VIEW IF EXISTS "    + VIEW_VISITAS_NAME);
 
             onCreate(sqLiteDatabase);
         }
