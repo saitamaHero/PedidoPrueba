@@ -147,7 +147,7 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
             ClientController clientController = new ClientController(mySqliteOpenHelper.getReadableDatabase());
 
             //ID remoto de la visita
-            diary.setRemoteId(rs.getString("VIS_COD"));
+            diary.setRemoteId(rs.getString("VIS_COD").trim());
             diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
 
             //Cliente
@@ -171,21 +171,17 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
 
             diary.setComment(rs.getString("VIS_COM"));
 
-
             return diary;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
-
 
         return null;
     }
 
     @Override
     public PreparedStatement getQueryToRetriveData() {
-        String query = "SELECT * FROM CCBDVISITA WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND VIS_FEC >= CAST(GETDATE() AS DATE)";
+        String query = "SELECT * FROM CCBDVISITA WHERE COD_EMPR = 1 AND VE_CODIGO = ? AND VIS_FEC >= CAST(GETDATE() AS DATE) AND VIS_INI IS NULL AND VIS_FIN IS NULL";
 
         PreparedStatement preparedStatement = null;
 

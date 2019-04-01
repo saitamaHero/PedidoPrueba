@@ -119,7 +119,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             client = savedInstanceState.getParcelable(EXTRA_CLIENT);
         }
 
-
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.empty_string);
         setSupportActionBar(toolbar);
@@ -270,22 +269,31 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     Log.d(TAG,"La visita esta corriendo");
                 }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
                     Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    diary.setClientToVisit(client);
+                    diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
                     DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
 
                     Log.d(TAG,"La visita ha terminado!!!!");
                     Log.d(TAG,"minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
-                    mVisitActive = false;
 
+
+
+                    mVisitActive = false;
                     fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 
-
-
                     DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+                    boolean isNewVisit =  diary.getId() == Diary.NEW_DIARY_ENTRY;
 
-                    if(diaryController.update(diary)){
+                    if(isNewVisit){
+                        if(diaryController.insert(diary)) {
+                            //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                            Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                        }
+                    }else if(diaryController.update(diary)){
                         //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
                         Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
                     }
+
                 }
 
             }
@@ -346,7 +354,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                             diary.setDuration(0);
 
                             client.setVisitDate(diary);
+
+                            //if(new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase()).insert(diary)){
                             initOrCancelVisit(false);
+                            //}
                         }
                     }).show();
         }
@@ -478,15 +489,17 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case VENTA_REQUEST_CODE:
-                Intent intent = new Intent(this, VisitaActivaService.class);
-                stopService(intent);
+                if(resultCode == RESULT_OK){
+                    Intent intent = new Intent(this, VisitaActivaService.class);
+                    stopService(intent);
+                }
+
                 break;
         }
     }
 
     private Uri savePhoto(Uri photoItem) throws IOException {
         File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.CLIENTS_PHOTOS);
-
         return FileUtils.compressPhoto(route, photoItem, FileUtils.DEFAULT_QUALITY);
     }
 

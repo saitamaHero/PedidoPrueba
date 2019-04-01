@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
  * Representa la agenda de el usuario Actual
  */
 public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
-    public final long NEW_DIARY_ENTRY = -1;
-    public final static int ONE_HOUR = 60;
+    public static final long NEW_DIARY_ENTRY = -1;
+    public static final int ONE_HOUR = 60;
     private long id;
     private Date dateEvent;
     private String comment;
@@ -27,6 +27,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
 
     public Diary() {
         this.id = NEW_DIARY_ENTRY;
+        this.comment = "";
     }
 
     public Diary(long id, Date date, String comment) {
@@ -45,6 +46,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
         remoteId = in.readString();
         startTime = (Date) in.readSerializable();
         endTime = (Date)in.readSerializable();
+
     }
 
     public int getDuration() {
@@ -109,7 +111,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     @Override
     public String toString() {
         return "Diary{" + "id=" + id + ", dateEvent=" + dateEvent + ", comment='" + comment + '\''
-                + ", clientToVisit=" + clientToVisit + ", duration=" + duration + ", startTime=" + startTime + ", endTime=" + endTime + '}';
+                + ", clientToVisit=" + clientToVisit + ", duration=" + duration + ", startTime=" + startTime + ", endTime=" + endTime + ", remoteId='" + getRemoteId() + "'" + '}';
     }
 
     @Override
@@ -118,7 +120,7 @@ public class Diary implements Parcelable, ColumnsSqlite.ColumnsDiary{
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeLong(id);
         parcel.writeString(comment);
         parcel.writeSerializable(dateEvent);

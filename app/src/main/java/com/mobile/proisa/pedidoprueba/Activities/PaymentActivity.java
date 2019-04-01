@@ -101,7 +101,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                     mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
                     Toast.makeText(getApplicationContext(), "La visita está corriendo", Toast.LENGTH_SHORT).show();
                 }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
+                    /*mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
 
 
                     DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
@@ -109,7 +109,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                     if(diaryController.update(mCurrentVisit)){
                         //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
                         Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
-                    }
+                    }*/
                 }
 
             }
@@ -146,9 +146,9 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         TextView txtTotal = findViewById(R.id.total);
 
         if (mInvoice.containsItems()) {
-            txtTotal.setText(NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+            txtTotal.setText(NumberUtils.formatToDouble(mInvoice.getTotal()));
         } else {
-            txtTotal.setText(NumberUtils.formatNumber(0.00, NumberUtils.FORMAT_NUMER_DOUBLE));
+            txtTotal.setText(NumberUtils.formatToDouble(0.00));
         }
     }
 
@@ -260,7 +260,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
             /**
              * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
              */
-            stopVisitService();
+            //stopVisitService();
 
             new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
             /*setResult(RESULT_OK);
@@ -277,8 +277,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
 
     @Override
     public void onBluetoothSelected(BluetoothDevice device) {
-
-        Toast.makeText(this, "Seleccion: "+device.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Seleccion: " + device.getName(), Toast.LENGTH_SHORT).show();
         establishConnectionWithPrinter(device);
     }
 
@@ -323,7 +322,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-
+        Toast.makeText(this, "Ha ocurrido un error", Toast.LENGTH_SHORT).show();
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
@@ -374,7 +373,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
 
-    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void > implements SqlUpdater.OnDataUpdateListener<Invoice> {
+    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void > implements SqlUpdater.OnDataUpdateListener<Invoice>, SqlUpdater.OnErrorListener {
 
         public SaveInvoiceTask(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
             super(id, context, listener, mDialogShow);
@@ -399,6 +398,7 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
             invoiceUpdater.addData(invoiceToSave);
 
             invoiceUpdater.setOnDataUpdateListener(this);
+            invoiceUpdater.setOnErrorListener(this);
 
             invoiceUpdater.apply();
 
@@ -414,6 +414,11 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         @Override
         public void onDataUpdated(Invoice data) {
             getData().putParcelable(EXTRA_INVOICE, data);
+        }
+
+        @Override
+        public void onError(int error) {
+            publishError(new Exception("Error on SaveInvoiceTask"));
         }
     }
 }

@@ -196,6 +196,7 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
                 break;
             case PAYMENT_REQUEST_CODE:
                 //if(resultCode == RESULT_OK){
+                    setResult(RESULT_OK);
                     finish();
                 //}
                 break;
@@ -210,7 +211,7 @@ public class VentaActivity extends BaseCompatAcivity implements ItemsListSalesAd
 
     @Override
     public void onBackPressed() {
-        if(isNewInvoice){
+        if(isNewInvoice && mInvoice.containsItems()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setTitle(R.string.msg_exit_sale);

@@ -20,7 +20,8 @@ import Models.Item;
 import Utils.DateUtils;
 
 public class DiaryController extends Controller<Diary> {
-    
+    private static final String TAG = "DiaryController";
+
     public DiaryController(SQLiteDatabase sqLiteDatabase) {
         super(sqLiteDatabase);
     }
@@ -141,6 +142,7 @@ public class DiaryController extends Controller<Diary> {
 
         int result = database.update(Diary.TABLE_NAME, cv, Diary._ID.concat("=?"), new String[]{String.valueOf(item.getId())});
 
+        Log.d(TAG, "update: result="+result);
         return result == 1;
     }
 

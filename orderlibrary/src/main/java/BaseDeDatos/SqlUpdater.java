@@ -51,7 +51,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     @Override
     protected void onDataRequestUpdate(Queue<T> data) {
-        SqlConnection connection = getConnection();
+          SqlConnection connection = getConnection();
 
         connection.connect();
 

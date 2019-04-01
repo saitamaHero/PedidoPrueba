@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,6 +36,8 @@ import Models.Constantes;
 import Models.Invoice;
 import Models.User;
 import Models.Vendor;
+import Sqlite.Controller;
+import Sqlite.DiaryController;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.NumberUtils;
@@ -66,6 +69,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         //MySqliteOpenHelper.generateFile(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
 
+
+        SQLiteDatabase database  = MySqliteOpenHelper.getInstance(this).getReadableDatabase();
+
+        Controller  controller = new DiaryController(database);
+        List data = controller.getAll();
+
+        for(Object o : data) {
+            Log.d("Visitas", "" + o.toString());
+        }
     }
 
 
