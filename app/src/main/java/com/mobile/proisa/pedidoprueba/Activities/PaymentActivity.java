@@ -33,6 +33,7 @@ import com.mobile.proisa.pedidoprueba.Clases.InvoiceType;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Stack;
+import java.util.Timer;
 
 import BaseDeDatos.InvoiceUpdater;
 import BaseDeDatos.SqlConnection;
@@ -54,15 +56,12 @@ import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener,
-        View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener, TareaAsincrona.OnFinishedProcess {
+public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener,  TareaAsincrona.OnFinishedProcess, DiaryBroadcastReceiver.OnDiaryStateListener {
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
     private BroadcastReceiver broadcastReceiver;
-    private boolean mVisitActive;
-
-    private Diary mCurrentVisit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +69,12 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         setContentView(R.layout.activity_payment);
 
         setTitle(R.string.payment);
+
         mInvoice = getInvoiceToShow();
     }
 
     @Override
     protected void onBindUI() {
-        mVisitActive = false;
 
         spPayment = findViewById(R.id.spPayment);
         btnCompletePayment = findViewById(R.id.btn_complete_payment);
@@ -89,31 +88,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
     /**
-     * Crea un broadcast para recivir datos de la visita activida si la hay.
+     * Crea un broadcast para recivir datos de la visita activa si la hay.
      */
     private void createBroadcastReceiver(){
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent == null? "" : intent.getAction();
-
-                if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
-                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    Toast.makeText(getApplicationContext(), "La visita está corriendo", Toast.LENGTH_SHORT).show();
-                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    /*mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-
-
-                    DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-
-                    if(diaryController.update(mCurrentVisit)){
-                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
-                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
-                    }*/
-                }
-
-            }
-        };
+        broadcastReceiver = new DiaryBroadcastReceiver(this);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
@@ -122,9 +100,20 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
     @Override
+    public void onVisitStatusChanged(int status, Diary diary) {
+        switch (status){
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
+                Toast.makeText(getApplicationContext(), R.string.visit_started, Toast.LENGTH_SHORT).show();
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
+                break;
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-        //cerrar broadcastReceiver
         unregisterReceiver(broadcastReceiver);
     }
 
@@ -213,10 +202,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
      * Detiene el servicio de la visita si hay una
      */
     private void stopVisitService(){
-        if(mVisitActive){
+        //if(mVisitActive){
             Intent intent = new Intent(this, VisitaActivaService.class);
             stopService(intent);
-        }
+        //}
     }
 
     /**
@@ -273,28 +262,6 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
                 }
             }).show();
         }
-    }
-
-    @Override
-    public void onBluetoothSelected(BluetoothDevice device) {
-        Toast.makeText(this, "Seleccion: " + device.getName(), Toast.LENGTH_SHORT).show();
-        establishConnectionWithPrinter(device);
-    }
-
-    @Override
-    public void onPrinterConnected() {
-        super.onPrinterConnected();
-
-        AbstractTicket ticket = new InvoiceTicket(mInvoice, VentaActivity.VendorUtil.getVendor(this));
-        sendTicketToPrint(ticket);
-    }
-
-    @Override
-    public void onPrintingFinished() {
-        super.onPrintingFinished();
-        closeConnection();
-        /*setResult(RESULT_OK);
-        finish();*/
     }
 
     @Override

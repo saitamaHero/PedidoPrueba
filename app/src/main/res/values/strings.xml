@@ -212,5 +212,6 @@ Cadena que representa maniana con tiempo
     <string name="bluetooth_not_enabled">Bluetooth  está apagado!</string>
     <string name="payment_exact">Pago exacto</string>
     <string name="registers_pending">Hay registros pendientes. No puede salir.</string>
+    <string name="visit_started">¡La visita ha iniciado!</string>
 
 </resources>

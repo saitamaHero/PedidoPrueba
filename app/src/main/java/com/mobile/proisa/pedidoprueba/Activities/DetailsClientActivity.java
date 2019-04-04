@@ -47,6 +47,7 @@ import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 
 import java.io.File;
@@ -72,7 +73,7 @@ import Utils.NumberUtils;
 
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
-        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
+        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener, DiaryBroadcastReceiver.OnDiaryStateListener {
     private static final String TAG = "DetailsClientActivity";
     public static final String EXTRA_CLIENT = "com.mobile.proisa.EXTRA_CLIENT";
     public static final String EXTRA_INIT_VISIT = "com.mobile.proisa.EXTRA_INIT_VISIT";
@@ -247,57 +248,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent == null? "" : intent.getAction();
-
-                if(VisitaActivaService.ACTION_VISIT_START.equals(action)) {
-                    Toast.makeText(getApplicationContext(), "La visita ha iniciado!!!!", Toast.LENGTH_LONG).show();
-
-                    mVisitActive = true;
-
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    Log.d(TAG,"La visita ha iniciado!!!!");
-
-                }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
-                    //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    mVisitActive = true;
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-
-
-                    Log.d(TAG,"La visita esta corriendo");
-                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    diary.setClientToVisit(client);
-                    diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
-                    DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
-
-                    Log.d(TAG,"La visita ha terminado!!!!");
-                    Log.d(TAG,"minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
-
-
-
-                    mVisitActive = false;
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-
-                    DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-                    boolean isNewVisit =  diary.getId() == Diary.NEW_DIARY_ENTRY;
-
-                    if(isNewVisit){
-                        if(diaryController.insert(diary)) {
-                            //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
-                            Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
-                        }
-                    }else if(diaryController.update(diary)){
-                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
-                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
-                    }
-
-                }
-
-            }
-        };
+        broadcastReceiver = new DiaryBroadcastReceiver(this);
 
         registerReceiver(broadcastReceiver, intentFilter);
 
@@ -716,6 +667,47 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onBackPressed() {
         if(!mVisitActive){
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onVisitStatusChanged(int status, Diary diary) {
+
+        switch (status){
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_START:
+                mVisitActive = true;
+                Toast.makeText(getApplicationContext(), R.string.visit_started, Toast.LENGTH_LONG).show();
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
+                mVisitActive = true;
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
+                mVisitActive = false;
+
+                diary.setClientToVisit(client);
+                diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+
+                DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+                boolean isNewVisit =  diary.getId() == Diary.NEW_DIARY_ENTRY;
+
+                if(isNewVisit){
+                    if(diaryController.insert(diary)) {
+                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                    }
+                }else if(diaryController.update(diary)){
+                    //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                    Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                }
+
+                break;
+
         }
     }
 }

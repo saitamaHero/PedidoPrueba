@@ -53,7 +53,7 @@
         <activity android:name=".Activities.InvoiceListActivity" />
 
         <service
-            android:name=".Services.PruebaServicio"
+            android:name=".Services.SyncAllService"
             android:enabled="true"
             android:exported="true" />
 

@@ -2,7 +2,10 @@ package com.mobile.proisa.pedidoprueba;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +19,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
@@ -26,6 +30,7 @@ import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +58,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private ViewPager viewPager;
     private BottomNavigationView mBottomNavigationView;
-    private User mUser;
+    private BroadcastReceiver broadcastReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     guardarUsuario(mUser);
                     checkPermissionStorage();
 
+                    Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                    startService(serviceSyncAll);
                 } else {
                     finish();
                 }
@@ -249,5 +257,36 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                toogle();
+            }
+        };
+
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_START);
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_FINISH);
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    private void toogle(){
+        View v  = findViewById(R.id.progressBar);
+        int visivility = v.getVisibility();
+
+        v.setVisibility( visivility == View.GONE ? View.VISIBLE : View.GONE);
+    }
 }
