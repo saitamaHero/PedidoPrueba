@@ -48,6 +48,7 @@ import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
 import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 
 import java.io.File;
@@ -705,6 +706,9 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
                     Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
                 }
+
+                Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                startService(serviceSyncAll);
 
                 break;
 

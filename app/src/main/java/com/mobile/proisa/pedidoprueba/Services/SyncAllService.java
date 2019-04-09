@@ -124,7 +124,7 @@ public class SyncAllService extends IntentService implements SqlUpdater.OnDataUp
         invoiceUpdater.setOnErrorListener(this);
         invoiceUpdater.apply();
 
-        sendBroadcast(new Intent(EXTRA_SYNC_FINISH));
+        //sendBroadcast(new Intent(EXTRA_SYNC_FINISH));
     }
 
     @Override

@@ -8,9 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +26,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
+import com.mobile.proisa.pedidoprueba.Activities.VentaActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
@@ -32,20 +36,23 @@ import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
 import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import BaseDeDatos.SqlUpdater;
 import Models.Constantes;
-import Models.Invoice;
 import Models.User;
 import Models.Vendor;
-import Sqlite.Controller;
-import Sqlite.DiaryController;
-import Sqlite.InvoiceController;
-import Sqlite.MySqliteOpenHelper;
-import Utils.NumberUtils;
+import Utils.FileUtils;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
@@ -71,24 +78,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
-        //Log.d("phoneModel", String.format("%s,   %s,   %s,   %s",Build.MODEL, Build.BRAND, Build.BOARD, Build.ID));
-        //MySqliteOpenHelper.generateFile(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
 
-
-
-        SQLiteDatabase database  = MySqliteOpenHelper.getInstance(this).getReadableDatabase();
-
-        Controller  controller = new DiaryController(database);
-        List data = controller.getAll();
-
-        for(Object o : data) {
-            Log.d("Visitas", "" + o.toString());
-        }
+        Log.d("PhoneModel", getPhoneName());
     }
 
 
     private String getPhoneName(){
-        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
+        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.PRODUCT.toUpperCase());
     }
 
     private void checkPreferences() {
@@ -155,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
 
         switch (requestCode){
             case REQUEST_LOGIN:
@@ -265,7 +260,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                toogle();
+                String action = intent.getAction();
+
+                if(SyncAllService.EXTRA_SYNC_START.equals(action)) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.getting_vendor_data) + VentaActivity.VendorUtil.getVendor(getApplicationContext()).getName(),
+                            Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getApplicationContext(), R.string.got_data, Toast.LENGTH_SHORT).show();
+                }
+
+                //toogle();
             }
         };
 
@@ -288,5 +292,74 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         int visivility = v.getVisibility();
 
         v.setVisibility( visivility == View.GONE ? View.VISIBLE : View.GONE);
+    }
+
+
+    private class TaskDownloadImage extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://10.0.0.65:8080/uploads/files.php").openConnection();
+                //urlConnection.setConnectTimeout(1000 * 10);
+                InputStream inputStream = urlConnection.getInputStream();
+
+                String js = readStream(inputStream);
+
+                try {
+                    JSONObject jObject = new JSONObject(js);
+
+                    Log.d("TaskDownloadImage", jObject.toString());
+
+                    JSONArray jsonArray = jObject.getJSONArray("imagenes");
+
+
+                    for(int i = 0; i < jsonArray.length(); i++){
+                        String url =jsonArray.getString(i);
+                        Log.d("TaskDownloadImage", url);
+
+                        urlConnection = (HttpURLConnection) new URL(url).openConnection();
+
+
+                        InputStream  stream = urlConnection.getInputStream();
+                        Bitmap bm = BitmapFactory.decodeStream(stream);
+
+                        FileUtils.savePhoto(bm, FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.ITEMS_PHOTOS), FileUtils.createTmpFileName() + FileUtils.JPG_EXT, FileUtils.GOOD_QUALITY);
+                    }
+
+
+                } catch (JSONException e) {
+                    Log.e("TaskDownloadImage", e.toString());
+                }
+
+            } catch (IOException e) {
+                Log.e("TaskDownloadImage", e.toString(), e.getCause());
+            }
+
+            return null;
+        }
+
+        private String readStream(InputStream in) {
+            BufferedReader reader = null;
+            StringBuffer response = new StringBuffer();
+            try {
+                reader = new BufferedReader(new InputStreamReader(in));
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return response.toString();
+        }
     }
 }

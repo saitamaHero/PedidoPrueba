@@ -135,8 +135,8 @@ public class ClientUpdater extends SqlUpdater<Client> {
         Connection connection = getConnection().getSqlConnection();
         String query = "INSERT INTO CCBDCLIE(" +
                 "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1, CL_RNC, CL_TIPORNC, CL_EMAIL," +
-                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2, IM_CODIGO "        +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2, IM_CODIGO, ZO_CODIGO "        +
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             int id = generateId();
@@ -179,6 +179,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
 
 
                 preparedStatement.setString(14, data.getNcf().getId());
+                preparedStatement.setString(15, data.getClientZone().getId());
 
                 int rowsAffected = preparedStatement.executeUpdate();
 
@@ -204,7 +205,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
 
         String query = "UPDATE CCBDCLIE SET " +
                 "CL_NOMBRE=?, CL_DIREC1=?, CL_TELEF1=?, CL_RNC=?, CL_TIPORNC=?, CL_EMAIL=?," +
-                "CL_ESTADO=?, VE_CODIGO=?, CL_LIMCRE=?, CL_FECNAC=?, CL_FECING=?, CL_FOTO2=? "        +
+                "CL_ESTADO=?, VE_CODIGO=?, CL_LIMCRE=?, CL_FECNAC=?, CL_FECING=?, CL_FOTO2=?, IM_CODIGO=?, ZO_CODIGO=? "        +
                 "WHERE CL_CODIGO=?";
 
         try {
@@ -237,7 +238,9 @@ public class ClientUpdater extends SqlUpdater<Client> {
                 preparedStatement.setNull(12, Types.VARBINARY);
             }
 
-            preparedStatement.setString(13, String.valueOf(data.getRemoteId()));
+            preparedStatement.setString(13, data.getNcf().getId());
+            preparedStatement.setString(14, data.getClientZone().getId());
+            preparedStatement.setString(15, String.valueOf(data.getRemoteId()));
 
             data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
 

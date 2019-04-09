@@ -213,5 +213,9 @@ Cadena que representa maniana con tiempo
     <string name="payment_exact">Pago exacto</string>
     <string name="registers_pending">Hay registros pendientes. No puede salir.</string>
     <string name="visit_started">¡La visita ha iniciado!</string>
+    <string name="invoice_not_save">Factura no Generada Oficcialmente.</string>
+    <string name="getting_vendor_data">Obteniendo Datos para el Vendedor:</string>
+    <string name="got_data">¡Obtención de Datos Finalizada!</string>
+    <string name="visit_running">La visita esta en ejecucion</string>
 
 </resources>

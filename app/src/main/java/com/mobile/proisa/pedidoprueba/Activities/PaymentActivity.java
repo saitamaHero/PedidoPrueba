@@ -15,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -103,7 +105,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     public void onVisitStatusChanged(int status, Diary diary) {
         switch (status){
             case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
-                Toast.makeText(getApplicationContext(), R.string.visit_started, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.visit_running, Toast.LENGTH_SHORT).show();
                 break;
 
             case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
@@ -242,26 +244,30 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
      * Guarda la factura actual de la actividad
      */
     public void saveInvoice() {
-        mInvoice = getReadyInvoice();
         InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if (controller.insert(mInvoice)) {
+        if(TextUtils.isEmpty(mInvoice.getId())){
+            mInvoice = getReadyInvoice();
+        }
+
+
+        if (!controller.exists(Invoice._ID, mInvoice.getId())) {
             /**
              * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
              */
-            //stopVisitService();
 
-            new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
-            /*setResult(RESULT_OK);
-            finish();*/
-        } else {
-            Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    saveInvoice();
-                }
-            }).show();
+            if(controller.insert(mInvoice)) {
+                new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
+            }else {
+                Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        saveInvoice();
+                    }
+                }).show();
+            }
         }
+
     }
 
     @Override
@@ -289,7 +295,12 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-        Toast.makeText(this, "Ha ocurrido un error", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.invoice_not_save, Toast.LENGTH_LONG).show();
+
+
+        //startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, mInvoice), REQUEST_CODE_INVOICE_DETAILS);
+
+
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
@@ -385,7 +396,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
         @Override
         public void onError(int error) {
-            publishError(new Exception("Error on SaveInvoiceTask"));
+            publishError(new Exception("Error on SaveInvoiceTask #" +error));
         }
     }
 }

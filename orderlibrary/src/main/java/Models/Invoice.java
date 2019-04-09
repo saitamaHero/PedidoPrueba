@@ -32,14 +32,13 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
 
     public Invoice() {
         super();
-        this.setId("");
         this.items = new ArrayList<>();
         this.invoiceType = InvoicePayment.CREDIT;
 
     }
 
     public Invoice(Date date, List<Item> items) {
-        this.setId("");
+        super("","");
         this.date = date;
         this.items = items;
         this.invoiceType = InvoicePayment.CREDIT;

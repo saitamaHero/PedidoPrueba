@@ -67,7 +67,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                 }
 
                 /*Secuencia del NCF*/
-                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO = ?";
+                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND IM_CODIGO = ?";
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
                 preparedStatement.setString(1, data.getClient().getNcf().getId());
