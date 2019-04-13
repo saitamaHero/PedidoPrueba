@@ -41,11 +41,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
 
         Log.d("PhoneModel", getPhoneName());
+
+        new TaskDownloadImage().execute();
     }
 
 
@@ -297,10 +306,90 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private class TaskDownloadImage extends AsyncTask<Void, Void, Void>{
 
+        private static final String BOUNDARY = "XXX";
+        private static final String HYPHENS  = "--";
+        private static final String CRLF  = "\r\n";
+
         @Override
         protected Void doInBackground(Void... voids) {
+            File route = new File(Constantes.MAIN_DIR.toString() + File.separator + Constantes.CLIENTS_PHOTOS);
+            String filname = "6032.jpg";
+            File photo = new File(route, filname);
+
+            FileInputStream fileInputStream;
+
             try {
-                HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://10.0.0.65:8080/uploads/files.php").openConnection();
+                fileInputStream = new FileInputStream(photo);
+            } catch (FileNotFoundException e) {
+                return null;
+            }
+
+            try { //"{\"hola\":\"hola\"}"
+                HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://10.0.0.4/UploadFile/process.php").openConnection();
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                urlConnection.setUseCaches(false);
+                urlConnection.setRequestMethod("POST");
+
+                urlConnection.setRequestProperty("Connection","KeepAlive");
+                urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+BOUNDARY);
+
+                DataOutputStream dataOutputStream = new DataOutputStream(urlConnection.getOutputStream());
+
+                dataOutputStream.writeBytes(HYPHENS + BOUNDARY + CRLF);
+                dataOutputStream.writeBytes("Content-Disposition:form-data; name=\"files[]\";filename=\""+photo.getName()+"\"");
+                //dataOutputStream.writeBytes("Content-Type: image/jpeg" + CRLF);
+                dataOutputStream.writeBytes("Content-Transfer-Encoding: binary" + CRLF);
+                dataOutputStream.writeBytes(CRLF);
+
+                Log.d("TaskDownloadImage",route.toString() + photo.getName() );
+                Log.d("TaskDownloadImage", "Headers han sido escritos");
+
+                int bytesAvailable = fileInputStream.available();
+                int maxBufferSize = (int) (2 * Math.pow(1024,2));
+
+                Log.d("TaskDownloadImage",String.format("bytes disponibles %d(%.2fMB)(%dKB)",bytesAvailable, (bytesAvailable / Math.pow(1024,2)), (int)(bytesAvailable / Math.pow(1024,1))));
+                int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                /*byte[] buffer = new byte[bufferSize];
+
+                int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                 while(bytesRead > 0){
+                     dataOutputStream.write(buffer, 0, bufferSize);
+                     bytesAvailable = fileInputStream.available();
+                     bufferSize =  Math.min(bytesAvailable, maxBufferSize);
+                     bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                 }*/
+
+                byte[] buffer = new byte[bufferSize];
+                fileInputStream.read(buffer);
+
+                 Log.d("TaskDownloadImage", "The buffer size is "+buffer.length);
+
+                dataOutputStream.write(buffer);
+
+                 dataOutputStream.writeBytes(CRLF);
+                dataOutputStream.writeBytes(HYPHENS + BOUNDARY + CRLF);
+                dataOutputStream.flush();
+
+                Log.d("TaskDownloadImage","Archivo escrito");
+
+
+                String js = readStream(urlConnection.getInputStream());
+
+                Log.d("TaskDownloadImage", "RCode:" + urlConnection.getResponseCode() +" "+js);
+
+                fileInputStream.close();
+
+                urlConnection.disconnect();
+                /*try {
+                    JSONObject jObject = new JSONObject(js);
+                    Log.d("TaskDownloadImage", jObject.toString(3));
+                }catch (JSONException e){
+                    Log.e("TaskDownloadImage", e.getMessage());
+                }*/
+
+                    //Log.d("TaskDownloadImage", jObject.toString());
+                /*HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://10.0.0.65:8080/uploads/files.php").openConnection();
                 //urlConnection.setConnectTimeout(1000 * 10);
                 InputStream inputStream = urlConnection.getInputStream();
 
@@ -331,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 } catch (JSONException e) {
                     Log.e("TaskDownloadImage", e.toString());
                 }
-
+                */
             } catch (IOException e) {
                 Log.e("TaskDownloadImage", e.toString(), e.getCause());
             }

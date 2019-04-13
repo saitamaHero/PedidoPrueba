@@ -28,9 +28,7 @@
         android:id="@+id/action_diary"
         android:icon="@drawable/ic_events"
         android:title="@string/diary"
-        
         app:showAsAction="always"
-
         />
 
     <item
@@ -59,6 +57,13 @@
         android:id="@+id/action_see_invoices"
         android:icon="@drawable/ic_invoice"
         android:title="@string/invoices"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/action_diaries"
+        android:icon="@drawable/ic_clock_outline"
+        android:title="@string/diaries"
         app:showAsAction="always"
         />
 </menu>

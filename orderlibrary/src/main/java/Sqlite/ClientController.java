@@ -206,7 +206,6 @@ public class ClientController extends Controller<Client> {
 
     @Override
     public boolean exists(String field, Object object) {
-
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 

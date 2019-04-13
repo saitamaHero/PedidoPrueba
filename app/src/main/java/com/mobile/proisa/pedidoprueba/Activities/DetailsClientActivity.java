@@ -442,8 +442,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
             case VENTA_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
-                    Intent intent = new Intent(this, VisitaActivaService.class);
-                    stopService(intent);
+                    //Intent intent = new Intent(this, VisitaActivaService.class);
+                    //stopService(intent);
                 }
 
                 break;
@@ -471,8 +471,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case R.id.action_comment:
-                startActivity(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client));
+                /*startActivity(new Intent(getApplicationContext(),SeeCommentsActivity.class)
+                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client));*/
                 break;
 
             case R.id.action_diary:
@@ -489,6 +489,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case R.id.action_see_invoices:
                 startActivity(new Intent(this, InvoiceListActivity.class)
                         .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
+                break;
+
+            case R.id.action_diaries:
+                startActivity(new Intent(this, DiaryListActivity.class)
+                        .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
+
                 break;
 
         }
@@ -613,9 +619,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         if(diaryController.insert(mNextVisit)){
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
+                    getString(R.string.save_diary), Toast.LENGTH_LONG)
                     .show();
 
+            Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+            startService(serviceSyncAll);
 
             ClientController clientController = new ClientController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
             client = clientController.getById(this.client.getId());
@@ -625,6 +633,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         Log.d("mNextVisit", mNextVisit.toString());
+
+
 
     }
 

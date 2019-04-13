@@ -33,6 +33,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         this.hasMasterDetailRelationship = false;
     }
 
+    public SqlUpdater(Context context) {
+        this.context = context;
+    }
+
     public SqlConnection getConnection() {
         return connection;
     }

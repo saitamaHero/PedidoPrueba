@@ -57,7 +57,7 @@ public abstract class Controller<T> {
 
 
     public boolean exists(String field, Object object){
-        return false;
+        throw new UnsupportedOperationException("Not Implmented, yet");
     }
 
     /**

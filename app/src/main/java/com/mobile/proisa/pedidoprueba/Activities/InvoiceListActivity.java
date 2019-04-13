@@ -37,7 +37,6 @@ public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceLis
         setTitle(R.string.invoices);
 
         getClientAndSearchInvoices();
-
     }
 
     private void getClientAndSearchInvoices(){

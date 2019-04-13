@@ -70,6 +70,16 @@ public class DiaryController extends Controller<Diary> {
         return items;
     }
 
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
+
     public List<Diary> getAllCompleteById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Calendar calendar = Calendar.getInstance();

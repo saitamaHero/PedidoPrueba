@@ -20,6 +20,7 @@
     <string name="payment">Cobro</string>
     <string name="photo">Foto</string>
     <string name="diary">Agendar</string>
+    <string name="diaries">Agendar</string>
     <string name="edit">Editar</string>
     <string name="comment">Coment.</string>
     <string name="comment_full">Comentario</string>
@@ -189,6 +190,7 @@ Cadena que representa maniana con tiempo
     <string name="error_not_valid_rnc">Este campo es incorrecto.</string>
     <string name="select_items">Seleccionar artículos</string>
     <string name="not_invoices">No hay facturas de %s</string>
+    <string name="not_diaries">No hay visitas programadas para %s</string>
     <string name="clean">Borrar</string>
     <string name="empty_money">0.00</string>
     <string name="notification_message">Servicio en ejecucion</string>
@@ -217,5 +219,7 @@ Cadena que representa maniana con tiempo
     <string name="getting_vendor_data">Obteniendo Datos para el Vendedor:</string>
     <string name="got_data">¡Obtención de Datos Finalizada!</string>
     <string name="visit_running">La visita esta en ejecucion</string>
+    <string name="diaries_title">Visitas</string>
+    <string name="save_diary">¡Visita Guardada Exitosamente!</string>
 
 </resources>
