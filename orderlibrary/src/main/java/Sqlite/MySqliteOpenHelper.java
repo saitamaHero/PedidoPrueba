@@ -164,6 +164,15 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             + "FOREIGN KEY("+Diary._CLIENT_ID+") REFERENCES "+Client.TABLE_NAME+"("+Client._ID+")"
             + ");\n";
 
+    /*Tabla para almacenar las facturas que se producen durante un dia determinado*/
+    private static final String CREATE_TABLE_VISTAS_FACTURAS
+            = "CREATE TABLE " + Diary.TABLE_DIARY_INV
+            + "("+ Diary._ID   + " TEXT NOT NULL,"
+            + Invoice._ID      + " TEXT NOT NULL,"
+            + "PRIMARY KEY("  + Diary._ID + ")"
+            + ");\n";
+
+
 
     public static final String VIEW_VISITAS_NAME = "v_get_diary_next_visits";
 
@@ -216,6 +225,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_VISITAS);
         sqLiteDatabase.execSQL(createTriggerUpdate(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
         sqLiteDatabase.execSQL(createTriggerInsert(Diary.TABLE_NAME, Diary._LASTMOD, Diary._ID));
+        sqLiteDatabase.execSQL(CREATE_TABLE_VISTAS_FACTURAS);
         sqLiteDatabase.execSQL(createViewDiary());
     }
 

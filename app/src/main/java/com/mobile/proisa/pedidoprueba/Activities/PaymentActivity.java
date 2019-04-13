@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -54,6 +55,7 @@ import Models.Diary;
 import Models.Invoice;
 import Sqlite.DiaryController;
 import Sqlite.InvoiceController;
+import Sqlite.InvoiceDiaryController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.NumberUtils;
@@ -64,6 +66,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     private Button btnCompletePayment;
     private Invoice mInvoice;
     private BroadcastReceiver broadcastReceiver;
+    private Diary mVisitActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +109,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         switch (status){
             case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
                 Toast.makeText(getApplicationContext(), R.string.visit_running, Toast.LENGTH_SHORT).show();
+                this.mVisitActive = diary;
                 break;
 
             case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
@@ -244,7 +248,8 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
      * Guarda la factura actual de la actividad
      */
     public void saveInvoice() {
-        InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+        SQLiteDatabase database = MySqliteOpenHelper.getInstance(this).getWritableDatabase();
+        InvoiceController controller = new InvoiceController(database);
 
         if(TextUtils.isEmpty(mInvoice.getId())){
             mInvoice = getReadyInvoice();
@@ -257,6 +262,15 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
              */
 
             if(controller.insert(mInvoice)) {
+                if(this.mVisitActive != null){
+                    List<Invoice> invoices = new ArrayList<>();
+                    invoices.add(mInvoice);
+
+                    InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(database);
+                    invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId());
+                }
+
+
                 new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
             }else {
                 Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
