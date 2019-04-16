@@ -10,12 +10,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.List;
 
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Diary;
+import Models.Invoice;
 import Sqlite.ClientController;
 import Sqlite.Controller;
+import Sqlite.InvoiceDiaryController;
 import Sqlite.MySqliteOpenHelper;
 
 public class DiaryUpdater extends SqlUpdater<Diary> {
@@ -34,7 +37,6 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
         Log.d(TAG,"Inserting: " + data.toString());
 
         try {
-
             CallableStatement callableStatement = connection.prepareCall(query);
 
             callableStatement.setString(1,"N");
@@ -64,14 +66,32 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
             callableStatement.setString(   10, data.getComment());
 
             callableStatement.executeUpdate();
-            connection.commit();
+
 
             data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
             data.setRemoteId(callableStatement.getString(3));
 
-            Log.d(TAG,"Inserted: " + data.toString());
-
             callableStatement.close();
+
+            InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(MySqliteOpenHelper.getInstance(getContext()).getReadableDatabase());
+
+            List<Invoice> invoices =  invoiceDiaryController.getAllById(data.getId());
+
+            if(invoices != null && !invoices.isEmpty()){
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO CCBDVISFAC(COD_EMPR, VIS_COD, HE_FACTURA) VALUES (1, ?, ?)");
+
+                for(Invoice invoice : invoices) {
+                    statement.clearParameters();
+                    statement.setString(1, String.valueOf(data.getRemoteId()));
+                    statement.setString(2, String.valueOf(invoice.getRemoteId()));
+                    statement.executeUpdate();
+                }
+
+
+            }
+
+            connection.commit();
+
     } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -122,10 +142,26 @@ public class DiaryUpdater extends SqlUpdater<Diary> {
 
 
              callableStatement.executeUpdate();
-             connection.commit();
+
              data.setStatus(ColumnsSqlite.ColumnStatus.STATUS_COMPLETE);
 
 
+             /*Insertar las facturas generadas durantes las visitas*/
+            InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(MySqliteOpenHelper.getInstance(getContext()).getReadableDatabase());
+
+            List<Invoice> invoices =  invoiceDiaryController.getAllById(data.getId());
+
+            if(invoices != null && !invoices.isEmpty()){
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO CCBDVISFAC(COD_EMPR, VIS_CODIGO, HE_FACTURA) VALUES (1, ?, ?)");
+
+                for(Invoice invoice : invoices) {
+                    statement.clearParameters();
+                    statement.setString(1, String.valueOf(data.getRemoteId()));
+                    statement.setString(2, String.valueOf(invoice.getRemoteId()));
+                }
+            }
+
+            connection.commit();
         } catch (SQLException e) {
             try {
                 connection.rollback();

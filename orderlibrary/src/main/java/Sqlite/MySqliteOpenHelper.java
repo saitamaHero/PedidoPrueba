@@ -26,7 +26,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     private static final String PREFIX_TRIGGER_UPDATE_LM = "update_lastmod_";
     private static final String PREFIX_TRIGGER_INSERT_LM = "insert_lastmod_";
     public static final String DBNAME = "contapro_ruteros.db";
-    public static final int VERSION = 1;
+    public static final int VERSION = 5;
 
     private static final String CREATE_TABLE_COMPANY
             = "CREATE TABLE "  + Company.TABLE_NAME
@@ -166,10 +166,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
 
     /*Tabla para almacenar las facturas que se producen durante un dia determinado*/
     private static final String CREATE_TABLE_VISTAS_FACTURAS
-            = "CREATE TABLE " + Diary.TABLE_DIARY_INV
-            + "("+ Diary._ID   + " TEXT NOT NULL,"
-            + Invoice._ID      + " TEXT NOT NULL,"
-            + "PRIMARY KEY("  + Diary._ID + ")"
+            = "CREATE TABLE "  + Diary.TABLE_DIARY_INV
+            + "("+ Diary._ID   + " INTEGER NOT NULL,"
+            + Invoice._ID      + " TEXT NOT NULL"
+            //+ "PRIMARY KEY("   + Diary._ID + ")"
             + ");\n";
 
 
@@ -270,7 +270,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_UPDATE_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + PREFIX_TRIGGER_INSERT_LM.concat(Diary.TABLE_NAME));
             sqLiteDatabase.execSQL("DROP VIEW IF EXISTS "    + VIEW_VISITAS_NAME);
-
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "   + Diary.TABLE_DIARY_INV);
             onCreate(sqLiteDatabase);
         }
     }

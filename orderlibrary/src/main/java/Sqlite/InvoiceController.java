@@ -61,6 +61,19 @@ public class InvoiceController extends Controller<Invoice> {
         return null;
     }
 
+    public Invoice getByInvoiceId(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            return getDataFromCursor(cursor);
+        }
+
+        return null;
+    }
+
     @Override
     public List<Invoice> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
@@ -225,5 +238,14 @@ public class InvoiceController extends Controller<Invoice> {
         cv.put(Invoice._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
+    }
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
     }
 }

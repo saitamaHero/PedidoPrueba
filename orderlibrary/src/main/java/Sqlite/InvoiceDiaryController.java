@@ -19,6 +19,7 @@ public class InvoiceDiaryController extends ControllerDetails<Invoice>{
         this.invoiceController = new InvoiceController(sqLiteDatabase);
     }
 
+
     @Override
     public List<Invoice> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
@@ -31,7 +32,7 @@ public class InvoiceDiaryController extends ControllerDetails<Invoice>{
 
         while (!cursor.isAfterLast()) {
             String invoiceNumber = cursor.getString(cursor.getColumnIndex(Invoice._ID));
-            Invoice invoice =  this.invoiceController.getById(invoiceNumber);
+            Invoice invoice =  this.invoiceController.getByInvoiceId(invoiceNumber);
 
             if(invoice != null){
                 invoices.add(invoice);
@@ -59,6 +60,9 @@ public class InvoiceDiaryController extends ControllerDetails<Invoice>{
         database.setTransactionSuccessful();
         database.endTransaction();
 
+
+
+
         return result != -1;
     }
 
@@ -70,7 +74,7 @@ public class InvoiceDiaryController extends ControllerDetails<Invoice>{
     @Override
     public ContentValues getContentValues(Invoice item, Object id) {
         ContentValues cv = new ContentValues();
-        cv.put(Diary._ID, String.valueOf(id));
+        cv.put(Diary._ID, (Long) id);
         cv.put(Invoice._ID, item.getId());
         return cv;
     }

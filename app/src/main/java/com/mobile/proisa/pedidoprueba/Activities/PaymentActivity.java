@@ -62,6 +62,8 @@ import Utils.NumberUtils;
 
 public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener,
         View.OnClickListener,  TareaAsincrona.OnFinishedProcess, DiaryBroadcastReceiver.OnDiaryStateListener {
+    private static final String TAG = "PaymentActivity";
+
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
@@ -267,7 +269,10 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
                     invoices.add(mInvoice);
 
                     InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(database);
-                    invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId());
+                    if(invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId())){
+                        //Toast.makeText(this, "Se guardo la factura en VistasFacturas", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "saveInvoice: Se guardo la factura en VistasFacturas");
+                    }
                 }
 
 

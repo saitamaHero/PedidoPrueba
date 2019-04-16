@@ -80,6 +80,16 @@ public class DiaryController extends Controller<Diary> {
         return cursor.getCount() == 1;
     }
 
+    public Diary getLastDiary(){
+        Cursor cursor = getSqLiteDatabase().rawQuery("SELECT last_insert_rowid()", null);
+
+        if(cursor.moveToNext()){
+            return getById(cursor.getInt(0));
+        }
+
+        return null;
+    }
+
     public List<Diary> getAllCompleteById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Calendar calendar = Calendar.getInstance();

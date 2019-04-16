@@ -108,7 +108,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         + "0, ?, 0,0,0,'',0, 0,\n"
                         + "\n"
                         + "-- DATOS DE QUIEN ATIENDE\n"
-                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0);";
+                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0);"; /*Posiblemente cambiar RD por valor por defecto del MOZO*/
 
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 

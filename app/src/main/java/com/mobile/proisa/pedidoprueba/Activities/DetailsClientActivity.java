@@ -305,11 +305,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                             diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
                             diary.setDuration(0);
 
-                            client.setVisitDate(diary);
+                            DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+                            if(diaryController.insert(diary)){
+                                client.setVisitDate(diaryController.getLastDiary());
 
-                            //if(new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase()).insert(diary)){
-                            initOrCancelVisit(false);
-                            //}
+                                Log.d("VisitaRapida", client.getVisitDate().toString());
+                                initOrCancelVisit(false);
+                            }
                         }
                     }).show();
         }
