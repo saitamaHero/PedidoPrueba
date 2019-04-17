@@ -63,7 +63,7 @@
     <item
         android:id="@+id/action_diaries"
         android:icon="@drawable/ic_clock_outline"
-        android:title="@string/diaries"
+        android:title="@string/diaries_pendings"
         app:showAsAction="always"
         />
 </menu>

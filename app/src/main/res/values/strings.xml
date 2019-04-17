@@ -221,5 +221,6 @@ Cadena que representa maniana con tiempo
     <string name="visit_running">La visita esta en ejecucion</string>
     <string name="diaries_title">Visitas</string>
     <string name="save_diary">¡Visita Guardada Exitosamente!</string>
+    <string name="diaries_pendings">Visitas</string>
 
 </resources>
