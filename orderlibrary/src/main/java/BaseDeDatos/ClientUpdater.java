@@ -136,7 +136,7 @@ public class ClientUpdater extends SqlUpdater<Client> {
         String query = "INSERT INTO CCBDCLIE(" +
                 "CL_CODIGO, CL_NOMBRE, CL_DIREC1, CL_TELEF1, CL_RNC, CL_TIPORNC, CL_EMAIL," +
                 "CL_ESTADO, VE_CODIGO, CL_LIMCRE,CL_FECNAC, CL_FECING, CL_FOTO2, IM_CODIGO, ZO_CODIGO "        +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             int id = generateId();
