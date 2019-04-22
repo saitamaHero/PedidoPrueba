@@ -46,6 +46,7 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
         super.onBindUI();
 
         loadInvoice();
+        setStayConnection(true);
     }
 
     private void loadInvoice() {

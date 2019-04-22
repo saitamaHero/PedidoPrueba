@@ -101,23 +101,23 @@ public class InvoiceController extends Controller<Invoice> {
     public boolean update(Invoice item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Invoice._ID);
+        cv.remove(Invoice._CLIENT);
+        cv.remove(Invoice._DATE);
+        cv.remove(Invoice._NCF_SEQ);
+        cv.remove(Invoice._MONEY);
+        cv.remove(Invoice._INV_TYPE);
+
         SQLiteDatabase database = getSqLiteDatabase();
 
         long result = -1;
-        boolean detailsInserted = false;
-        InvoiceDetailsController controller = new InvoiceDetailsController(database);
 
         try {
             result = database.update(Invoice.TABLE_NAME, cv, Invoice._ID.concat("=?"),new String[]{item.getId()});
-
-            controller.deleteAllWithId(item.getId());
-
-            detailsInserted = controller.insertAllWithId(item.getItems(), item.getId());
         } catch (SQLException e) {
             Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
         }
 
-        return result > 0 && detailsInserted;
+        return result > 0; //&& detailsInserted;
     }
 
     @Override

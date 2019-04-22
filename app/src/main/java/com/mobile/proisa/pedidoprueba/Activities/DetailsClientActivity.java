@@ -133,10 +133,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
     }
 
-    public static void printToLog(Object o){
-        Log.d("InfoDetails", o.toString() );
-    }
-
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
@@ -170,7 +166,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         TextView txtAddress = findViewById(R.id.address);
-        txtAddress.setText(client.getNcf().getType());
+        //txtAddress.setText(client.getNcf().getType());
 
         TextView txtEmail = findViewById(R.id.email);
         txtEmail.setText(client.getEmail());
@@ -284,16 +280,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         if(client.hasVisitToday() && !mVisitActive){
             //Posiblemente hay que leer el codigo de barra del cliente
 
-            /**Si hay una cita acordada para hoy actualizar los registros
-             * Sino crear una nueva*/
-
-            //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-            //client.setDistance(500);
             intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
             startService(intent);
         }else if(mVisitActive){
             stopService(intent);
         }else if(showMessageToCreate){
+            //Preguntar si desea comenzar una visita no premeditada.
             View v = findViewById(R.id.card);
             Snackbar.make(v,R.string.question_start_visit, Snackbar.LENGTH_LONG)
                     .setAction(R.string.start_now, new View.OnClickListener() {
@@ -306,10 +298,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                             diary.setDuration(0);
 
                             DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+
                             if(diaryController.insert(diary)){
                                 client.setVisitDate(diaryController.getLastDiary());
 
-                                Log.d("VisitaRapida", client.getVisitDate().toString());
                                 initOrCancelVisit(false);
                             }
                         }
@@ -470,11 +462,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             case R.id.action_edit:
                 startActivityForResult(new Intent(getApplicationContext(),EditClientActivity.class)
                         .putExtra(EditClientActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
-                break;
-
-            case R.id.action_comment:
-                /*startActivity(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client));*/
                 break;
 
             case R.id.action_diary:
