@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.mobile.proisa.pedidoprueba.BluetoothPritner.PrinterHandler;
 
 public class PrinterManagmentActivity extends BaseCompatAcivity implements MainPrinterHandler.PrinterCallBack {
     private static final String TAG = "PrinterManagmentActivit";
+    private static final String KEY_STAY_CONNECTION = "PrinterManagmentAcitivty.KEY_STAY_CONNECTION";
 
     /**
      * Maneja los eventos que requieren operaciones de larga duración
@@ -48,7 +50,7 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
      */
     private BroadcastReceiver mBluetoothStateReceiver;
 
-    //private boolean mMakeBluetoothDiscoverable;
+    private boolean mStayConnection = false;
 
 
     /**
@@ -109,7 +111,10 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
     protected void onPause() {
         super.onPause();
 
-       closeConnection();
+        if(!this.mStayConnection || isFinishing()) {
+            closeConnection();
+        }
+
        unregisterReceiver(mBluetoothStateReceiver);
     }
 
@@ -250,5 +255,25 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
 
     public void makeBluetoothDiscoverable(){
         makeBluetoothDiscoverable(300);
+    }
+
+    public void setStayConnection(boolean allow) {
+        this.mStayConnection = allow;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(KEY_STAY_CONNECTION, this.mStayConnection);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState.containsKey(KEY_STAY_CONNECTION)){
+            this.mStayConnection = savedInstanceState.getBoolean(KEY_STAY_CONNECTION);
+        }
     }
 }
