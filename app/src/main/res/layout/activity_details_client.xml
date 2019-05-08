@@ -108,7 +108,7 @@
                 <GridView
                     android:id="@+id/action_menu"
                     android:layout_width="match_parent"
-                    android:layout_height="110dp"
+                    android:layout_height="120dp"
                     android:numColumns="auto_fit"
                     android:padding="5dp"/>
 

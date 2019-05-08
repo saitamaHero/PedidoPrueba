@@ -8,14 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -38,39 +32,16 @@ import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
 import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 import Models.Constantes;
-import Models.Diary;
-import Models.Invoice;
 import Models.User;
 import Models.Vendor;
-import Sqlite.DiaryController;
-import Sqlite.InvoiceDiaryController;
-import Sqlite.MySqliteOpenHelper;
-import Utils.FileUtils;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
-        ClientsFragment.OnFragmentInteractionListener, BluetoothListFragment.OnBluetoothSelectedListener
+        ClientsFragment.OnFragmentInteractionListener
 {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN = 100;
@@ -91,37 +62,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
-       /* SQLiteDatabase  database = MySqliteOpenHelper.getInstance(this).getReadableDatabase();
-
-        Cursor cursor = database.query(Diary.TABLE_DIARY_INV, null,Diary._ID+"=?", new String[]{String.valueOf(8)}, null, null, null);
-
-
-        while(cursor.moveToNext()){
-            Log.d("VisitasFacturas", "VISITA: "+ cursor.getInt(cursor.getColumnIndex(Diary._ID))
-                    + ",FACTURA: " + cursor.getString(cursor.getColumnIndex(Invoice._ID))
-            );
-        }
-
-
-        InvoiceDiaryController diaryController = new InvoiceDiaryController(database);
-
-        for(Invoice invoice : diaryController.getAllById(8))
-        {
-            Log.d("VisitasFacturas", invoice.toString());
-        }*/
-
-
-
-
-
-
-        Log.d("PhoneModel", getPhoneName());
-
+        Log.d(TAG, "phoneName: " + getPhoneName());
     }
 
 
     private String getPhoneName(){
-        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.PRODUCT.toUpperCase());
+        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
     }
 
     private void checkPreferences() {
@@ -154,18 +100,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(ItemListFragment.newInstance());
         fragments.add(ClientsFragment.newInstance());
-        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
+        fragments.add(ActividadFragment.newInstance());
         fragments.add(new VendorProfileFragment());
 
         return fragments;
     }
-
-    public static List<Actividad> getActividadesDePrueba() {
-        List<Actividad> actividads = new ArrayList<>();
-
-        return actividads;
-    }
-
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -193,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             case REQUEST_LOGIN:
                 if (resultCode == RESULT_OK) {
                     User mUser = data.getExtras().getParcelable("user");
-                    guardarUsuario(mUser);
+                    saveUserInPreferences(mUser);
                     checkPermissionStorage();
 
                     Intent serviceSyncAll = new Intent(this, SyncAllService.class);
@@ -227,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return user;
     }
 
-    private void guardarUsuario(User user) {
+    private void saveUserInPreferences(User user) {
         SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
         SharedPreferences.Editor editor;
 
@@ -248,18 +187,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int position = item.getOrder() - 1;
         viewPager.setCurrentItem(position, true);
+
+
+
         return true;
     }
-
 
     @Override
     public void requestChangePage() {
         viewPager.setCurrentItem(3);
-    }
-
-    @Override
-    public void onBluetoothSelected(BluetoothDevice device) {
-        Toast.makeText(getApplicationContext(), device.getName(), Toast.LENGTH_SHORT).show();
     }
 
     private void checkPermissionStorage(){
@@ -293,20 +229,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onResume() {
         super.onResume();
 
-
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
                 if(SyncAllService.EXTRA_SYNC_START.equals(action)) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.getting_vendor_data) + VentaActivity.VendorUtil.getVendor(getApplicationContext()).getName(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.sync, Toast.LENGTH_LONG).show();
                 }else{
                     Toast.makeText(getApplicationContext(), R.string.got_data, Toast.LENGTH_SHORT).show();
                 }
-
-                //toogle();
             }
         };
 

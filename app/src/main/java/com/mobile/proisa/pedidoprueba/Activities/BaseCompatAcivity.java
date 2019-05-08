@@ -3,10 +3,13 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 public class BaseCompatAcivity extends AppCompatActivity {
     public static final String EXTRA_ITEMS          = "com.mobile.proisa.pedidoprueba.Activities.EXTRA_ITEMS";
@@ -39,7 +42,20 @@ public class BaseCompatAcivity extends AppCompatActivity {
     }
 
 
-    private int setCurrentFragment(int containerId, Fragment fragment, boolean statusLosses){
+    /**
+     * Establece un fragment en un layout que esté cargado {@link AppCompatActivity#setContentView}
+     * en esta actividad
+     * @param containerId id del layout donde será cargado el fragment
+     * @param fragment fragmento a ser cargado
+     * @param statusLosses confirmar si se usar {@link FragmentTransaction#commitAllowingStateLoss()}
+     * @return
+     */
+    private int setCurrentFragment(@IdRes int containerId, Fragment fragment, boolean statusLosses){
+
+        if(fragment == null){
+            return -1;
+        }
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(containerId, fragment);
 
@@ -49,11 +65,11 @@ public class BaseCompatAcivity extends AppCompatActivity {
             return fragmentTransaction.commit();
     }
 
-    public int setCurrentFragment(int containerId, Fragment fragment){
+    public int setCurrentFragment(@IdRes int containerId, Fragment fragment){
         return setCurrentFragment(containerId, fragment, false);
     }
 
-    public int setCurrentFragmentWithStateLoss(int containerId, Fragment fragment){
+    public int setCurrentFragmentWithStateLoss(@IdRes int containerId, Fragment fragment){
         return setCurrentFragment(containerId, fragment, true);
     }
 

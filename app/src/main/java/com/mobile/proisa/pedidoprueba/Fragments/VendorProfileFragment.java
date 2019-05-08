@@ -220,62 +220,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
         Actividad.Builder builder = new Actividad.Builder();
 
-        builder.addId(51)
-                .addDescription("Probando el BuilderPattern")
-                .addNumeric("100.00")
-                .addStatus(true)
-                .addInfo("Extra info");
 
-
-        /*Actividad actividad;
-
-        actividad = new Actividad(1,NumberUtils.formatNumber(2,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
-        actividads.add(actividad);
-
-        actividad = new Actividad(2, NumberUtils.formatNumber(12,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados Sí Facturación", "", true);
-        actividads.add(actividad);
-
-
-        actividad = new Actividad(3, NumberUtils.formatNumber(30,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitar", "En el día de hoy", true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(4, NumberUtils.formatNumber(14,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitados", "En el día de hoy", true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(5, NumberUtils.formatNumber(8,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Devoluciones",
-                "Un total de RD$"+NumberUtils.formatNumber(368.98, NumberUtils.FORMAT_NUMER_DOUBLE), false);
-        actividads.add(actividad);
-
-
-        actividad = new Actividad(6, NumberUtils.formatNumber(9,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Pagos de Clientes",
-                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(7, NumberUtils.formatNumber(2,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Nuevos");
-        actividads.add(actividad);
-
-        actividad = new Actividad(9, NumberUtils.formatNumber(9,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Ventas a Crédito",
-                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), false);
-        actividads.add(actividad);
-
-        actividad = new Actividad(10, NumberUtils.formatNumber(3,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes con Crédito Cerrado");
-        actividads.add(actividad);
-
-
-        actividad = new Actividad(11, "", "Gráficos de Ventas",
-                "Ver el gráfico para el año actual.", true);
-        actividads.add(actividad);*/
-
-        actividads.add(builder.create());
         return actividads;
     }
 

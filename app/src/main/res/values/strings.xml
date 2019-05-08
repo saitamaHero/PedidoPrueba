@@ -217,10 +217,17 @@ Cadena que representa maniana con tiempo
     <string name="visit_started">¡La visita ha iniciado!</string>
     <string name="invoice_not_save">Factura no Generada Oficcialmente.</string>
     <string name="getting_vendor_data">Obteniendo Datos para el Vendedor:</string>
-    <string name="got_data">¡Obtención de Datos Finalizada!</string>
+    <string name="got_data">¡Sincronización Finalizada!</string>
     <string name="visit_running">La visita esta en ejecucion</string>
     <string name="diaries_title">Visitas</string>
     <string name="save_diary">¡Visita Guardada Exitosamente!</string>
     <string name="diaries_pendings">Visitas</string>
+    <string name="msg_visits_today">Visitas Realizadas</string>
+    <string name="sync">Sincronizando...</string>
+    <string name="msg_invoices_today">Facturas Generadas Hoy</string>
+    <string name="msg_invoices_total">Total Generado Facturas</string>
+    <string name="msg_invoices_total_cash">Total Generado Al Contado</string>
+    <string name="msg_invoices_total_credit">Total Generado Crédito</string>
+    <string name="msg_visits_pending">Visitas Pendientes</string>
 
 </resources>
