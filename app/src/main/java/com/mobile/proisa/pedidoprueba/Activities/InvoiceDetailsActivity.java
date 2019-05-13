@@ -47,6 +47,12 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
 
         loadInvoice();
         setStayConnection(true);
+
+        if(checkTheBluetoothState()){
+            printInvoice();
+        }else{
+            makeBluetoothDiscoverable();
+        }
     }
 
     private void loadInvoice() {

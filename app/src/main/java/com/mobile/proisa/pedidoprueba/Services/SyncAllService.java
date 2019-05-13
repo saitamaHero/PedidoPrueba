@@ -1,7 +1,9 @@
 package com.mobile.proisa.pedidoprueba.Services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -15,6 +17,7 @@ import BaseDeDatos.NCFUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.UnitUpdater;
+import BaseDeDatos.UpdaterManager;
 import BaseDeDatos.ZoneUpdater;
 import Sqlite.CategoryController;
 import Sqlite.ClientController;
@@ -38,93 +41,38 @@ public class SyncAllService extends IntentService implements SqlUpdater.OnDataUp
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         sendBroadcast(new Intent(EXTRA_SYNC_START));
+        Context context =  getApplicationContext();
+
         SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
-        MySqliteOpenHelper mySqliteOpenHelper = MySqliteOpenHelper.getInstance(getApplicationContext());
+        SQLiteDatabase sqLiteDatabase = MySqliteOpenHelper.getInstance(context).getWritableDatabase();
+
+        UpdaterManager updaterManager = new UpdaterManager(connection);
+        updaterManager.setErrorListener(this);
+        updaterManager.setUpdateListener(this);
+
+        //Datos de la empresa
+        updaterManager.addUpdater(new CompanyUpdater    (context,null, new CompanyController(sqLiteDatabase)));
+        //Articulos
+        updaterManager.addUpdater(new ItemUpdater       (context,null, new ItemController(sqLiteDatabase)));
+        //Categoria de los articulos
+        updaterManager.addUpdater(new CategoryUpdater   (context,null, new CategoryController(sqLiteDatabase)));
+        //Unidad de los articulos
+        updaterManager.addUpdater(new UnitUpdater       (context,null, new UnitController(sqLiteDatabase)));
+        //Cliente
+        updaterManager.addUpdater(new ClientUpdater     (context,null, new ClientController(sqLiteDatabase)));
+        //Visitas
+        updaterManager.addUpdater(new DiaryUpdater      (context,null, new DiaryController(sqLiteDatabase)));
+        //Zonas
+        updaterManager.addUpdater(new ZoneUpdater       (context,null, new ZoneController(sqLiteDatabase)));
+        //NCF
+        updaterManager.addUpdater(new NCFUpdater        (context,null, new NCFController(sqLiteDatabase)));
+        //Facturas
+        updaterManager.addUpdater(new InvoiceUpdater    (context,null, new InvoiceController(sqLiteDatabase)));
+
+        // Decirle al UpdaterManager que comience el proceso de actualizacion
+        updaterManager.execute();
 
 
-
-        CompanyUpdater companyUpdater = new CompanyUpdater(getApplicationContext(), connection, new CompanyController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase()));
-        companyUpdater.setOnDataUpdateListener(this);
-        companyUpdater.setOnErrorListener(this);
-        companyUpdater.retriveData();
-
-
-        /**
-         * Articulos
-         */
-        ItemController itemController = new ItemController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-        ItemUpdater itemUpdater = new ItemUpdater(getApplicationContext(), connection, itemController);
-        itemUpdater.setOnDataUpdateListener(this);
-        itemUpdater.setOnErrorListener(this);
-        itemUpdater.retriveData();
-
-        /**
-         * Categoría
-         */
-        CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-        CategoryUpdater categoryUpdater = new CategoryUpdater(getApplicationContext(), connection, categoryController);
-        categoryUpdater.setOnDataUpdateListener(this);
-        categoryUpdater.setOnErrorListener(this);
-        categoryUpdater.retriveData();
-
-        /**
-         * Unidad
-         */
-        UnitController unitController = new UnitController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-        UnitUpdater unitUpdater = new UnitUpdater(getApplicationContext(), connection, unitController);
-        unitUpdater.setOnDataUpdateListener(this);
-        unitUpdater.setOnErrorListener(this);
-        unitUpdater.retriveData();
-
-        ClientController controller = new ClientController(mySqliteOpenHelper.getWritableDatabase());
-
-        //Si no hay elementos en la base de datos no se analizara practicamente nada.
-        ClientUpdater clientUpdater = new ClientUpdater(getApplicationContext(), connection, controller);
-        clientUpdater.setOnDataUpdateListener(this);
-        clientUpdater.setOnErrorListener(this);
-        clientUpdater.addData(controller.getAll());
-        clientUpdater.apply();
-
-        //Llamar este metodo para que inserte los datos que hacen falta del servidor
-        clientUpdater.retriveData();
-        
-        
-        /*Visitas*/
-        DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
-        //Updater de las visitas
-        DiaryUpdater diaryUpdater = new DiaryUpdater(getApplicationContext(), connection, diaryController);
-        diaryUpdater.setOnDataUpdateListener(this);
-        diaryUpdater.setOnErrorListener(this);
-        diaryUpdater.addData(diaryController.getAll());
-        diaryUpdater.apply();
-
-        //Obtener visitas que estan en el servidor
-        diaryUpdater.retriveData();
-    
-        
-        /*Zonas*/
-        ZoneController zoneController = new ZoneController(mySqliteOpenHelper.getWritableDatabase());
-        //Updater de las visitas
-        ZoneUpdater zoneUpdater = new ZoneUpdater(getApplicationContext(), connection, zoneController);
-        zoneUpdater.setOnDataUpdateListener(this);
-        zoneUpdater.setOnErrorListener(this);
-        zoneUpdater.retriveData();
-
-        /*NCF*/
-        NCFController ncfController = new NCFController(mySqliteOpenHelper.getWritableDatabase());
-        NCFUpdater ncfUpdater = new NCFUpdater(getApplicationContext(), connection, ncfController);
-        ncfUpdater.setOnDataUpdateListener(this);
-        ncfUpdater.setOnErrorListener(this);
-        ncfUpdater.retriveData();
-    
-        /*Facturas*/
-        InvoiceController invoiceController = new InvoiceController(mySqliteOpenHelper.getWritableDatabase());
-        InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getApplicationContext(), connection, invoiceController);
-        invoiceUpdater.setOnDataUpdateListener(this);
-        invoiceUpdater.setOnErrorListener(this);
-        invoiceUpdater.apply();
-
-        //sendBroadcast(new Intent(EXTRA_SYNC_FINISH));
     }
 
     @Override

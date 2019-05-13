@@ -27,6 +27,7 @@ import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
 import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
@@ -202,7 +203,9 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncClients(0, getActivity(), this, true).execute();
+                //new SyncClients(0, getActivity(), this, true).execute();
+                Intent serviceSyncAll = new Intent(getActivity().getApplicationContext(), SyncAllService.class);
+                getActivity().startService(serviceSyncAll);
                 break;
         }
 
