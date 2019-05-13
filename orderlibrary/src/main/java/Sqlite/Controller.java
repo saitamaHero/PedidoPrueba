@@ -60,6 +60,10 @@ public abstract class Controller<T> {
         throw new UnsupportedOperationException("Not Implmented, yet");
     }
 
+    public boolean areThereRegistersPending(){
+        return false;
+    }
+
     /**
      * Obtains data from {@link Cursor}  for type T
      * @param cursor

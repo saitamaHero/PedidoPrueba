@@ -248,4 +248,20 @@ public class InvoiceController extends Controller<Invoice> {
 
         return cursor.getCount() == 1;
     }
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Invoice.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
+    }
 }

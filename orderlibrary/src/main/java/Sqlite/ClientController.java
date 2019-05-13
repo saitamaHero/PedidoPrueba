@@ -297,4 +297,21 @@ public class ClientController extends Controller<Client> {
         Log.d("RemoteData", String.format("remoteId='%s', status=%d", columnsRemote.getRemoteId(), columnsRemote.getStatus()));
         return cv;
     }
+
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Client.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
+    }
 }
