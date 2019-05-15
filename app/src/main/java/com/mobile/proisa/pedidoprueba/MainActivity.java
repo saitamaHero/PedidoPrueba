@@ -36,8 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Models.Constantes;
+import Models.Invoice;
 import Models.User;
 import Models.Vendor;
+import Sqlite.Controller;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private BottomNavigationView mBottomNavigationView;
     private BroadcastReceiver broadcastReceiver;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         Log.d(TAG, "phoneName: " + getPhoneName());
     }
-
 
     private String getPhoneName(){
         return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());

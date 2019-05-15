@@ -48,6 +48,9 @@ public class SqlConnection{
     }
 
     public void connect(){
+        if(isConnected()){
+            return;
+        }
 
         try{
             StrictMode.ThreadPolicy policy = new  StrictMode.ThreadPolicy.Builder().permitAll().build();

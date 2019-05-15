@@ -387,6 +387,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
             publishProgress(getContext().getString(R.string.starting));
 
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+            connection.connect();
 
             InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext(), connection,
                                        new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));

@@ -67,52 +67,52 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     @Override
     protected void onDataRequestUpdate(Queue<T> data) {
-        if(!getConnection().isConnected()){
-            getConnection().connect();
-        }
 
-        Connection conn = getConnection().getSqlConnection();
-        try {
-            conn.setAutoCommit(false);
+        if (getConnection().isConnected()) {
 
-            while (data.size() > 0) {
-                T itemPeek = data.poll();
+            Connection conn = getConnection().getSqlConnection();
 
-                try {
-                    ColumnsSqlite.ColumnsRemote remoteData = (ColumnsSqlite.ColumnsRemote) itemPeek;
+            try {
+                conn.setAutoCommit(false);
 
-                    if (remoteData.isPending()) {
-                        if (isNullOrEmpty(remoteData.getRemoteId())) {
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_INSERT_REMOTE);
+                while (data.size() > 0) {
+                    T itemPeek = data.poll();
 
-                            if (doInsert(itemPeek)) {
-                                onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
-                            } else {
-                                fail(SERVER_NOT_FOUND);
-                                break;
-                            }
-                        } else if (!isNullOrEmpty(remoteData.getRemoteId())) {
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_UPDATE_REMOTE);
+                    try {
+                        ColumnsSqlite.ColumnsRemote remoteData = (ColumnsSqlite.ColumnsRemote) itemPeek;
 
-                            if (doUpdate(itemPeek)) {
-                                onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
-                            } else {
-                                fail(SERVER_NOT_FOUND);
-                                break;
+                        if (remoteData.isPending()) {
+                            if (isNullOrEmpty(remoteData.getRemoteId())) {
+
+                                callUpdateListener(itemPeek, OnDataUpdateListener.ACTION_INSERT_REMOTE);
+
+                                if (doInsert(itemPeek)) {
+                                    onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
+                                } else {
+                                    fail(SERVER_NOT_FOUND);
+                                    break;
+                                }
+                            } else if (!isNullOrEmpty(remoteData.getRemoteId())) {
+
+                                callUpdateListener(itemPeek, OnDataUpdateListener.ACTION_UPDATE_REMOTE);
+
+                                if (doUpdate(itemPeek)) {
+                                    onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
+                                } else {
+                                    fail(SERVER_NOT_FOUND);
+                                    break;
+                                }
                             }
                         }
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                        break;
                     }
-                } catch (ClassCastException e) {
-                    e.printStackTrace();
-                    break;
                 }
+            } catch (SQLException e) {
+                fail(Updater.ERROR);
             }
-        } catch (SQLException e) {
-            fail(Updater.ERROR);
         }
-
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
             case UPDATED_DATA_SUCCESS:
                 if (controller != null) {
                     if (controller.update(data)) {
-                        if (onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
+                        callUpdatedListener(data);
                     }
                 }
                 break;
@@ -136,12 +136,10 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                     }
 
                     if (canInsert) {
-                        if (onDataUpdateListener != null)
-                            onDataUpdateListener.onDataUpdate(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
+                        callUpdateListener(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
 
                         if (controller.insert(data)) {
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdated(data);
+                            callUpdatedListener(data);
 
                             Log.d("RemoteData", "Data inserted successful!");
                         }
@@ -275,6 +273,20 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         }
 
         return false;
+    }
+
+    public void callUpdateListener(T data, int updateCode) {
+        if (this.onDataUpdateListener != null) {
+            this.onDataUpdateListener.onDataUpdate(data, updateCode);
+        }
+
+    }
+
+    public void callUpdatedListener(T data) {
+        if (this.onDataUpdateListener != null) {
+            this.onDataUpdateListener.onDataUpdated(data);
+        }
+
     }
 
     public PreparedStatement getQueryDetailsToRetriveData(T id) {
