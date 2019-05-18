@@ -15,6 +15,7 @@ import Models.Constantes;
 import Models.Vendor;
 import Sqlite.Controller;
 
+import static Models.ColumnsSqlite.*;
 import static android.content.Context.MODE_PRIVATE;
 
 public abstract class SqlUpdater<T> extends Updater<T> {
@@ -79,7 +80,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                     T itemPeek = data.poll();
 
                     try {
-                        ColumnsSqlite.ColumnsRemote remoteData = (ColumnsSqlite.ColumnsRemote) itemPeek;
+                        ColumnsRemote remoteData = (ColumnsRemote) itemPeek;
 
                         if (remoteData.isPending()) {
                             if (isNullOrEmpty(remoteData.getRemoteId())) {
@@ -130,9 +131,9 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                 if (controller != null) {
                     boolean canInsert = true;
 
-                    if (data instanceof ColumnsSqlite.ColumnsRemote) {
-                        ColumnsSqlite.ColumnsRemote columnsRemote = (ColumnsSqlite.ColumnsRemote) data;
-                        canInsert = !controller.exists(ColumnsSqlite.ColumnsRemote._ID_REMOTE, columnsRemote.getRemoteId());
+                    if (data instanceof ColumnsRemote) {
+                        ColumnsRemote columnsRemote = (ColumnsRemote) data;
+                        canInsert = !controller.exists(ColumnsRemote._ID_REMOTE, columnsRemote.getRemoteId());
                     }
 
                     if (canInsert) {
@@ -279,14 +280,12 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         if (this.onDataUpdateListener != null) {
             this.onDataUpdateListener.onDataUpdate(data, updateCode);
         }
-
     }
 
     public void callUpdatedListener(T data) {
         if (this.onDataUpdateListener != null) {
             this.onDataUpdateListener.onDataUpdated(data);
         }
-
     }
 
     public PreparedStatement getQueryDetailsToRetriveData(T id) {

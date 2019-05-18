@@ -39,6 +39,12 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invoice_details);
         setTitle(R.string.invoice_details);
+
+        if(checkTheBluetoothState()){
+            printInvoice();
+        }else{
+            makeBluetoothDiscoverable();
+        }
     }
 
     @Override
@@ -48,11 +54,7 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
         loadInvoice();
         setStayConnection(true);
 
-        if(checkTheBluetoothState()){
-            printInvoice();
-        }else{
-            makeBluetoothDiscoverable();
-        }
+
     }
 
     private void loadInvoice() {
