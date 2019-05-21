@@ -57,6 +57,10 @@ public abstract class Controller<T> {
 
 
     public boolean exists(String field, Object object){
+        throw new UnsupportedOperationException("Not Implmented, yet");
+    }
+
+    public boolean areThereRegistersPending(){
         return false;
     }
 

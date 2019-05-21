@@ -47,6 +47,8 @@ import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 
 import java.io.File;
@@ -72,7 +74,7 @@ import Utils.NumberUtils;
 
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
-        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
+        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener, DiaryBroadcastReceiver.OnDiaryStateListener {
     private static final String TAG = "DetailsClientActivity";
     public static final String EXTRA_CLIENT = "com.mobile.proisa.EXTRA_CLIENT";
     public static final String EXTRA_INIT_VISIT = "com.mobile.proisa.EXTRA_INIT_VISIT";
@@ -119,7 +121,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
             client = savedInstanceState.getParcelable(EXTRA_CLIENT);
         }
 
-
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.empty_string);
         setSupportActionBar(toolbar);
@@ -132,10 +133,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
     }
 
-    public static void printToLog(Object o){
-        Log.d("InfoDetails", o.toString() );
-    }
-
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
@@ -146,7 +143,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 .thumbnail(0.1f)
                 .apply(RequestOptions.centerCropTransform())
                 .into(imageView);
-
     }
 
     private void loadInfo(Client client){
@@ -170,7 +166,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         TextView txtAddress = findViewById(R.id.address);
-        txtAddress.setText(client.getNcf().getType());
+        //txtAddress.setText(client.getNcf().getType());
 
         TextView txtEmail = findViewById(R.id.email);
         txtEmail.setText(client.getEmail());
@@ -220,8 +216,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 String.format("%d dias, %d horas, %d minutos, %d segundos",
                         converter.getDays(), converter.getHours(), converter.getMinutes(), converter.getSeconds())
         );
-
-
     }
 
     private void loadMenuOption(){
@@ -244,10 +238,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         loadMenuOption();
         loadInfo(client);
 
-
-        checkPermissionStorage();
-        checkPermissionCamera();
-
         startTimerThread();
 
         IntentFilter intentFilter = new IntentFilter();
@@ -255,40 +245,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent == null? "" : intent.getAction();
-
-                if(VisitaActivaService.ACTION_VISIT_START.equals(action)) {
-                    Toast.makeText(getApplicationContext(), "La visita ha iniciado!!!!", Toast.LENGTH_LONG).show();
-
-                    mVisitActive = true;
-
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-                    Log.d(TAG,"La visita ha iniciado!!!!");
-
-                }else if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
-                    //Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    mVisitActive = true;
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-
-
-                    Log.d(TAG,"La visita esta corriendo");
-                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    Diary diary = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    DateUtils.DateConverter converter = new DateUtils.DateConverter(diary.getStartTime(), diary.getEndTime());
-                    Toast.makeText(getApplicationContext(), "La visita ha terminado!!!!" , Toast.LENGTH_LONG).show();
-
-                    Log.d(TAG,"La visita ha terminado!!!!");
-                    Log.d(TAG,"minutos:"+converter.getMinutes() + ", segundos: "+converter.getSeconds());
-                    mVisitActive = false;
-
-                    fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                }
-
-            }
-        };
+        broadcastReceiver = new DiaryBroadcastReceiver(this);
 
         registerReceiver(broadcastReceiver, intentFilter);
 
@@ -323,16 +280,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         if(client.hasVisitToday() && !mVisitActive){
             //Posiblemente hay que leer el codigo de barra del cliente
 
-            /**Si hay una cita acordada para hoy actualizar los registros
-             * Sino crear una nueva*/
-
-            //fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
-            //client.setDistance(500);
             intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
             startService(intent);
         }else if(mVisitActive){
             stopService(intent);
         }else if(showMessageToCreate){
+            //Preguntar si desea comenzar una visita no premeditada.
             View v = findViewById(R.id.card);
             Snackbar.make(v,R.string.question_start_visit, Snackbar.LENGTH_LONG)
                     .setAction(R.string.start_now, new View.OnClickListener() {
@@ -344,8 +297,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                             diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
                             diary.setDuration(0);
 
-                            client.setVisitDate(diary);
-                            initOrCancelVisit(false);
+                            DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+
+                            if(diaryController.insert(diary)){
+                                client.setVisitDate(diaryController.getLastDiary());
+
+                                initOrCancelVisit(false);
+                            }
                         }
                     }).show();
         }
@@ -477,14 +435,17 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 break;
 
             case VENTA_REQUEST_CODE:
-                finish();
+                if(resultCode == RESULT_OK){
+                    //Intent intent = new Intent(this, VisitaActivaService.class);
+                    //stopService(intent);
+                }
+
                 break;
         }
     }
 
     private Uri savePhoto(Uri photoItem) throws IOException {
         File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.CLIENTS_PHOTOS);
-
         return FileUtils.compressPhoto(route, photoItem, FileUtils.DEFAULT_QUALITY);
     }
 
@@ -494,19 +455,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (menuItem.getItemId()){
             case R.id.action_take_photo:
-                PhotoActionDialog dialog = new PhotoActionDialog();
-                dialog.setOnActionPressedListener(this);
-                dialog.show(getSupportFragmentManager(), "");
+                checkPermissionStorage();
+                checkPermissionCamera();
                 break;
 
             case R.id.action_edit:
                 startActivityForResult(new Intent(getApplicationContext(),EditClientActivity.class)
                         .putExtra(EditClientActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
-                break;
-
-            case R.id.action_comment:
-                startActivity(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(BaseCompatAcivity.EXTRA_CLIENT, client));
                 break;
 
             case R.id.action_diary:
@@ -525,7 +480,19 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
                 break;
 
+            case R.id.action_diaries:
+                startActivity(new Intent(this, DiaryListActivity.class)
+                        .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
+
+                break;
+
         }
+    }
+
+    private void showDialogPhotoChoose() {
+        PhotoActionDialog dialog = new PhotoActionDialog();
+        dialog.setOnActionPressedListener(this);
+        dialog.show(getSupportFragmentManager(), "");
     }
 
     private void initVisitCreation(){
@@ -552,6 +519,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         }else{
             mPermissionCamera = true;
+            showDialogPhotoChoose();
         }
     }
 
@@ -589,18 +557,15 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (requestCode){
             case PERMISO_MEMORIA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionStorage = true;
-                }else{
-                    mPermissionStorage = false;
-                }
+                mPermissionStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
             case PERMISO_CAMERA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionCamera = true;
-                }else{
-                    mPermissionCamera = false;
-                }
+               mPermissionCamera = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+               if(mPermissionStorage && mPermissionCamera){
+                   showDialogPhotoChoose();
+               }
+
                 break;
         }
     }
@@ -643,14 +608,14 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         if(diaryController.insert(mNextVisit)){
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
+                    getString(R.string.save_diary), Toast.LENGTH_LONG)
                     .show();
 
+            Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+            startService(serviceSyncAll);
 
             ClientController clientController = new ClientController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
             client = clientController.getById(this.client.getId());
-
-
         }else{
             Toast.makeText(getApplicationContext(), R.string.error_to_save, Toast.LENGTH_LONG)
                     .show();
@@ -658,7 +623,10 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         Log.d("mNextVisit", mNextVisit.toString());
 
+
+
     }
+
 
     @Override
     public void onActionPressed(int action) {
@@ -699,6 +667,50 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onBackPressed() {
         if(!mVisitActive){
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onVisitStatusChanged(int status, Diary diary) {
+
+        switch (status){
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_START:
+                mVisitActive = true;
+                Toast.makeText(getApplicationContext(), R.string.visit_started, Toast.LENGTH_LONG).show();
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
+                mVisitActive = true;
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
+                mVisitActive = false;
+
+                diary.setClientToVisit(client);
+                diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+
+                DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+                boolean isNewVisit =  diary.getId() == Diary.NEW_DIARY_ENTRY;
+
+                if(isNewVisit){
+                    if(diaryController.insert(diary)) {
+                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                    }
+                }else if(diaryController.update(diary)){
+                    //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                    Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                }
+
+                Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                startService(serviceSyncAll);
+
+                break;
+
         }
     }
 }

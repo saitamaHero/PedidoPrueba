@@ -133,6 +133,9 @@ public interface ColumnsSqlite {
         String _DURATION   = "_duration";
         String _START_TIME = "_start_time";
         String _END_TIME   = "_end_time";
+
+
+        String TABLE_DIARY_INV = "invoices_per_diary";
     }
 
 

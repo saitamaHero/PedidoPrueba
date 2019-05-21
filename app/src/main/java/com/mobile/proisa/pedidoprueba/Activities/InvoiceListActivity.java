@@ -25,13 +25,9 @@ import Sqlite.CompanyController;
 import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
 
-public class InvoiceListActivity extends PrinterManagmentActivity implements InvoiceListAdapter.OnInvoiceClickListener,
-        BluetoothListFragment.OnBluetoothSelectedListener{
+public class InvoiceListActivity extends BaseCompatAcivity implements InvoiceListAdapter.OnInvoiceClickListener {
     private static final String TAG = "InvoiceListActivity";
     private InvoiceController invoiceController;
-
-    private AbstractTicket ticket;
-    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +37,6 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
         setTitle(R.string.invoices);
 
         getClientAndSearchInvoices();
-
     }
 
     private void getClientAndSearchInvoices(){
@@ -71,73 +66,8 @@ public class InvoiceListActivity extends PrinterManagmentActivity implements Inv
 
     @Override
     public void onInvoiceClick(Invoice invoice) {
-        ticket = new InvoiceTicket(invoice, VentaActivity.VendorUtil.getVendor(this), CompanyController.getCompany(MySqliteOpenHelper.getInstance(this).getReadableDatabase()));
-
-        if(!isPrinterSelected()){
-                BluetoothListFragment.newInstance(BluetoothUtils.getPrintersBluetooth()).show(getSupportFragmentManager(), "");
-        }else if(isPrinterStillConnected()){
-            //sendMessageToPrint(ticket.getTicket());
-            sendTicketToPrint(ticket);
-        }
-    }
-
-    private void setPrinterStatus(String status, boolean showDialog){
-
-        if(showDialog && progressDialog == null){
-            progressDialog = ProgressDialog.newInstance(status);
-            progressDialog.show(getFragmentManager(), "");
-        }else if(showDialog){
-            progressDialog.changeInfo(status);
-        }else if(progressDialog != null){
-            progressDialog.dismiss();
-            progressDialog = null;
-
-            Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(getApplicationContext(), status, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onBluetoothSelected(BluetoothDevice device) {
-        establishConnectionWithPrinter(device);
+       startActivity(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice));
     }
 
 
-    @Override
-    public void onPrinterConnecting(BluetoothDevice bluetoothDevice) {
-        super.onPrinterConnecting(bluetoothDevice);
-        setPrinterStatus("Intentando Conectar a "+bluetoothDevice.getName(), true);
-    }
-
-    @Override
-    public void onPrinterConnected() {
-        super.onPrinterConnected();
-
-        setPrinterStatus("Impresora conectada", true);
-        sendTicketToPrint(ticket);
-    }
-
-    @Override
-    public void onPrinting() {
-        super.onPrinting();
-        setPrinterStatus("Imprimiendo", false);
-    }
-
-    @Override
-    public void onPrinterDisconnected() {
-        super.onPrinterDisconnected();
-        setPrinterStatus("Impresora Desconectada", false);
-    }
-
-    @Override
-    public void onPrinterNotFound(BluetoothDevice bluetoothDevice) {
-        super.onPrinterNotFound(bluetoothDevice);
-        Toast.makeText(getApplicationContext(), R.string.check_printer, Toast.LENGTH_LONG).show();
-
-        if(progressDialog != null){
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
 }

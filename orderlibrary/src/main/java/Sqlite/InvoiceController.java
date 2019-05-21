@@ -61,6 +61,19 @@ public class InvoiceController extends Controller<Invoice> {
         return null;
     }
 
+    public Invoice getByInvoiceId(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            return getDataFromCursor(cursor);
+        }
+
+        return null;
+    }
+
     @Override
     public List<Invoice> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
@@ -88,23 +101,23 @@ public class InvoiceController extends Controller<Invoice> {
     public boolean update(Invoice item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Invoice._ID);
+        cv.remove(Invoice._CLIENT);
+        cv.remove(Invoice._DATE);
+        cv.remove(Invoice._NCF_SEQ);
+        cv.remove(Invoice._MONEY);
+        cv.remove(Invoice._INV_TYPE);
+
         SQLiteDatabase database = getSqLiteDatabase();
 
         long result = -1;
-        boolean detailsInserted = false;
-        InvoiceDetailsController controller = new InvoiceDetailsController(database);
 
         try {
             result = database.update(Invoice.TABLE_NAME, cv, Invoice._ID.concat("=?"),new String[]{item.getId()});
-
-            controller.deleteAllWithId(item.getId());
-
-            detailsInserted = controller.insertAllWithId(item.getItems(), item.getId());
         } catch (SQLException e) {
             Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
         }
 
-        return result > 0 && detailsInserted;
+        return result > 0; //&& detailsInserted;
     }
 
     @Override
@@ -225,5 +238,30 @@ public class InvoiceController extends Controller<Invoice> {
         cv.put(Invoice._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
+    }
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Invoice.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
     }
 }

@@ -67,7 +67,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                 }
 
                 /*Secuencia del NCF*/
-                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND COD_SUCU = 1 AND IM_CODIGO = ?";
+                query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND IM_CODIGO = ?";
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 
                 preparedStatement.setString(1, data.getClient().getNcf().getId());
@@ -108,7 +108,7 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                         + "0, ?, 0,0,0,'',0, 0,\n"
                         + "\n"
                         + "-- DATOS DE QUIEN ATIENDE\n"
-                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0);";
+                        + "?, '1','01','', '','1900-01-01 00:00:00',0,'','',0,0,'RD',0, 0,0);"; /*Posiblemente cambiar RD por valor por defecto del MOZO*/
 
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
 

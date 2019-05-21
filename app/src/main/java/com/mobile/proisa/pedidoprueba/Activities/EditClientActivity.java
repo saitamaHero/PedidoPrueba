@@ -3,6 +3,7 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.IdRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Adapters.SingleSimpleElementAdapter;
@@ -115,7 +117,6 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         if(!client.getNcf().equals(NCF.UNKNOWN_NCF)){
             btnNcf.setText(client.getNcf().getName());
         }
-
     }
 
     private Client getInfo(){
@@ -232,6 +233,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void showDialogToChooseZones() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final ListAdapter zones = getZones();
 
@@ -248,8 +250,10 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 client.setClientZone (mSelectedZone == null ? Zone.UNKNOWN_ZONE : mSelectedZone);
+
+                updateTextView(R.id.zone, mSelectedZone.getName());
                 mSelectedZone = null;
-                loadInfo(client);
+
                 dialog.dismiss();
             }
         });
@@ -265,6 +269,7 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void showDialogToChooseNcf() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final ListAdapter zones = getNcfs();
 
@@ -281,9 +286,10 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 client.setNcf (mSelectedNCF == null ? NCF.UNKNOWN_NCF : mSelectedNCF);
-                mSelectedNCF = null;
-                loadInfo(client);
+                updateTextView(R.id.ncf, mSelectedNCF.getName());
+
                 dialog.dismiss();
+                mSelectedNCF = null;
             }
         });
 
@@ -309,5 +315,10 @@ public class EditClientActivity extends AppCompatActivity implements View.OnClic
         List<NCF> categories = new NCFController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
         listAdapter.addAll(categories);
         return listAdapter;
+    }
+
+    private void updateTextView(@IdRes int view, CharSequence info){
+        TextView v = findViewById(view);
+        v.setText(info);
     }
 }

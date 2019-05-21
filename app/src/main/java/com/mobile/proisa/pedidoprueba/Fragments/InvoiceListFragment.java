@@ -52,8 +52,7 @@ public class InvoiceListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getArguments() !=  null)
-        {
+        if(getArguments() !=  null) {
             invoices = getArguments().getParcelableArrayList(PARAM_INVOICES);
         }else{
             invoices = new ArrayList<>();

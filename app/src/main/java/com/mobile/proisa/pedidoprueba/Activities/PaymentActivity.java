@@ -1,11 +1,13 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,29 +35,41 @@ import com.mobile.proisa.pedidoprueba.Clases.InvoiceType;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Dialogs.CashPaymentDialog;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
 import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
+import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
+import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
+import java.net.HttpURLConnection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Stack;
+import java.util.Timer;
 
+import BaseDeDatos.InvoiceUpdater;
+import BaseDeDatos.SqlConnection;
+import BaseDeDatos.SqlUpdater;
 import Models.ColumnsSqlite;
 import Models.Diary;
 import Models.Invoice;
 import Sqlite.DiaryController;
 import Sqlite.InvoiceController;
+import Sqlite.InvoiceDiaryController;
 import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends PrinterManagmentActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, BluetoothListFragment.OnBluetoothSelectedListener {
+public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener,  TareaAsincrona.OnFinishedProcess, DiaryBroadcastReceiver.OnDiaryStateListener {
+    private static final String TAG = "PaymentActivity";
+
     private Spinner spPayment;
     private Button btnCompletePayment;
     private Invoice mInvoice;
     private BroadcastReceiver broadcastReceiver;
-    private boolean mVisitActive;
-
-    private Diary mCurrentVisit;
+    private Diary mVisitActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +77,12 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         setContentView(R.layout.activity_payment);
 
         setTitle(R.string.payment);
+
         mInvoice = getInvoiceToShow();
     }
 
     @Override
     protected void onBindUI() {
-        mVisitActive = false;
 
         spPayment = findViewById(R.id.spPayment);
         btnCompletePayment = findViewById(R.id.btn_complete_payment);
@@ -81,31 +96,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
     /**
-     * Crea un broadcast para recivir datos de la visita activida si la hay.
+     * Crea un broadcast para recivir datos de la visita activa si la hay.
      */
     private void createBroadcastReceiver(){
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent == null? "" : intent.getAction();
-
-                if(VisitaActivaService.ACTION_VISIT_RUNNING.equals(action)){
-                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-                    Toast.makeText(getApplicationContext(), "La visita está corriendo", Toast.LENGTH_SHORT).show();
-                }else if(VisitaActivaService.ACTION_VISIT_FINISH.equals(action)){
-                    mCurrentVisit = intent.getExtras().getParcelable(VisitaActivaService.EXTRA_VISIT);
-
-
-                    DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
-
-                    if(diaryController.update(mCurrentVisit)){
-                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
-                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
-                    }
-                }
-
-            }
-        };
+        broadcastReceiver = new DiaryBroadcastReceiver(this);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
@@ -114,9 +108,21 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
     @Override
+    public void onVisitStatusChanged(int status, Diary diary) {
+        switch (status){
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
+                Toast.makeText(getApplicationContext(), R.string.visit_running, Toast.LENGTH_SHORT).show();
+                this.mVisitActive = diary;
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
+                break;
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-        //cerrar broadcastReceiver
         unregisterReceiver(broadcastReceiver);
     }
 
@@ -138,9 +144,9 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
         TextView txtTotal = findViewById(R.id.total);
 
         if (mInvoice.containsItems()) {
-            txtTotal.setText(NumberUtils.formatNumber(mInvoice.getTotal(), NumberUtils.FORMAT_NUMER_DOUBLE));
+            txtTotal.setText(NumberUtils.formatToDouble(mInvoice.getTotal()));
         } else {
-            txtTotal.setText(NumberUtils.formatNumber(0.00, NumberUtils.FORMAT_NUMER_DOUBLE));
+            txtTotal.setText(NumberUtils.formatToDouble(0.00));
         }
     }
 
@@ -205,10 +211,10 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
      * Detiene el servicio de la visita si hay una
      */
     private void stopVisitService(){
-        if(mVisitActive){
+        //if(mVisitActive){
             Intent intent = new Intent(this, VisitaActivaService.class);
             stopService(intent);
-        }
+        //}
     }
 
     /**
@@ -245,47 +251,76 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
      * Guarda la factura actual de la actividad
      */
     public void saveInvoice() {
-        mInvoice = getReadyInvoice();
-        InvoiceController controller = new InvoiceController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
+        SQLiteDatabase database = MySqliteOpenHelper.getInstance(this).getWritableDatabase();
+        InvoiceController controller = new InvoiceController(database);
 
-        if (controller.insert(mInvoice)) {
+        if(TextUtils.isEmpty(mInvoice.getId())){
+            mInvoice = getReadyInvoice();
+        }
+
+
+        if (!controller.exists(Invoice._ID, mInvoice.getId())) {
             /**
              * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
              */
-            stopVisitService();
-            setResult(RESULT_OK);
-            finish();
-        } else {
-            Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    saveInvoice();
+
+            if(controller.insert(mInvoice)) {
+                if(this.mVisitActive != null){
+                    List<Invoice> invoices = new ArrayList<>();
+                    invoices.add(mInvoice);
+
+                    InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(database);
+                    if(invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId())){
+                        //Toast.makeText(this, "Se guardo la factura en VistasFacturas", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "saveInvoice: Se guardo la factura en VistasFacturas");
+                    }
                 }
-            }).show();
+
+
+                new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
+            }else {
+                Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        saveInvoice();
+                    }
+                }).show();
+            }
+        }
+
+    }
+
+    @Override
+    public void onFinishedProcess(TareaAsincrona task) {
+        if(!task.hasErrors()){
+            switch (task.getId()){
+                case 0:
+                    Invoice invoice = task.getData().getParcelable(EXTRA_INVOICE);
+                    startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice), REQUEST_CODE_INVOICE_DETAILS);
+                    break;
+            }
         }
     }
 
     @Override
-    public void onBluetoothSelected(BluetoothDevice device) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        Toast.makeText(this, "Seleccion: "+device.getName(), Toast.LENGTH_SHORT).show();
-        establishConnectionWithPrinter(device);
+        switch (requestCode){
+            case REQUEST_CODE_INVOICE_DETAILS:
+                finish();
+                break;
+        }
     }
 
     @Override
-    public void onPrinterConnected() {
-        super.onPrinterConnected();
+    public void onErrorOccurred(int id, Stack<Exception> exceptions) {
+        Toast.makeText(this, R.string.invoice_not_save, Toast.LENGTH_LONG).show();
 
-        AbstractTicket ticket = new InvoiceTicket(mInvoice, VentaActivity.VendorUtil.getVendor(this));
-        sendTicketToPrint(ticket);
-    }
 
-    @Override
-    public void onPrintingFinished() {
-        super.onPrintingFinished();
-        closeConnection();
-        setResult(RESULT_OK);
-        finish();
+        //startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, mInvoice), REQUEST_CODE_INVOICE_DETAILS);
+
+
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {
@@ -336,4 +371,59 @@ public class PaymentActivity extends PrinterManagmentActivity implements Adapter
     }
 
 
+    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void > implements SqlUpdater.OnDataUpdateListener<Invoice>, SqlUpdater.OnErrorListener {
+
+        public SaveInvoiceTask(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
+            super(id, context, listener, mDialogShow);
+        }
+
+        @Override
+        protected Void doInBackground(Invoice... invoices) {
+            if(invoices == null || invoices.length  == 0){
+                return null;
+            }
+
+            Invoice invoiceToSave =  invoices[0];
+
+            publishProgress(getContext().getString(R.string.starting));
+
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
+            connection.connect();
+
+            InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext(), connection,
+                                       new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
+
+
+            invoiceUpdater.addData(invoiceToSave);
+
+            invoiceUpdater.setOnDataUpdateListener(this);
+            invoiceUpdater.setOnErrorListener(this);
+
+            invoiceUpdater.apply();
+
+            try {
+                connection.getSqlConnection().close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+        @Override
+        public void onDataUpdate(Invoice data, int action) {
+            publishProgress("Guardando Factura");
+        }
+
+        @Override
+        public void onDataUpdated(Invoice data) {
+            getData().putParcelable(EXTRA_INVOICE, data);
+        }
+
+        @Override
+        public void onError(int error) {
+            publishError(new Exception("Error on SaveInvoiceTask #" +error));
+        }
+    }
 }

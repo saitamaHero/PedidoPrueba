@@ -20,6 +20,7 @@
     <string name="payment">Cobro</string>
     <string name="photo">Foto</string>
     <string name="diary">Agendar</string>
+    <string name="diaries">Agendar</string>
     <string name="edit">Editar</string>
     <string name="comment">Coment.</string>
     <string name="comment_full">Comentario</string>
@@ -189,6 +190,7 @@ Cadena que representa maniana con tiempo
     <string name="error_not_valid_rnc">Este campo es incorrecto.</string>
     <string name="select_items">Seleccionar artículos</string>
     <string name="not_invoices">No hay facturas de %s</string>
+    <string name="not_diaries">No hay visitas programadas para %s</string>
     <string name="clean">Borrar</string>
     <string name="empty_money">0.00</string>
     <string name="notification_message">Servicio en ejecucion</string>
@@ -196,11 +198,36 @@ Cadena que representa maniana con tiempo
     <string name="ticker_text">text ticket</string>
     <string name="find_printer">Buscar impresora</string>
     <string name="check_printer">Por favor verifica que la impresora esté encendida</string>
+    <string name="check_printer_s">Por favor verifica que la impresora %s esté encendida</string>
     <string name="visit_finished">¡La visita ha terminado!</string>
     <string name="start_now">Comenzar</string>
     <string name="question_start_visit">¿Comenzar una visita ahora?</string>
     <string name="choose_zone">Elegir Zona</string>
     <string name="choose_ncf">Elegir NCF</string>
     <string name="should_choose_ncf">Selecciona el NCF</string>
+    <string name="print">Imprimir</string>
+    <string name="not_code">(FACTURA NO REGISTRADA)</string>
+    <string name="printing_ticket">¡Imprimiendo Ticket!</string>
+    <string name="printer_disconnected">¡Impresora Desconectada!</string>
+    <string name="printer_connecting">Conectando a %s</string>
+    <string name="invoice_details">Detalles de Factura</string>
+    <string name="bluetooth_not_enabled">Bluetooth  está apagado!</string>
+    <string name="payment_exact">Pago exacto</string>
+    <string name="registers_pending">Hay registros pendientes. No puede salir.</string>
+    <string name="visit_started">¡La visita ha iniciado!</string>
+    <string name="invoice_not_save">Factura no Generada Oficcialmente.</string>
+    <string name="getting_vendor_data">Obteniendo Datos para el Vendedor:</string>
+    <string name="got_data">¡Sincronización Finalizada!</string>
+    <string name="visit_running">La visita esta en ejecucion</string>
+    <string name="diaries_title">Visitas</string>
+    <string name="save_diary">¡Visita Guardada Exitosamente!</string>
+    <string name="diaries_pendings">Visitas</string>
+    <string name="msg_visits_today">Visitas Realizadas</string>
+    <string name="sync">Sincronizando...</string>
+    <string name="msg_invoices_today">Facturas Generadas Hoy</string>
+    <string name="msg_invoices_total">Total Generado Facturas</string>
+    <string name="msg_invoices_total_cash">Total Generado Al Contado</string>
+    <string name="msg_invoices_total_credit">Total Generado Crédito</string>
+    <string name="msg_visits_pending">Visitas Pendientes</string>
 
 </resources>

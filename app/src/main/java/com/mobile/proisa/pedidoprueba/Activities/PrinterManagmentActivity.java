@@ -1,7 +1,13 @@
 package com.mobile.proisa.pedidoprueba.Activities;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
@@ -12,6 +18,7 @@ import com.mobile.proisa.pedidoprueba.BluetoothPritner.PrinterHandler;
 
 public class PrinterManagmentActivity extends BaseCompatAcivity implements MainPrinterHandler.PrinterCallBack {
     private static final String TAG = "PrinterManagmentActivit";
+    private static final String KEY_STAY_CONNECTION = "PrinterManagmentAcitivty.KEY_STAY_CONNECTION";
 
     /**
      * Maneja los eventos que requieren operaciones de larga duración
@@ -38,6 +45,13 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
      */
     private boolean mPrinterIsStillConnected;
 
+    /**
+     * {@link BroadcastReceiver} usado para detectar cambios en el estado del adaptador del bluetooth
+     */
+    private BroadcastReceiver mBluetoothStateReceiver;
+
+    private boolean mStayConnection = false;
+
 
     /**
      * Establece una conexión con el dispositivo bluetooth deseado, en este caso una impresora bluetooth
@@ -63,13 +77,45 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
             mPrinterHandler = new PrinterHandler(mHandlerThread.getLooper());
             mPrinterHandler.setMainThread(mMainPrinterHandler);
         }
+
+
+        mBluetoothStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)){
+                    int bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
+
+                    switch (bluetoothState){
+                        case BluetoothAdapter.STATE_ON:
+                            onBluetoothOn();
+                            break;
+
+                        case BluetoothAdapter.STATE_OFF:
+                            onBluetoothOff();
+                            break;
+                    }
+                }
+
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        registerReceiver(mBluetoothStateReceiver, filter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-       closeConnection();
+        if(!this.mStayConnection || isFinishing()) {
+            closeConnection();
+        }
+
+       unregisterReceiver(mBluetoothStateReceiver);
     }
 
     @Override
@@ -128,6 +174,24 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         }
     }
 
+    /**
+     * Bluetooth cuando el adaptador bluetooth sea encendido
+     */
+    protected void onBluetoothOn(){
+
+    }
+
+    /**
+     * Bluetooth cuando el adaptador bluetooth sea apagado
+     */
+    protected void onBluetoothOff(){
+
+    }
+
+    /**
+     * Verifica si la impresora está todavía conectada y mantiene un enlace activo
+     * @return
+     */
     public boolean isPrinterStillConnected(){
         return mPrinterIsStillConnected;
     }
@@ -140,14 +204,22 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
         return this.mBluetoohSelected != null;
     }
 
-    public void sendMessageToPrint(String toPrint){
+    public void sendMessageToPrint(String toPrint, boolean tagged){
         Message message = new Message();
-        message.what = PrinterHandler.PRINTER_PRINT_TEXT_TAGGED;
+        message.what = tagged ? PrinterHandler.PRINTER_PRINT_TEXT_TAGGED : PrinterHandler.PRINTER_PRINT_TEXT;
         message.obj = toPrint;
 
         mPrinterHandler.sendMessage(message);
     }
 
+    public void sendMessageToPrintTagged(String toPrint){
+        sendMessageToPrint(toPrint, true);
+    }
+
+    /**
+     * Envía un ticket a imprimir a la impresora de la elección
+     * @param toPrint ticket a imprimir
+     */
     public void sendTicketToPrint(AbstractTicket toPrint){
         Message message = new Message();
         message.what = PrinterHandler.PRINTER_PRINT_TEXT_TAGGED;
@@ -162,6 +234,46 @@ public class PrinterManagmentActivity extends BaseCompatAcivity implements MainP
     public void closeConnection(){
         if(isPrinterStillConnected() && mPrinterHandler != null){
             mPrinterHandler.sendEmptyMessage(PrinterHandler.PRINTER_CLOSE_CONNECTION);
+        }
+    }
+
+    /**
+     * Comprueba el estado del adaptador bluetooth
+     * @return true si el adaptador está encendido
+     */
+    public boolean checkTheBluetoothState(){
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
+    }
+
+
+    public void makeBluetoothDiscoverable(int duration){
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration);
+        startActivity(intent);
+    }
+
+    public void makeBluetoothDiscoverable(){
+        makeBluetoothDiscoverable(300);
+    }
+
+    public void setStayConnection(boolean allow) {
+        this.mStayConnection = allow;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(KEY_STAY_CONNECTION, this.mStayConnection);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState.containsKey(KEY_STAY_CONNECTION)){
+            this.mStayConnection = savedInstanceState.getBoolean(KEY_STAY_CONNECTION);
         }
     }
 }

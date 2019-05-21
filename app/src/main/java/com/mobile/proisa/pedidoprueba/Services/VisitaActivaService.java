@@ -125,7 +125,7 @@ public class VisitaActivaService extends Service {
 
             switch (msg.what){
                 case VISIT_START:
-                    sendBroadcast(new Intent().setAction(ACTION_VISIT_START));
+                    sendBroadcast(new Intent(ACTION_VISIT_START).putExtra(EXTRA_VISIT, visit));
                     break;
 
                 case VISIT_FINISH:

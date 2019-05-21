@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.mobile.proisa.pedidoprueba.Activities.DetailsItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
@@ -53,9 +54,10 @@ import Sqlite.MySqliteOpenHelper;
 import Sqlite.UnitController;
 import Utils.DateUtils;
 
-public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener, TareaAsincrona.OnFinishedProcess {
+public class ItemListFragment extends FragmentBaseWithSearch implements ItemListAdapter.OnItemClickListener, TareaAsincrona.OnFinishedProcess {
     private static final String PARAM_ITEMS = "param_items";
     private static final int ITEMS_COUNT_DEFAULT = 30;
+    private static final int DETAILS_ITEM_ACTIVITY_CODE = 20;
     private List<Item> items;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
@@ -128,7 +130,9 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncItems(0, getActivity(), this, true).execute();
+                Intent serviceSyncAll = new Intent(getActivity().getApplicationContext(), SyncAllService.class);
+                getActivity().startService(serviceSyncAll);
+                //new SyncItems(0, getActivity(), this, true).execute();
                 break;
         }
 
@@ -148,7 +152,8 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         MenuItem item = menu.findItem(R.id.app_bar_search);
 
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchView.setOnQueryTextListener(getOnQueryTextListener());
+        /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 items.removeAll(items);
@@ -172,14 +177,38 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
                 return true;
             }
-        });
+        });*/
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        super.onQueryTextChange(newText);
+
+        items = getItems(newText);
+        setAdapter();
+
+        return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == DETAILS_ITEM_ACTIVITY_CODE){
+            if(isSearching()) {
+                items = getItems(getTextSearch());
+                setAdapter();
+            }else{
+                updateList();
+            }
+        }
     }
 
     @Override
     public void onItemClick(Item item) {
         Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsItemActivity.class);
         seeMoreIntent.putExtra(DetailsItemActivity.EXTRA_ITEM_DATA, item);
-        getActivity().startActivity(seeMoreIntent);
+        getActivity().startActivityForResult(seeMoreIntent, DETAILS_ITEM_ACTIVITY_CODE);
     }
 
     @Override
@@ -188,7 +217,6 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             Toast.makeText(getActivity(), getString(R.string.updater_success), Toast.LENGTH_SHORT).show();
             updateList();
         }
-
     }
 
     @Override

@@ -1,20 +1,28 @@
 package com.mobile.proisa.pedidoprueba;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
+import com.mobile.proisa.pedidoprueba.Activities.VentaActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
 import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
@@ -22,31 +30,28 @@ import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import BaseDeDatos.SqlUpdater;
 import Models.Constantes;
 import Models.Invoice;
 import Models.User;
 import Models.Vendor;
-import Sqlite.InvoiceController;
-import Sqlite.MySqliteOpenHelper;
-import Utils.NumberUtils;
+import Sqlite.Controller;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
-        ClientsFragment.OnFragmentInteractionListener, BluetoothListFragment.OnBluetoothSelectedListener
+        ClientsFragment.OnFragmentInteractionListener
 {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN = 100;
-
+    private static final int PERMISO_MEMORIA_REQUEST = 321;
 
     private ViewPager viewPager;
     private BottomNavigationView mBottomNavigationView;
-    private User mUser;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,16 +63,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
-        ///startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-
-
-
-        Log.d("phoneModel", String.format("%s,   %s,   %s,   %s",Build.MODEL, Build.BRAND, Build.BOARD, Build.ID));
-
-
-        MySqliteOpenHelper.generateFile(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+        Log.d(TAG, "phoneName: " + getPhoneName());
     }
-
 
     private String getPhoneName(){
         return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
@@ -76,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private void checkPreferences() {
         if (!areUserThere()) {
             startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
+        }else{
+            checkPermissionStorage();
         }
     }
 
@@ -101,41 +100,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(ItemListFragment.newInstance());
         fragments.add(ClientsFragment.newInstance());
-        fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
+        fragments.add(ActividadFragment.newInstance());
         fragments.add(new VendorProfileFragment());
 
         return fragments;
     }
-
-    public static List<Actividad> getActividadesDePrueba() {
-        List<Actividad> actividads = new ArrayList<>();
-
-        Random random = new Random();
-
-        int visitas = 1 + random.nextInt(50);
-        //visitas = visitas == 0 ? 2 : visitas;
-        int visitasCompletas = random.nextInt(visitas);
-        int visitanIncompletas = visitas - visitasCompletas;
-
-        actividads.add(new Actividad("RD$ " + NumberUtils.formatNumber(random.nextDouble() * 100.00 + 1000.00, NumberUtils.FORMAT_NUMER_DOUBLE), "Venta Total", "Todo lo vendido en el día"));
-
-
-        if (visitasCompletas > 0) {
-            actividads.add(new Actividad(NumberUtils.formatNumber(visitasCompletas, NumberUtils.FORMAT_NUMER_INTEGER), "Visitas Completas", String.format("%d%% de las visitas", NumberUtils.getPercent(visitasCompletas, visitas))));
-        }
-
-        if (visitanIncompletas > 0) {
-            actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER), "Visitas Incompletas", String.format("%d%% de las visitas", NumberUtils.getPercent(visitanIncompletas, visitas)), false));
-        }
-
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50), NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100), NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos", "Articulos devueltos por los clientes :'(", false));
-
-
-
-        return actividads;
-    }
-
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -159,12 +128,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-
         switch (requestCode){
             case REQUEST_LOGIN:
                 if (resultCode == RESULT_OK) {
                     User mUser = data.getExtras().getParcelable("user");
-                    guardarUsuario(mUser);
+                    saveUserInPreferences(mUser);
+                    checkPermissionStorage();
+
+                    Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                    startService(serviceSyncAll);
                 } else {
                     finish();
                 }
@@ -194,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return user;
     }
 
-    private void guardarUsuario(User user) {
+    private void saveUserInPreferences(User user) {
         SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
         SharedPreferences.Editor editor;
 
@@ -211,29 +183,84 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
-    private void deletePreferences() {
-        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
-        SharedPreferences.Editor editor;
-
-        editor = preferences.edit();
-        editor.clear().commit();
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int position = item.getOrder() - 1;
         viewPager.setCurrentItem(position, true);
+
+
+
         return true;
     }
-
 
     @Override
     public void requestChangePage() {
         viewPager.setCurrentItem(3);
     }
 
-    @Override
-    public void onBluetoothSelected(BluetoothDevice device) {
-        Toast.makeText(getApplicationContext(), device.getName(), Toast.LENGTH_SHORT).show();
+    private void checkPermissionStorage(){
+        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISO_MEMORIA_REQUEST);
+
+            Log.d(TAG, "checkPermissionStorage: Solicitando permiso de memoria");
+        }else{
+            Log.d(TAG, "checkPermissionStorage: El permiso de memoria ya esta concedido");
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case PERMISO_MEMORIA_REQUEST:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Log.d(TAG, "onRequestPermissionsResult: permiso de memoria concedido");
+                }else{
+                    Log.d(TAG, "onRequestPermissionsResult: permiso de memoria denegado");
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                if(SyncAllService.EXTRA_SYNC_START.equals(action)) {
+                    Toast.makeText(getApplicationContext(), R.string.sync, Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getApplicationContext(), R.string.got_data, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_START);
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_FINISH);
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    private void toogle(){
+        View v  = findViewById(R.id.progressBar);
+        int visivility = v.getVisibility();
+
+        v.setVisibility( visivility == View.GONE ? View.VISIBLE : View.GONE);
+    }
+
 }

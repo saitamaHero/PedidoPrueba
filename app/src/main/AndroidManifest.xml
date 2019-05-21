@@ -53,9 +53,12 @@
         <activity android:name=".Activities.InvoiceListActivity" />
 
         <service
-            android:name=".Services.PruebaServicio"
+            android:name=".Services.SyncAllService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".Activities.InvoiceDetailsActivity" />
+        <activity android:name=".Activities.DiaryListActivity"></activity>
     </application>
 
 </manifest>

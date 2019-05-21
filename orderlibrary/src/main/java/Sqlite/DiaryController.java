@@ -20,7 +20,8 @@ import Models.Item;
 import Utils.DateUtils;
 
 public class DiaryController extends Controller<Diary> {
-    
+    private static final String TAG = "DiaryController";
+
     public DiaryController(SQLiteDatabase sqLiteDatabase) {
         super(sqLiteDatabase);
     }
@@ -67,6 +68,26 @@ public class DiaryController extends Controller<Diary> {
         }
 
         return items;
+    }
+
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
+
+    public Diary getLastDiary(){
+        Cursor cursor = getSqLiteDatabase().rawQuery("SELECT last_insert_rowid()", null);
+
+        if(cursor.moveToNext()){
+            return getById(cursor.getInt(0));
+        }
+
+        return null;
     }
 
     public List<Diary> getAllCompleteById(Object id) {
@@ -141,6 +162,7 @@ public class DiaryController extends Controller<Diary> {
 
         int result = database.update(Diary.TABLE_NAME, cv, Diary._ID.concat("=?"), new String[]{String.valueOf(item.getId())});
 
+        Log.d(TAG, "update: result="+result);
         return result == 1;
     }
 
@@ -274,5 +296,21 @@ public class DiaryController extends Controller<Diary> {
         cv.put(Diary._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
+    }
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Diary.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
     }
 }

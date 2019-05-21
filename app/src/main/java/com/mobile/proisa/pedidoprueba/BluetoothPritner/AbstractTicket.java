@@ -13,7 +13,7 @@ public abstract class AbstractTicket implements Ticket {
     public abstract String getBarcodeInfo();
 
     /**
-     * Devuelve un string con el sticker formado
+     * Devuelve un string con el sticker formado, aqui va toda la informacion a imprimir
      * @param buffer
      */
     public abstract String onBuildTicket(StringBuilder buffer);

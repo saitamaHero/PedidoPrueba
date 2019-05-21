@@ -147,7 +147,9 @@ public class Actividad implements Parcelable{
 
 
         public Actividad create(){
-            return this.mActividad;
+            Actividad actividad = this.mActividad;
+            this.mActividad = new Actividad();
+            return actividad;
         }
     }
 }
