@@ -18,13 +18,13 @@
         android:orderInCategory="2"
     />
 
-    <item
+<!--    <item
         android:id="@+id/vendor_activity"
         android:title="@string/activity"
         android:icon="@drawable/ic_events"
         app:showAsAction="ifRoom"
         android:orderInCategory="3"
-        />
+        />-->
 
     <item
         android:id="@+id/vendor_profile"

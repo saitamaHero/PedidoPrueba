@@ -2,7 +2,10 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
@@ -66,6 +69,8 @@ public class ClientsFragment extends FragmentBaseWithSearch implements View.OnCl
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
+
+    private BroadcastReceiver broadcastReceiver;
 
     private OnFragmentInteractionListener onFragmentInteractionListener;
 
@@ -285,13 +290,33 @@ public class ClientsFragment extends FragmentBaseWithSearch implements View.OnCl
         setAdapter();
     }
 
-/*    @Override
+    @Override
     public void onResume() {
         super.onResume();
 
-        if(!isSearching)
-            updateList();
-    }*/
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                if(SyncAllService.EXTRA_SYNC_FINISH.equals(action)) {
+                    updateList();
+                }
+            }
+        };
+
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_FINISH);
+
+        getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        getActivity().unregisterReceiver(broadcastReceiver);
+    }
 
     @Override
     public void onClick(View view) {

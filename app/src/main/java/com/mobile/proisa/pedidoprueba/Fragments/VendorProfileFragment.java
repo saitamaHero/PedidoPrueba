@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,6 +39,7 @@ import Models.Constantes;
 import com.mobile.proisa.pedidoprueba.R;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +47,9 @@ import Models.Diary;
 import Models.Invoice;
 import Models.User;
 import Models.Vendor;
+import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Utils.FileUtils;
 import Utils.NumberUtils;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -58,6 +64,8 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     private ImageView profilePhoto;
     private RecyclerView recyclerView;
 
+    private List<Actividad> actividadList;
+
     private boolean activeGridLayout;
 
     public VendorProfileFragment() {
@@ -69,6 +77,14 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_vendor_profile, container, false);
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        actividadList = new ArrayList<>();
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -175,11 +191,58 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
             //Toast.makeText(getActivity(), "logout: database wasn't deleted", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "logout: database wasn't deleted");
         }
+
+
+        deleteFilesForThisVendor();
+
+        getActivity().finish();
+    }
+
+    private void deleteFilesForThisVendor()
+    {
+
+        File dirClientes  = FileUtils.createFileRoute(Constantes.MAIN_DIR,Constantes.CLIENTS_PHOTOS);
+        File dirArticulos =  FileUtils.createFileRoute(Constantes.MAIN_DIR,Constantes.ITEMS_PHOTOS);
+
+        File[] directories = new File[]{dirClientes, dirArticulos};
+
+
+        for(File dir : directories){
+            Log.d(TAG, dir.toString());
+            File[] files =  dir.listFiles();
+
+            if(files != null && files.length > 0){
+                for (File file : files) {
+                    String mime = getMimeType(file.getPath());
+
+
+                    if(mime != null && mime.startsWith("image/")){
+                        boolean deleted = file.delete();
+                        Log.d(TAG, String.format("file = %s, mime = %s, deleted = %s ", file.getName(), mime, deleted));
+                    }
+                }
+            }
+
+        }
+
+
+    }
+
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+
+        return type;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        actividadList.clear();
 
         activeGridLayout = true;
 
@@ -200,14 +263,13 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     }
 
     private void setAdapterActividades() {
-        List<Actividad> actividadList = getActividades();
+        getActividades();
 
         ActividadAdapter actividadAdapter = new ActividadAdapter(actividadList, R.layout.data_detail_layout);
         recyclerView.setAdapter(actividadAdapter);
 
         if(activeGridLayout){
-            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-
+            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         }else{
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
@@ -215,19 +277,98 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
         actividadAdapter.setOnActividadClick(this);
     }
 
-    public static List<Actividad> getActividades(){
-        List<Actividad> actividads = new ArrayList<>();
-
-        Actividad.Builder builder = new Actividad.Builder();
-
-
-        return actividads;
-    }
-
     @Override
     public void onActividadClick(List<Actividad> actividades, int position) {
         Actividad actividad = actividades.get(position);
 
         Toast.makeText(getActivity(), actividad.getDescription(), Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void getActividades()
+    {
+        Actividad.Builder builder = new Actividad.Builder();
+        builder .addStatus(true)
+                .addNumeric(NumberUtils.formatToInteger(getVisitasHechas()))
+                .addId(1).addDescription(getString(R.string.msg_visits_today));
+
+        this.actividadList.add(builder.create());
+
+        builder .addStatus(true)
+                .addNumeric(NumberUtils.formatToInteger(getVisitasPendientes()))
+                .addId(1).addDescription(getString(R.string.msg_visits_pending));
+
+        this.actividadList.add(builder.create());
+
+        builder .addStatus(true)
+                .addNumeric(NumberUtils.formatToInteger(getFacturasPorVisita()))
+                .addId(2).addDescription(getString(R.string.msg_invoices_today));
+
+
+        this.actividadList.add(builder.create());
+
+        builder .addStatus(true)
+                .addNumeric("RD$ " +NumberUtils.formatToDouble(getTotalPorFacturas()))
+                .addId(3).addDescription(getString(R.string.msg_invoices_total));
+
+        this.actividadList.add(builder.create());
+
+        builder .addStatus(true)
+                .addNumeric("RD$ " +NumberUtils.formatToDouble(getTotalPorFacturas(Invoice.InvoicePayment.CASH)))
+                .addId(4).addDescription(getString(R.string.msg_invoices_total_cash));
+
+        this.actividadList.add(builder.create());
+
+        builder .addStatus(true)
+                .addNumeric("RD$ " +NumberUtils.formatToDouble(getTotalPorFacturas(Invoice.InvoicePayment.CREDIT)))
+                .addId(4).addDescription(getString(R.string.msg_invoices_total_credit));
+
+        this.actividadList.add(builder.create());
+    }
+
+    private long getVisitasHechas(){
+        SQLiteDatabase appDatabase = MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase();
+        String selection = Diary._START_TIME + " IS NOT NULL AND " + Diary._END_TIME + " IS NOT NULL";
+        return DatabaseUtils.queryNumEntries(appDatabase, Diary.TABLE_NAME, selection);
+    }
+
+    private long getVisitasPendientes() {
+        SQLiteDatabase appDatabase = MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase();
+        String selection = Diary._START_TIME + " IS NULL AND " + Diary._END_TIME + " IS NULL";
+        return DatabaseUtils.queryNumEntries(appDatabase, Diary.TABLE_NAME, selection);
+    }
+
+    private long getFacturasPorVisita(){
+        SQLiteDatabase appDatabase = MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase();
+        //String selection = Diary._START_TIME + " IS NOT NULL AND " + Diary._END_TIME + " IS NOT NULL";
+        return DatabaseUtils.queryNumEntries(appDatabase, Diary.TABLE_DIARY_INV);
+    }
+
+    private double getTotalPorFacturas()
+    {
+        SQLiteDatabase appDatabase = MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase();
+        double total = 0.0;
+
+        List<Invoice> invoiceList = new InvoiceController(appDatabase).getAll();
+
+        for(Invoice invoice : invoiceList) {
+            total += invoice.getTotal();
+        }
+
+        return total;
+    }
+
+    private double getTotalPorFacturas(Invoice.InvoicePayment paymentType)
+    {
+        SQLiteDatabase appDatabase = MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase();
+        double total = 0.0;
+
+        List<Invoice> invoiceList = new InvoiceController(appDatabase).getAll();
+
+        for(Invoice invoice : invoiceList) {
+            total += invoice.getInvoiceType().equals(paymentType) ? invoice.getTotal() : 0;
+        }
+
+        return total;
     }
 }

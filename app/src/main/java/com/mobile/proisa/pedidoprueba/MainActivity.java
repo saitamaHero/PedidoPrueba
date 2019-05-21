@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setContentView(R.layout.activity_main);
 
         setUpNavigationView();
-        setUpViewPager(1);
+        setUpViewPager(2);
 
         checkPreferences();
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(ItemListFragment.newInstance());
         fragments.add(ClientsFragment.newInstance());
-        fragments.add(ActividadFragment.newInstance());
+        //fragments.add(ActividadFragment.newInstance());
         fragments.add(new VendorProfileFragment());
 
         return fragments;
@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         SharedPreferences.Editor editor;
 
         editor = preferences.edit();
-
         editor.putString(Constantes.USER, user.getUser());
 
         Vendor vendor = user.getVendor();
@@ -187,8 +186,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int position = item.getOrder() - 1;
         viewPager.setCurrentItem(position, true);
-
-
 
         return true;
     }
