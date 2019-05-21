@@ -41,6 +41,7 @@ import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.net.HttpURLConnection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -399,6 +400,12 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
             invoiceUpdater.setOnErrorListener(this);
 
             invoiceUpdater.apply();
+
+            try {
+                connection.getSqlConnection().close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
             return null;
         }

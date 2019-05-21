@@ -56,17 +56,16 @@ import Sqlite.ZoneController;
 import static android.app.Activity.RESULT_OK;
 
 
-public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener, TareaAsincrona.OnFinishedProcess{
+public class ClientsFragment extends FragmentBaseWithSearch implements View.OnClickListener, TareaAsincrona.OnFinishedProcess{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
     public static final int DETAILS_CLIENT_ACTIVITY = 805;
-    private static final int CREATE_CLIENT_CODE = 806;
-    private static final int DEFAULT_CLIENTS_COUNT = 20;
+    private static final int CREATE_CLIENT_CODE     = 806;
+    private static final int DEFAULT_CLIENTS_COUNT  = 20;
 
     private List<Client> clients;
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
-    private boolean isSearching;
 
     private OnFragmentInteractionListener onFragmentInteractionListener;
 
@@ -129,7 +128,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                         break;
 
                     case RecyclerView.SCROLL_STATE_DRAGGING:
- //                       fab.hide();
+                         fab.hide();
                         break;
 
                     case RecyclerView.SCROLL_STATE_SETTLING:
@@ -147,7 +146,6 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     private void setAdapter() {
         Collections.sort(clients, new Client.SortByVisitDate());
-
 
         clientAdapter = new ClientAdapter(this.clients, R.layout.cliente_card_layout);
         recyclerView.setAdapter(clientAdapter);
@@ -196,14 +194,13 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         item.collapseActionView();
 
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setOnQueryTextListener(this);
+        searchView.setOnQueryTextListener(getOnQueryTextListener());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                //new SyncClients(0, getActivity(), this, true).execute();
                 Intent serviceSyncAll = new Intent(getActivity().getApplicationContext(), SyncAllService.class);
                 getActivity().startService(serviceSyncAll);
                 break;
@@ -219,11 +216,10 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        isSearching = newText.length() > 0;
+        super.onQueryTextChange(newText);
 
         clients = getClients(newText);
         setAdapter();
-
 
         return true;
     }
@@ -234,7 +230,12 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
-                //onFragmentInteractionListener.requestChangePage();
+                if(isSearching()){
+                    this.clients = getClients(getTextSearch());
+                    setAdapter();
+                }else{
+                    updateList();
+                }
                 break;
 
             case CREATE_CLIENT_CODE:
