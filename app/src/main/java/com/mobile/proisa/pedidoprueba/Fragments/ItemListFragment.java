@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.mobile.proisa.pedidoprueba.Activities.DetailsItemActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ItemListAdapter;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
@@ -37,29 +38,29 @@ import java.util.Random;
 import java.util.Stack;
 
 import BaseDeDatos.CategoryUpdater;
+import BaseDeDatos.CompanyUpdater;
 import BaseDeDatos.ItemUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
 import BaseDeDatos.UnitUpdater;
 import Models.Category;
+import Models.Company;
 import Models.Item;
 import Models.Unit;
 import Sqlite.CategoryController;
+import Sqlite.CompanyController;
 import Sqlite.ItemController;
 import Sqlite.MySqliteOpenHelper;
 import Sqlite.UnitController;
 import Utils.DateUtils;
 
-public class ItemListFragment extends Fragment implements ItemListAdapter.OnItemClickListener, TareaAsincrona.OnFinishedProcess {
+public class ItemListFragment extends FragmentBaseWithSearch implements ItemListAdapter.OnItemClickListener, TareaAsincrona.OnFinishedProcess {
     private static final String PARAM_ITEMS = "param_items";
     private static final int ITEMS_COUNT_DEFAULT = 30;
+    private static final int DETAILS_ITEM_ACTIVITY_CODE = 20;
     private List<Item> items;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
-
-
-    public static final String[] CATEGORIES = {"Bebidas", "Alimentos", "Limpieza", "Dulces"};
-
 
     public ItemListFragment() {
     }
@@ -129,7 +130,9 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncItems(0, getActivity(), this, true).execute();
+                Intent serviceSyncAll = new Intent(getActivity().getApplicationContext(), SyncAllService.class);
+                getActivity().startService(serviceSyncAll);
+                //new SyncItems(0, getActivity(), this, true).execute();
                 break;
         }
 
@@ -149,7 +152,8 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
         MenuItem item = menu.findItem(R.id.app_bar_search);
 
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchView.setOnQueryTextListener(getOnQueryTextListener());
+        /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 items.removeAll(items);
@@ -173,59 +177,51 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
                 return true;
             }
-        });
+        });*/
     }
 
-    public static Item getItem(String id, String name) {
-        Item item = new Item(id, name);
-        Random random = new Random();
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        super.onQueryTextChange(newText);
 
+        items = getItems(newText);
+        setAdapter();
 
-        item.setId("COD-".concat(String.valueOf(random.nextInt(1000) * (1 + random.nextInt(99)))));
-        item.setPrice(random.nextDouble() * 100.00 + 100.00);
-        item.setQuantity(random.nextInt(10) * random.nextInt(10));
-        item.setStock(random.nextInt(100) * random.nextInt(5));
-        item.setPhoto(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "photo.jpg")));
-        item.setCategory(getRandomCategory());
-        item.setUnit(new Unit("UD", "UNIDAD"));
-
-        return item;
+        return true;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    public static List<Item> createListItem(int count, int startPosition) {
-        List<Item> items = new ArrayList<>(count);
-
-        for (int i = startPosition; i < startPosition + count; i++) {
-            items.add(getItem("", "PRODUCTO DE PRUEBA " + i));
+        if(requestCode == DETAILS_ITEM_ACTIVITY_CODE){
+            if(isSearching()) {
+                items = getItems(getTextSearch());
+                setAdapter();
+            }else{
+                updateList();
+            }
         }
-
-        return items;
-    }
-
-    public static Category getRandomCategory() {
-        Random random = new Random();
-        return new Category("CAT-" + random.nextInt(50), CATEGORIES[random.nextInt(CATEGORIES.length)]);
     }
 
     @Override
     public void onItemClick(Item item) {
         Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsItemActivity.class);
         seeMoreIntent.putExtra(DetailsItemActivity.EXTRA_ITEM_DATA, item);
-        getActivity().startActivity(seeMoreIntent);
+        getActivity().startActivityForResult(seeMoreIntent, DETAILS_ITEM_ACTIVITY_CODE);
     }
 
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
-            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.updater_success), Toast.LENGTH_SHORT).show();
             updateList();
         }
     }
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-
+        Toast.makeText(getActivity(), exceptions.pop().getMessage(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -241,8 +237,9 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
 
         @Override
         protected Void doInBackground(Void... voids) {
-            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             publishProgress(getContext().getString(R.string.starting));
+
+            SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
 
             /**
              * Articulos
@@ -255,7 +252,7 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             itemUpdater.retriveData();
 
             /**
-             * Categoria
+             * Categoría
              */
             CategoryController categoryController = new CategoryController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase());
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
@@ -271,6 +268,10 @@ public class ItemListFragment extends Fragment implements ItemListAdapter.OnItem
             UnitUpdater unitUpdater = new UnitUpdater(getContext().getApplicationContext(), connection, unitController);
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             unitUpdater.retriveData();
+
+
+            CompanyUpdater updater = new CompanyUpdater(getContext().getApplicationContext(), connection, new CompanyController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
+            updater.retriveData();
 
             return null;
         }

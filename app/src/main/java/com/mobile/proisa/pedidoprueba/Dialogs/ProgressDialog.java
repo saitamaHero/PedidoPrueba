@@ -1,5 +1,6 @@
 package com.mobile.proisa.pedidoprueba.Dialogs;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.res.Resources;
@@ -21,7 +22,7 @@ public class ProgressDialog extends DialogFragment {
 
     private String info;
     private TextView textView;
-    private String mTitle;
+
 
     public static ProgressDialog newInstance(String info) {
         Bundle args = new Bundle();
@@ -32,46 +33,29 @@ public class ProgressDialog extends DialogFragment {
         return fragment;
     }
 
-    public static ProgressDialog newInstance(String title, String info) {
-        Bundle args = new Bundle();
-        ProgressDialog fragment = new ProgressDialog();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         if(getArguments() != null){
             info = getArguments().getString(PARAM_INFO);
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.progress_dialog_layout, container);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        textView = view.findViewById(R.id.textView);
-        textView.setText(info);
-
-
-        setStyle(STYLE_NORMAL, R.style.Theme_AppCompat_Dialog_MinWidth);
-
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        dialog.setTitle(getString(R.string.processing));
+        View view = LayoutInflater.from(getActivity()).inflate( R.layout.progress_dialog_layout, null);
+        textView  = view.findViewById(R.id.textView);
+        textView.setText(info);
 
-        return dialog;
+
+        builder.setTitle(getString(R.string.processing)).setView(view);
+
+        return builder.create();
     }
 
     public void changeInfo(String newInfo){

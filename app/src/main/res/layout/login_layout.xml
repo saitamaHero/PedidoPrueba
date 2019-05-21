@@ -1,123 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/cardview_shadow_start_color"
     android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
-        android:layout_width="@dimen/width_card_login"
+    <ProgressBar
+        android:id="@+id/progress_layout"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="@dimen/cardview_compat_inset_shadow"
-        android:padding="4dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/login_form_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:cardBackgroundColor="@color/cardview_light_background"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="@dimen/cardview_compat_inset_shadow">
 
-        >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sing_in_title"
                 android:layout_gravity="center_horizontal"
-                android:textSize="30sp"
+                android:text="@string/sing_in_title"
                 android:textColor="@color/cardview_dark_background"
-                />
+                android:textSize="30sp" />
 
-            <View android:id="@+id/separator"
-                android:layout_width = "match_parent"
+            <View
+                android:id="@+id/separator"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/cardview_dark_background"
-                />
+                android:background="@color/cardview_dark_background" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="30dp"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_weight="1"
-                    android:paddingBottom="25dp"
-                    >
+                    android:orientation="horizontal"
+                    android:paddingBottom="25dp">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_weight=".1"
-                        android:src="@drawable/ic_account_user"
                         android:layout_gravity="center"
-                        />
+                        android:layout_weight=".1"
+                        android:src="@drawable/ic_account_user" />
 
                     <EditText
                         android:id="@+id/user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".9"
-                        android:hint="@string/hint_user"
                         android:layout_gravity="center"
+                        android:layout_weight=".9"
                         android:background="@drawable/shape_corner_edittext"
-                        android:inputType="text"
+                        android:hint="@string/hint_user"
                         android:imeOptions="actionNext"
-                        />
+                        android:inputType="text" />
                 </LinearLayout>
-
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_weight="1"
-                    android:paddingTop="25dp"
-                    >
+                    android:orientation="horizontal"
+                    android:paddingTop="25dp">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_weight=".1"
-                        android:src="@drawable/ic_password_textbox"
                         android:layout_gravity="center"
+                        android:layout_weight=".1"
                         android:backgroundTint="@color/colorAccent"
-                        />
+                        android:src="@drawable/ic_password_textbox" />
+
                     <EditText
                         android:id="@+id/password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".9"
-                        android:hint="@string/hint_pass"
                         android:layout_gravity="center"
+                        android:layout_weight=".9"
                         android:background="@drawable/shape_corner_edittext"
-                        android:inputType="textPassword"
+                        android:hint="@string/hint_pass"
                         android:imeOptions="actionDone"
-                        />
+                        android:inputType="textPassword" />
                 </LinearLayout>
             </LinearLayout>
 
 
-
             <Button
                 android:id="@+id/btn_sing_in"
+                style="@style/Base.Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_marginBottom="10dp"
-                android:text="@string/sing_in"
-                style="@style/Base.Widget.AppCompat.Button.Colored"
-                android:textColor="#FFF"
                 android:elevation="2dp"
-                />
+                android:text="@string/sing_in"
+                android:textColor="@color/white" />
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

@@ -30,14 +30,14 @@ public class InvoiceController extends Controller<Invoice> {
         List<Invoice> invoices = new ArrayList<>();
         Cursor cursor;
 
-        InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
+        //InvoiceDetailsController controller = new InvoiceDetailsController(sqLiteDatabase);
 
         cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
             Invoice invoice = getDataFromCursor(cursor);
-            invoice.setItems(controller.getAllById(invoice.getId()));
+            //invoice.setItems(controller.getAllById(invoice.getId()));
 
             invoices.add(invoice);
 
@@ -53,6 +53,19 @@ public class InvoiceController extends Controller<Invoice> {
         Cursor cursor;
 
         cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._CLIENT.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            return getDataFromCursor(cursor);
+        }
+
+        return null;
+    }
+
+    public Invoice getByInvoiceId(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, Invoice._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
 
         if (cursor.moveToNext()) {
             return getDataFromCursor(cursor);
@@ -86,7 +99,25 @@ public class InvoiceController extends Controller<Invoice> {
 
     @Override
     public boolean update(Invoice item) {
-        return false;
+        ContentValues cv = getContentValues(item);
+        cv.remove(Invoice._ID);
+        cv.remove(Invoice._CLIENT);
+        cv.remove(Invoice._DATE);
+        cv.remove(Invoice._NCF_SEQ);
+        cv.remove(Invoice._MONEY);
+        cv.remove(Invoice._INV_TYPE);
+
+        SQLiteDatabase database = getSqLiteDatabase();
+
+        long result = -1;
+
+        try {
+            result = database.update(Invoice.TABLE_NAME, cv, Invoice._ID.concat("=?"),new String[]{item.getId()});
+        } catch (SQLException e) {
+            Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
+        }
+
+        return result > 0; //&& detailsInserted;
     }
 
     @Override
@@ -126,13 +157,11 @@ public class InvoiceController extends Controller<Invoice> {
 
     @Override
     public boolean insertAll(List<Invoice> items) {
-
         for (Invoice i : items) {
             if (!insert(i)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -157,15 +186,17 @@ public class InvoiceController extends Controller<Invoice> {
     public Invoice getDataFromCursor(Cursor cursor) {
         Invoice invoice = new Invoice();
 
-        invoice.setId(cursor.getString(cursor.getColumnIndex(Invoice._ID)));
+        invoice.setId(cursor.getString( cursor.getColumnIndex(Invoice._ID)));
         int invoiceType = cursor.getInt(cursor.getColumnIndex(Invoice._INV_TYPE));
         invoice.setInvoiceType(Invoice.InvoicePayment.values()[invoiceType]);
-        invoice.setComment(cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
+        invoice.setComment(      cursor.getString(cursor.getColumnIndex(Invoice._COMMENT)));
+        invoice.setNcfSequence(  cursor.getString(cursor.getColumnIndex(Invoice._NCF_SEQ)));
+        invoice.setMoneyReceived(cursor.getDouble(cursor.getColumnIndex(Invoice._MONEY)));
 
         String date = cursor.getString(cursor.getColumnIndex(Invoice._DATE));
         invoice.setDate(DateUtils.convertToDate(date, DateUtils.YYYY_MM_DD_HH_mm_ss));
 
-       // invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
+        invoice.setDiscount(cursor.getDouble(cursor.getColumnIndex(Invoice._DISCOUNT)));
 
         //Fecha de la ultima modificacion del archivo
         date = cursor.getString(cursor.getColumnIndex(Invoice._LASTMOD));
@@ -195,15 +226,42 @@ public class InvoiceController extends Controller<Invoice> {
 
         cv.put(Invoice._ID, item.getId());
         cv.put(Invoice._CLIENT, item.getClient().getId());
-        //cv.put(Invoice._DISCOUNT, item.getDiscount());
+        cv.put(Invoice._DISCOUNT, item.getDiscount());
+        cv.put(Invoice._MONEY, item.getMoneyReceived());
         cv.put(Invoice._COMMENT, item.getComment());
         cv.put(Invoice._DATE, DateUtils.formatDate(item.getDate(), DateUtils.YYYY_MM_DD_HH_mm_ss));
         cv.put(Invoice._INV_TYPE, item.getInvoiceType().ordinal());
+        cv.put(Invoice._NCF_SEQ, item.getNcfSequence());
 
         ColumnsSqlite.ColumnsRemote columnsRemote = item;
         cv.put(Invoice._STATUS, columnsRemote.getStatus());
         cv.put(Invoice._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
+    }
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Invoice.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Invoice.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
     }
 }

@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.R;
@@ -21,9 +26,13 @@ import BaseDeDatos.SqlConnection;
 import Models.User;
 import Models.Vendor;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, TareaAsincrona.OnFinishedProcess {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, TareaAsincrona.OnFinishedProcess, TextView.OnEditorActionListener {
     private Button btnSingIn;
     private User mUser;
+
+    private View loginView;
+    private View progressView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +46,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void bindUI() {
         btnSingIn = findViewById(R.id.btn_sing_in);
         btnSingIn.setOnClickListener(this);
+
+        loginView = findViewById(R.id.login_form_layout);
+        progressView = findViewById(R.id.progress_layout);
+
+        EditText txtPassword = findViewById(R.id.password);
+        txtPassword.setOnEditorActionListener(this);
     }
 
     public User getUserFromEditText() {
@@ -54,14 +69,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_sing_in:
-                mUser = getUserFromEditText();
-                singIn(mUser);
+                hideInputMethod();
+                login();
                 break;
         }
     }
 
+    private void login() {
+        mUser = getUserFromEditText();
+        singIn(mUser);
+    }
+
     private void singIn(User mUser) {
+        showProgress(true);
         new LogInTask(0, this, this, mUser).execute();
+    }
+
+    private void showProgress(boolean show) {
+        loginView.setVisibility(show ? View.GONE : View.VISIBLE);
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public void sendUser(User mUser) {
@@ -69,6 +95,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         data.putExtra("user", mUser);
         setResult(RESULT_OK, data);
         finish();
+
+
     }
 
     @Override
@@ -81,6 +109,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     sendUser(mUser);
                 } else {
                     Toast.makeText(getApplicationContext(), "Usuario o contraseña incorrectos.", Toast.LENGTH_LONG).show();
+                    showProgress(false);
                 }
             }
         }
@@ -90,7 +119,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
         Exception lastException = exceptions.pop();
         Toast.makeText(getApplicationContext(), lastException.getMessage(), Toast.LENGTH_SHORT).show();
+        showProgress(false);
     }
+
+    @Override
+    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        if(i == EditorInfo.IME_ACTION_DONE || i == EditorInfo.IME_NULL){
+            login();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void hideInputMethod()
+    {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
+        View view = getCurrentFocus();
+
+        if(view == null){
+            view = new View(getApplicationContext());
+        }
+
+        //Toast.makeText(getApplicationContext(), view.toString(), Toast.LENGTH_SHORT).show();
+
+        inputMethodManager.hideSoftInputFromInputMethod(view.getWindowToken(), 0);
+    }
+
 
 
     public static class LogInTask extends TareaAsincrona<Void, Void, Void> {

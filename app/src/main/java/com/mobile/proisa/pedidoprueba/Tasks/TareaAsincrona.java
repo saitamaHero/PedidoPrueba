@@ -61,6 +61,17 @@ public abstract class TareaAsincrona<Params,Progress,Result> extends AsyncTask<P
             }
         }
     }
+
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+
+        if(exceptions.size() > 0){
+            listener.onErrorOccurred(getId(),exceptions);
+        }
+    }
+
     /**
      *Añade una excepcion a la pila de excepciones
      */

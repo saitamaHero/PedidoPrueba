@@ -1,46 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height_edittext"
+        android:text="1,956.00"
+        android:gravity="end|center"
+        android:textSize="@dimen/number_text_size"
+        android:background="@drawable/shape_payment_edit"
+        />
+    <EditText
+        android:id="@+id/edt_money"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height_edittext"
+        android:background="@drawable/shape_payment_edit"
+        android:gravity="end|center"
+        android:imeOptions="normal"
+        android:inputType="numberSigned|numberDecimal"
+        android:hint="@string/empty_money"
+        android:textSize="@dimen/number_text_size"
+        />
+
+    <EditText
+        android:id="@+id/devuelta"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height_edittext"
+        android:background="@drawable/shape_payment_edit_accent"
+        android:gravity="end|center"
+        android:imeOptions="actionNone"
+        android:inputType="none"
+        android:hint="@string/empty_money"
+        android:textSize="@dimen/number_text_size"
+        android:focusable="false"
+        />
+
+    <!--
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TableRow>
+                    <Button
+
+                        android:layout_weight="1"
+                        android:text="7"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="8"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="9"
+                    />
+                </TableRow>
+
+                <TableRow>
+                    <Button
+                        android:layout_weight="1"
+                        android:text="4"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="5"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="6"
+                        />
+                </TableRow>
+
+                <TableRow>
+                    <Button
+                        android:layout_weight="1"
+                        android:text="1"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="2"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="3"
+                        />
+                </TableRow>
+
+                <TableRow>
+                    <Button
+                        android:layout_weight="1"
+                        android:text="0"
+                        />
+                    <Button
+                        android:layout_weight="1"
+                        android:text="@string/clean"
+                        />
+
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/money_received"
-        >
+        android:hint="0.00">
+
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/edt_money"
+            android:id="@+id/edt_return"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberSigned|numberDecimal"
+            android:gravity="end"
             android:imeOptions="normal"
-            />
+            android:inputType="numberSigned|numberDecimal" />
     </android.support.design.widget.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/money_return"
-            android:textColor="@color/colorText"
             android:background="@color/colorAccent"
             android:padding="5dp"
-            />
+            android:text="@string/money_return"
+            android:textColor="@color/colorText" />
 
         <TextView
             android:id="@+id/devuelta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorText"
-            android:textSize="@dimen/text_size_titles"
             android:background="@android:color/darker_gray"
-            />
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/text_size_titles" />
 
     </LinearLayout>
-
+    -->
 </LinearLayout>

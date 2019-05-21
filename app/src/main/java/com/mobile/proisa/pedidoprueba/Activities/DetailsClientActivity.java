@@ -3,15 +3,15 @@ package com.mobile.proisa.pedidoprueba.Activities;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -47,12 +47,13 @@ import com.mobile.proisa.pedidoprueba.Dialogs.DialogDurationPicker;
 import com.mobile.proisa.pedidoprueba.Dialogs.PhotoActionDialog;
 import com.mobile.proisa.pedidoprueba.Dialogs.TimePickerFragment;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
+import com.mobile.proisa.pedidoprueba.Receivers.DiaryBroadcastReceiver;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
+import com.mobile.proisa.pedidoprueba.Services.VisitaActivaService;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -62,23 +63,25 @@ import Models.ColumnsSqlite;
 import Models.Constantes;
 import Models.Diary;
 import Models.Invoice;
-import Models.Item;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
-import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.NCFController;
 import Utils.DateUtils;
 import Utils.FileUtils;
-
+import Utils.NumberUtils;
 
 
 public class DetailsClientActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DatePickerDialog.OnDateSetListener, DialogDurationPicker.OnValueSetListener,
-        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener {
-    public static final String EXTRA_CLIENT = "client";
+        TimePickerDialog.OnTimeSetListener, PhotoActionDialog.OnActionPressedListener, DiaryBroadcastReceiver.OnDiaryStateListener {
+    private static final String TAG = "DetailsClientActivity";
+    public static final String EXTRA_CLIENT = "com.mobile.proisa.EXTRA_CLIENT";
+    public static final String EXTRA_INIT_VISIT = "com.mobile.proisa.EXTRA_INIT_VISIT";
     private static final int CAMERA_INTENT_RESULT = 1;
     private static final int EDIT_INTENT_RESULT = 2;
     private static final int GALLERY_INTENT_RESULT = 3;
+    private static final int VENTA_REQUEST_CODE = 4;
     private static final int PERMISO_MEMORIA_REQUEST = 1000;
     private static final int PERMISO_CAMERA_REQUEST = 2000;
 
@@ -87,13 +90,14 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     private boolean mPermissionCamera;
     private FloatingActionButton fabInitVisit;
 
-
     private Client client;
     private Uri currentPhotoItem;
     private Calendar mCalendar;
-    private Diary nextVisit; /*Proxima Visita*/
+    private Diary mNextVisit; /*Proxima Visita*/
 
     private DetailsItemActivity.UpdateLastModificationProccessor update;
+    private boolean mVisitActive;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,14 +106,20 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         if(savedInstanceState == null){
             client = getIntent().getExtras().getParcelable(EXTRA_CLIENT);
+            boolean canInitVisit =  getIntent().getBooleanExtra(EXTRA_INIT_VISIT, false);
 
-            if(client == null){
+            mVisitActive = false;
+
+            if(client != null){
+                if(canInitVisit) {
+                    initOrCancelVisit(false);
+                }
+            }else{
                 finish();
             }
         }else{
             client = savedInstanceState.getParcelable(EXTRA_CLIENT);
         }
-
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.empty_string);
@@ -121,54 +131,18 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         fabInitVisit.setOnClickListener(this);
 
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
-
-        MySqliteOpenHelper helper = MySqliteOpenHelper.getInstance(this);
-
-        /*InvoiceController controller = new InvoiceController(helper.getReadableDatabase());
-        List<Invoice> invoices = controller.getAllById(client.getId());
-
-        for(Invoice i : invoices){
-            //boolean deleted = controller.delete(i);
-            //
-            // Log.d("InvoicesFromClient",""+i.getId() + "fue borrada: "+deleted);
-
-            Log.d("InvoicesFromClient",""+i.toString());
-
-        }
-
-        DiaryController diaryController = new DiaryController(helper.getReadableDatabase());
-        List<Diary> diaryList = diaryController.getAllById(client.getId());
-
-        for(Diary diary : diaryList){
-            Log.d("diaryForThisClient", diary.toString());
-        }
-
-
-        printInThisYear(diaryController);
-
-        */
-
-    }
-
-    private void printInThisYear(DiaryController controller){
-        List<Diary> diaryList = controller.getAllRange(
-                client.getId(),"2019-01-01", "2019-01-03");
-
-        for(Diary diary : diaryList){
-            Log.d("diaryForThisClient", "rango: "+ diary.toString());
-        }
     }
 
     private void loadBackdrop(Uri uri) {
         ImageView imageView = findViewById(R.id.backdrop);
         imageView.setOnClickListener(this);
 
-        Glide.with(this)
+            Glide
+                .with(this)
                 .load(uri)
                 .thumbnail(0.1f)
                 .apply(RequestOptions.centerCropTransform())
                 .into(imageView);
-
     }
 
     private void loadInfo(Client client){
@@ -192,7 +166,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         }
 
         TextView txtAddress = findViewById(R.id.address);
-        txtAddress.setText(client.getAddress());
+        //txtAddress.setText(client.getNcf().getType());
 
         TextView txtEmail = findViewById(R.id.email);
         txtEmail.setText(client.getEmail());
@@ -244,7 +218,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         );
     }
 
-
     private void loadMenuOption(){
         Menu myMenu = new PopupMenu(this, null).getMenu();
         getMenuInflater().inflate(R.menu.menu_client, myMenu);
@@ -265,11 +238,18 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         loadMenuOption();
         loadInfo(client);
 
-
-        checkPermissionStorage();
-        checkPermissionCamera();
-
         startTimerThread();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_START);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_RUNNING);
+        intentFilter.addAction(VisitaActivaService.ACTION_VISIT_FINISH);
+
+        broadcastReceiver = new DiaryBroadcastReceiver(this);
+
+        registerReceiver(broadcastReceiver, intentFilter);
+
+        sendBroadcast(new Intent().setAction(VisitaActivaService.ACTION_IS_VISIT_RUNNING));
     }
 
     @Override
@@ -282,12 +262,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.fab_start_visit:
-                if(client.getDistance() < 300){
-                    //Posiblemente hay que leer el codigo de barra del cliente
-                    Toast.makeText(getApplicationContext(), "Iniciar Visita", Toast.LENGTH_SHORT).show();
-                    /**Si hay una cita acordada para hoy actualizar los registros
-                     * Sino crear una nueva*/
-                }
+                initOrCancelVisit(true);
                 break;
 
             case R.id.backdrop:
@@ -295,6 +270,42 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                 .putExtra(Intent.EXTRA_STREAM, client.getProfilePhoto()));
                 break;
 
+        }
+    }
+
+    private void initOrCancelVisit(boolean showMessageToCreate)
+    {
+        Intent intent = new Intent(this, VisitaActivaService.class);
+
+        if(client.hasVisitToday() && !mVisitActive){
+            //Posiblemente hay que leer el codigo de barra del cliente
+
+            intent.putExtra(VisitaActivaService.EXTRA_VISIT, client.getVisitDate());
+            startService(intent);
+        }else if(mVisitActive){
+            stopService(intent);
+        }else if(showMessageToCreate){
+            //Preguntar si desea comenzar una visita no premeditada.
+            View v = findViewById(R.id.card);
+            Snackbar.make(v,R.string.question_start_visit, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.start_now, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Diary diary = new Diary();
+                            diary.setClientToVisit(client);
+                            diary.setDateEvent(Calendar.getInstance().getTime());
+                            diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+                            diary.setDuration(0);
+
+                            DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+
+                            if(diaryController.insert(diary)){
+                                client.setVisitDate(diaryController.getLastDiary());
+
+                                initOrCancelVisit(false);
+                            }
+                        }
+                    }).show();
         }
     }
 
@@ -344,7 +355,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         switch (requestCode ){
             case CAMERA_INTENT_RESULT:
                 if(resultCode == RESULT_OK){
-
                     try {
                         currentPhotoItem = savePhoto(currentPhotoItem);
 
@@ -422,6 +432,13 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         e.printStackTrace();
                     }
                 }
+                break;
+
+            case VENTA_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    //Intent intent = new Intent(this, VisitaActivaService.class);
+                    //stopService(intent);
+                }
 
                 break;
         }
@@ -429,7 +446,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
     private Uri savePhoto(Uri photoItem) throws IOException {
         File route = FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.CLIENTS_PHOTOS);
-
         return FileUtils.compressPhoto(route, photoItem, FileUtils.DEFAULT_QUALITY);
     }
 
@@ -439,9 +455,8 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (menuItem.getItemId()){
             case R.id.action_take_photo:
-                PhotoActionDialog dialog = new PhotoActionDialog();
-                dialog.setOnActionPressedListener(this);
-                dialog.show(getSupportFragmentManager(), "");
+                checkPermissionStorage();
+                checkPermissionCamera();
                 break;
 
             case R.id.action_edit:
@@ -449,26 +464,42 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         .putExtra(EditClientActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
                 break;
 
-            case R.id.action_comment:
-                startActivityForResult(new Intent(getApplicationContext(),SeeCommentsActivity.class)
-                        .putExtra(SeeCommentsActivity.EXTRA_INFO, client), EDIT_INTENT_RESULT);
-                break;
-
             case R.id.action_diary:
-                DialogDurationPicker dialogDurationPicker = DialogDurationPicker.newInstance(Diary.ONE_HOUR);
-                dialogDurationPicker.setOnValueSetListener(this);
-                dialogDurationPicker.show(getSupportFragmentManager(), "");
+                initVisitCreation();
                 break;
-
 
             case R.id.action_order:
-                startActivity(new Intent(this, VentaActivity.class)
-                .putExtra(VentaActivity.EXTRA_CLIENT, this.client));
+                Invoice invoice = new Invoice();
+                invoice.setClient(this.client);
+                startActivityForResult(new Intent(this, VentaActivity.class)
+                .putExtra(BaseCompatAcivity.EXTRA_INVOICE, invoice), VENTA_REQUEST_CODE);
+                break;
+
+            case R.id.action_see_invoices:
+                startActivity(new Intent(this, InvoiceListActivity.class)
+                        .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
+                break;
+
+            case R.id.action_diaries:
+                startActivity(new Intent(this, DiaryListActivity.class)
+                        .putExtra(DetailsClientActivity.EXTRA_CLIENT, this.client));
+
                 break;
 
         }
     }
 
+    private void showDialogPhotoChoose() {
+        PhotoActionDialog dialog = new PhotoActionDialog();
+        dialog.setOnActionPressedListener(this);
+        dialog.show(getSupportFragmentManager(), "");
+    }
+
+    private void initVisitCreation(){
+        DialogDurationPicker dialogDurationPicker = DialogDurationPicker.newInstance(Diary.ONE_HOUR);
+        dialogDurationPicker.setOnValueSetListener(this);
+        dialogDurationPicker.show(getSupportFragmentManager(), "");
+    }
 
     private void checkPermissionStorage(){
         if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -488,6 +519,7 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         }else{
             mPermissionCamera = true;
+            showDialogPhotoChoose();
         }
     }
 
@@ -525,29 +557,26 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
 
         switch (requestCode){
             case PERMISO_MEMORIA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionStorage = true;
-                }else{
-                    mPermissionStorage = false;
-                }
+                mPermissionStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
             case PERMISO_CAMERA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    mPermissionCamera = true;
-                }else{
-                    mPermissionCamera = false;
-                }
+               mPermissionCamera = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+               if(mPermissionStorage && mPermissionCamera){
+                   showDialogPhotoChoose();
+               }
+
                 break;
         }
     }
 
     @Override
     public void onValueSet(int value) {
-        nextVisit = new Diary();
-        nextVisit.setClientToVisit(client);
-        nextVisit.setDuration(value);
-        nextVisit.setComment("Esto es un comentario de prueba.");
-        nextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+        mNextVisit = new Diary();
+        mNextVisit.setClientToVisit(client);
+        mNextVisit.setDuration(value);
+        mNextVisit.setComment("");
+        mNextVisit.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
         DatePickerFragment
                 .newInstance(this, null, Calendar.getInstance().getTime())
@@ -573,22 +602,31 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         mCalendar.set(Calendar.SECOND, 0);
         mCalendar.set(Calendar.MILLISECOND, 0);
 
-        nextVisit.setDateEvent(mCalendar.getTime());
+        mNextVisit.setDateEvent(mCalendar.getTime());
 
         DiaryController diaryController = new DiaryController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
-        if(diaryController.insert(nextVisit)){
+        if(diaryController.insert(mNextVisit)){
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.save_success,getString(R.string.visit)), Toast.LENGTH_LONG)
+                    getString(R.string.save_diary), Toast.LENGTH_LONG)
                     .show();
+
+            Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+            startService(serviceSyncAll);
+
+            ClientController clientController = new ClientController(MySqliteOpenHelper.getInstance(this).getReadableDatabase());
+            client = clientController.getById(this.client.getId());
         }else{
             Toast.makeText(getApplicationContext(), R.string.error_to_save, Toast.LENGTH_LONG)
                     .show();
         }
 
-        Log.d("nextVisit",nextVisit.toString());
+        Log.d("mNextVisit", mNextVisit.toString());
+
+
 
     }
+
 
     @Override
     public void onActionPressed(int action) {
@@ -611,10 +649,11 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
     protected void onPause() {
         super.onPause();
 
-
         if(update != null)
             update.terminate();
 
+
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -622,5 +661,56 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
         super.onSaveInstanceState(outState);
 
         outState.putParcelable(EXTRA_CLIENT, this.client);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!mVisitActive){
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onVisitStatusChanged(int status, Diary diary) {
+
+        switch (status){
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_START:
+                mVisitActive = true;
+                Toast.makeText(getApplicationContext(), R.string.visit_started, Toast.LENGTH_LONG).show();
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
+                mVisitActive = true;
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.badStatus)));
+                break;
+
+            case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_FINISH:
+                mVisitActive = false;
+
+                diary.setClientToVisit(client);
+                diary.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
+
+                fabInitVisit.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+
+                DiaryController  diaryController = new DiaryController(MySqliteOpenHelper.getInstance(getApplicationContext()).getWritableDatabase());
+                boolean isNewVisit =  diary.getId() == Diary.NEW_DIARY_ENTRY;
+
+                if(isNewVisit){
+                    if(diaryController.insert(diary)) {
+                        //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                        Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                    }
+                }else if(diaryController.update(diary)){
+                    //Posiblemente abrir otra actividad para seguir rellenando datos de la visita
+                    Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
+                }
+
+                Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                startService(serviceSyncAll);
+
+                break;
+
+        }
     }
 }

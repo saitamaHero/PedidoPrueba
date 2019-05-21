@@ -70,8 +70,8 @@ public class ShowPhotoActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("image/*");
                 intent.putExtra(Intent.EXTRA_STREAM, mUri);
-                startActivity(Intent.createChooser(intent,""));
-
+                //startActivity(Intent.createChooser(intent,""));
+                startActivity(intent);
                 return true;
 
                 default:

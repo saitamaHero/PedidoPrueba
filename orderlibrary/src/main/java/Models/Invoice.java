@@ -27,6 +27,8 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     private String comment;
     private int status;
     private String remoteId;
+    private String ncfSequence;
+    private double moneyReceived;
 
     public Invoice() {
         super();
@@ -36,6 +38,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
     }
 
     public Invoice(Date date, List<Item> items) {
+        super("","");
         this.date = date;
         this.items = items;
         this.invoiceType = InvoicePayment.CREDIT;
@@ -57,6 +60,9 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         invoiceType = InvoicePayment.valueOf(in.readString());
         comment = in.readString();
         remoteId = in.readString();
+        ncfSequence = in.readString();
+        date = (Date) in.readSerializable();
+        moneyReceived = in.readDouble();
     }
 
     @Override
@@ -69,6 +75,9 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         dest.writeString(invoiceType.name());
         dest.writeString(comment);
         dest.writeString(remoteId);
+        dest.writeString(ncfSequence);
+        dest.writeSerializable(date);
+        dest.writeDouble(moneyReceived);
     }
 
     @Override
@@ -136,8 +145,20 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         return discount > 1 ? discount / 100.00 : discount;
     }
 
+    public boolean hasDiscount(){
+        return Double.compare(discount, 0.0d) > 0;
+    }
+
     public void setDiscount(double discount) {
         this.discount = discount;
+    }
+
+    public double getMoneyReceived() {
+        return moneyReceived;
+    }
+
+    public void setMoneyReceived(double moneyReceived) {
+        this.moneyReceived = moneyReceived;
     }
 
     public InvoicePayment getInvoiceType() {
@@ -148,14 +169,85 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         this.invoiceType = invoiceType;
     }
 
+    public boolean containsItems(){
+        if(this.items != null && !(this.items.isEmpty())){
+            return true;
+        }
+
+        return false;
+    }
     @Override
     public double getTotal() {
         double total = 0.0;
 
         for (Item i : items) {
-            total += i.getTotal();
+            total += i == null? 0 : i.getTotal();
         }
         return total;
+    }
+
+    public double getTotalFreeTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getPriceFreeTaxes() * i.getQuantity();
+        }
+
+        return total;
+    }
+
+    public double getTotalTaxes(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getTaxes();
+        }
+
+        return total;
+    }
+
+    public double getTotalCost(){
+        double total = 0.0;
+
+        for (Item i : items) {
+            total += i == null? 0 : i.getCost();
+        }
+
+        return total;
+    }
+
+
+    public double getTotal(String which){
+        double total = 0.0;
+
+        switch (which){
+            case Item.FREE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+
+            case Item.INCLUDE_TAXES:
+                for (Item item : getItems()) {
+                    if(item != null && !item.isFreeTaxes()){
+                        total += item.getPrice();
+                    }
+                }
+                break;
+        }
+
+
+        return total;
+    }
+
+    public String getNcfSequence() {
+        return ncfSequence;
+    }
+
+    public void setNcfSequence(String ncfSequence) {
+        this.ncfSequence = ncfSequence;
     }
 
     @Override
@@ -165,7 +257,7 @@ public class Invoice extends SimpleElement implements ITotal, Parcelable, Column
         result = result + client.hashCode();
         result = result + date.hashCode();
 
-        return result;
+        return Math.abs(result);
     }
 
     @Override

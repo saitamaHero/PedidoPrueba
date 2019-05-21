@@ -18,7 +18,9 @@ import Models.Client;
 import Models.Client;
 import Models.ColumnsSqlite;
 import Models.Diary;
+import Models.NCF;
 import Models.Unit;
+import Models.Zone;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
@@ -107,6 +109,7 @@ public class ClientController extends Controller<Client> {
 
         if (cursor.moveToNext()) {
             Client client = getDataFromCursor(cursor);
+            client.setVisitDate(getNextVisit(client));
             cursor.close();
             return client;
         }
@@ -203,7 +206,6 @@ public class ClientController extends Controller<Client> {
 
     @Override
     public boolean exists(String field, Object object) {
-
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         Cursor cursor;
 
@@ -230,6 +232,15 @@ public class ClientController extends Controller<Client> {
         float lng = cursor.getFloat(cursor.getColumnIndex(Client._LNG));
 
         client.setLatlng(lat, lng);
+
+        String zoneId = cursor.getString(cursor.getColumnIndex(Client._ZONE_ID));
+        Zone zone = new ZoneController(getSqLiteDatabase()).getById(zoneId);
+        client.setClientZone(zone);
+
+
+        String ncfId = cursor.getString(cursor.getColumnIndex(Client._NCF_ID));
+        NCF ncf  = new NCFController(getSqLiteDatabase()).getById(ncfId);
+        client.setNcf(ncf);
 
         //Fecha de cumpleaño
         String bdate = cursor.getString(cursor.getColumnIndex(Client._BIRTH));
@@ -271,6 +282,8 @@ public class ClientController extends Controller<Client> {
         cv.put(Client._LAT,      item.getLatlng().x);
         cv.put(Client._LNG,      item.getLatlng().y);
         cv.put(Client._ADDRESS,  item.getAddress());
+        cv.put(Client._ZONE_ID,  item.getClientZone().getId());
+        cv.put(Client._NCF_ID,   item.getNcf().getId());
 
         if(!item.getPhoneNumbers().isEmpty())
         {
@@ -283,5 +296,22 @@ public class ClientController extends Controller<Client> {
 
         Log.d("RemoteData", String.format("remoteId='%s', status=%d", columnsRemote.getRemoteId(), columnsRemote.getStatus()));
         return cv;
+    }
+
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Client.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
     }
 }

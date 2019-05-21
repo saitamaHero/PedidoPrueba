@@ -15,6 +15,7 @@ import Models.Constantes;
 import Models.Vendor;
 import Sqlite.Controller;
 
+import static Models.ColumnsSqlite.*;
 import static android.content.Context.MODE_PRIVATE;
 
 public abstract class SqlUpdater<T> extends Updater<T> {
@@ -23,11 +24,30 @@ public abstract class SqlUpdater<T> extends Updater<T> {
     private SqlConnection connection;
     private Controller<T> controller;
     private OnDataUpdateListener<T> onDataUpdateListener;
+    private OnErrorListener onErrorListener;
+    private boolean hasMasterDetailRelationship;
 
     public SqlUpdater(Context context, SqlConnection connection, Controller<T> controller) {
         this.context = context;
         this.connection = connection;
         this.controller = controller;
+        this.hasMasterDetailRelationship = false;
+    }
+
+    public SqlUpdater(Context context, Controller<T> controller) {
+        this.context = context;
+        this.controller = controller;
+        this.hasMasterDetailRelationship = false;
+    }
+
+    public void setConnection(SqlConnection connection) {
+        if (this.connection == null) {
+            this.connection = connection;
+        }
+    }
+
+    public SqlUpdater(Context context) {
+        this.context = context;
     }
 
     public SqlConnection getConnection() {
@@ -42,14 +62,17 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         this.onDataUpdateListener = onDataUpdateListener;
     }
 
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
+    }
+
     @Override
     protected void onDataRequestUpdate(Queue<T> data) {
-        SqlConnection connection = getConnection();
 
-        connection.connect();
+        if (getConnection().isConnected()) {
 
-        if (connection.isConnected()) {
-            Connection conn = connection.getSqlConnection();
+            Connection conn = getConnection().getSqlConnection();
+
             try {
                 conn.setAutoCommit(false);
 
@@ -57,12 +80,12 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                     T itemPeek = data.poll();
 
                     try {
-                        ColumnsSqlite.ColumnsRemote remoteData = (ColumnsSqlite.ColumnsRemote) itemPeek;
+                        ColumnsRemote remoteData = (ColumnsRemote) itemPeek;
 
                         if (remoteData.isPending()) {
-                            if (remoteData.getRemoteId() == null || remoteData.getRemoteId().equals("null")) {
-                                if (onDataUpdateListener != null)
-                                    onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_INSERT_REMOTE);
+                            if (isNullOrEmpty(remoteData.getRemoteId())) {
+
+                                callUpdateListener(itemPeek, OnDataUpdateListener.ACTION_INSERT_REMOTE);
 
                                 if (doInsert(itemPeek)) {
                                     onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
@@ -70,9 +93,9 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                                     fail(SERVER_NOT_FOUND);
                                     break;
                                 }
-                            } else if (remoteData.getRemoteId() != null && !remoteData.getRemoteId().equals("")) {
-                                if (onDataUpdateListener != null)
-                                    onDataUpdateListener.onDataUpdate(itemPeek, OnDataUpdateListener.ACTION_UPDATE_REMOTE);
+                            } else if (!isNullOrEmpty(remoteData.getRemoteId())) {
+
+                                callUpdateListener(itemPeek, OnDataUpdateListener.ACTION_UPDATE_REMOTE);
 
                                 if (doUpdate(itemPeek)) {
                                     onDataUpdated(itemPeek, Updater.UPDATED_DATA_SUCCESS);
@@ -86,21 +109,11 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                         e.printStackTrace();
                         break;
                     }
-
-
                 }
             } catch (SQLException e) {
                 fail(Updater.ERROR);
-
             }
-
-        } else {
-            fail(Updater.SERVER_NOT_FOUND);
         }
-
-
-        closeSqlConnection();
-
     }
 
     @Override
@@ -109,8 +122,7 @@ public abstract class SqlUpdater<T> extends Updater<T> {
             case UPDATED_DATA_SUCCESS:
                 if (controller != null) {
                     if (controller.update(data)) {
-                        if (onDataUpdateListener != null) onDataUpdateListener.onDataUpdated(data);
-                        Log.d("RemoteData", "Data updated successful!");
+                        callUpdatedListener(data);
                     }
                 }
                 break;
@@ -119,18 +131,16 @@ public abstract class SqlUpdater<T> extends Updater<T> {
                 if (controller != null) {
                     boolean canInsert = true;
 
-                    if (data instanceof ColumnsSqlite.ColumnsRemote) {
-                        ColumnsSqlite.ColumnsRemote columnsRemote = (ColumnsSqlite.ColumnsRemote) data;
-                        canInsert = !controller.exists(ColumnsSqlite.ColumnsRemote._ID_REMOTE, columnsRemote.getRemoteId());
+                    if (data instanceof ColumnsRemote) {
+                        ColumnsRemote columnsRemote = (ColumnsRemote) data;
+                        canInsert = !controller.exists(ColumnsRemote._ID_REMOTE, columnsRemote.getRemoteId());
                     }
 
                     if (canInsert) {
-                        if (controller.insert(data)) {
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdated(data);
+                        callUpdateListener(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
 
-                            if (onDataUpdateListener != null)
-                                onDataUpdateListener.onDataUpdate(data, OnDataUpdateListener.ACTION_INSERT_LOCAL);
+                        if (controller.insert(data)) {
+                            callUpdatedListener(data);
 
                             Log.d("RemoteData", "Data inserted successful!");
                         }
@@ -143,9 +153,19 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
 
     @Override
+    public void apply() {
+        if (!isDataReady()) {
+            addData(controller.getAll());
+        }
+
+        super.apply();
+    }
+
+    @Override
     protected void onFail(int reason) {
         super.onFail(reason);
-        closeSqlConnection();
+
+        if (onErrorListener != null) onErrorListener.onError(reason);
     }
 
 
@@ -157,18 +177,35 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
         if (connection.isConnected()) {
             try {
-                PreparedStatement preparedStatement = getQueryToRetriveData();
-                ResultSet rs = preparedStatement.executeQuery();
+                if (hasMasterDetailRelationship) {
+                    PreparedStatement preparedStatement = getQueryToRetriveData();
+                    ResultSet rs = preparedStatement.executeQuery();
 
-                while (rs.next()) {
-                    T item = getItemFromResultSet(rs);
+                    while (rs.next()) {
+                        T item = getItemFromResultSet(rs);
 
-                    if (item != null) {
-                        Log.d("dataFromDB", item.toString());
-                        onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                        if (item != null) {
+                            item = getDetailsFromResultSet(item, getQueryDetailsToRetriveData(item).executeQuery());
+
+                            if (item != null) {
+                                onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                            }
+                        }
+                    }
+
+                } else {
+                    PreparedStatement preparedStatement = getQueryToRetriveData();
+                    ResultSet rs = preparedStatement.executeQuery();
+
+                    while (rs.next()) {
+                        T item = getItemFromResultSet(rs);
+
+                        if (item != null) {
+                            Log.d("dataFromDB", item.toString());
+                            onDataUpdated(item, RETRIVE_DATA_SUCCESS);
+                        }
                     }
                 }
-
 
             } catch (SQLException e) {
                 fail(Updater.ERROR);
@@ -176,24 +213,6 @@ public abstract class SqlUpdater<T> extends Updater<T> {
             }
         } else {
             fail(Updater.SERVER_NOT_FOUND);
-        }
-
-        closeSqlConnection();
-    }
-
-    public void closeSqlConnection() {
-        if (this.connection == null) return;
-
-        Connection connection = this.connection.getSqlConnection();
-
-        try {
-            if (connection != null) {
-                if (!connection.isClosed()) {
-                    connection.close();
-                }
-            }
-        } catch (SQLException e) {
-            Log.e(LOG_TAG_FAIL, e.getMessage(), e.getCause());
         }
     }
 
@@ -230,8 +249,48 @@ public abstract class SqlUpdater<T> extends Updater<T> {
 
     public abstract T getItemFromResultSet(ResultSet rs);
 
+    public T getDetailsFromResultSet(T data, ResultSet rs) {
+        return null;
+    }
+
     public abstract PreparedStatement getQueryToRetriveData();
 
+    public boolean hasMasterDetailRelationship() {
+        return hasMasterDetailRelationship;
+    }
+
+    public void setHasMasterDetailRelationship(boolean hasMasterDetailRelationship) {
+        this.hasMasterDetailRelationship = hasMasterDetailRelationship;
+    }
+
+    /**
+     * Comprueba que hayan registros pendientes por actualizar
+     *
+     * @return
+     */
+    public boolean needsUpdate() {
+        if (this.controller != null) {
+            return this.controller.areThereRegistersPending();
+        }
+
+        return false;
+    }
+
+    public void callUpdateListener(T data, int updateCode) {
+        if (this.onDataUpdateListener != null) {
+            this.onDataUpdateListener.onDataUpdate(data, updateCode);
+        }
+    }
+
+    public void callUpdatedListener(T data) {
+        if (this.onDataUpdateListener != null) {
+            this.onDataUpdateListener.onDataUpdated(data);
+        }
+    }
+
+    public PreparedStatement getQueryDetailsToRetriveData(T id) {
+        return null;
+    }
 
     public interface OnDataUpdateListener<T> {
         int ACTION_INSERT_REMOTE = 0;
@@ -239,8 +298,17 @@ public abstract class SqlUpdater<T> extends Updater<T> {
         int ACTION_INSERT_LOCAL = 2;
         int ACTION_UPDATE_LOCAL = 3;
 
-        public void onDataUpdate(T data, int action);
+        void onDataUpdate(T data, int action);
 
-        public void onDataUpdated(T data);
+        void onDataUpdated(T data);
+    }
+
+
+    public interface OnErrorListener {
+        void onError(int error);
+    }
+
+    public static boolean isNullOrEmpty(Object object) {
+        return object == null || object.equals("null") || object.toString().isEmpty();
     }
 }

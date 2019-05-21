@@ -1,170 +1,110 @@
 package com.mobile.proisa.pedidoprueba;
 
-import android.app.Activity;
+import android.Manifest;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
+import com.mobile.proisa.pedidoprueba.Activities.VentaActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
-
-import Models.Category;
-import Models.Constantes;
-
-import com.mobile.proisa.pedidoprueba.Dialogs.ProgressDialog;
+import com.mobile.proisa.pedidoprueba.Dialogs.BluetoothListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ActividadFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ClientsFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
-import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Random;
 
-import Models.Diary;
-import Models.Unit;
+import Models.Constantes;
+import Models.Invoice;
 import Models.User;
 import Models.Vendor;
-import Sqlite.CategoryController;
-import Sqlite.MySqliteOpenHelper;
-import Sqlite.UnitController;
-import Utils.DateUtils;
-import Utils.FileUtils;
+import Sqlite.Controller;
 
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
+
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
+        ClientsFragment.OnFragmentInteractionListener
+{
+    private static final String TAG = "MainActivity";
+    private static final int REQUEST_LOGIN = 100;
+    private static final int PERMISO_MEMORIA_REQUEST = 321;
 
     private ViewPager viewPager;
-    private BottomNavigationView navigationView;
-    private User mUser;
+    private BottomNavigationView mBottomNavigationView;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        navigationView = findViewById(R.id.nav_bottom);
-
-        navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int position = item.getOrder() - 1;
-                viewPager.setCurrentItem(position, true);
-
-                return true;
-            }
-        });
-
-
-        setUpViewPager(3);
-
+        setUpNavigationView();
+        setUpViewPager(1);
 
         checkPreferences();
 
-        //setTitle(FileUtils.createFileRoute(Constantes.MAIN_DIR, Constantes.ITEMS_PHOTOS).getPath());
+        Log.d(TAG, "phoneName: " + getPhoneName());
+    }
 
-/*
-        UnitController controller = new UnitController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
-        List<Unit> units = controller.getAll();
-
-        for(Unit u : units){
-            Log.d("units",u.toString());
-        }
-*/
-
+    private String getPhoneName(){
+        return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
     }
 
     private void checkPreferences() {
-        if(!areUserThere()){
-            startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class),100);
+        if (!areUserThere()) {
+            startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
+        }else{
+            checkPermissionStorage();
         }
     }
 
-    private void setUpViewPager(int positionForStart){
+    private void setUpNavigationView() {
+        mBottomNavigationView = findViewById(R.id.nav_bottom);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+        Log.d(TAG, "setUpNavigationView: true");
+    }
+
+    private void setUpViewPager(int positionForStart) {
         viewPager = findViewById(R.id.view_pager);
         MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), getFragmentsForViewPager());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(this);
 
         viewPager.setCurrentItem(positionForStart);
+
+        Log.d(TAG, "setUpViewPager: true");
     }
 
-   private List<Fragment> getFragmentsForViewPager() {
-       List<Fragment> fragments = new ArrayList<>();
-       fragments.add(ItemListFragment.newInstance());
-       fragments.add(ClientsFragment.newInstance());
-       fragments.add(ActividadFragment.newInstance(getActividadesDePrueba()));
-       fragments.add(new VendorProfileFragment());
+    private List<Fragment> getFragmentsForViewPager() {
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(ItemListFragment.newInstance());
+        fragments.add(ClientsFragment.newInstance());
+        fragments.add(ActividadFragment.newInstance());
+        fragments.add(new VendorProfileFragment());
 
-       return fragments;
-   }
-
-
-   private Date getRandomDate(Date dateBase){
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(DateUtils.deleteTime(dateBase));
-
-        int daysMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-        Random random = new Random();
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + random.nextInt(daysMax));
-
-        return calendar.getTime();
-   }
-
-
-   public static List<Actividad> getActividadesDePrueba(){
-        List<Actividad> actividads = new ArrayList<>();
-
-       Random random = new Random();
-
-       int visitas = 1 + random.nextInt(50);
-       //visitas = visitas == 0 ? 2 : visitas;
-       int visitasCompletas = random.nextInt(visitas);
-       int visitanIncompletas = visitas - visitasCompletas;
-
-        actividads.add(new Actividad("RD$ "+ NumberUtils.formatNumber(random.nextDouble() * 100.00 + 1000.00, NumberUtils.FORMAT_NUMER_DOUBLE),
-                "Venta Total", "Todo lo vendido en el día"));
-
-
-        if(visitasCompletas > 0){
-            actividads.add(new Actividad(NumberUtils.formatNumber(visitasCompletas, NumberUtils.FORMAT_NUMER_INTEGER),
-                    "Visitas Completas", String.format("%d%% de las visitas",getPercent(visitasCompletas, visitas))
-            ));
-        }
-
-        if(visitanIncompletas > 0){
-            actividads.add(new Actividad(NumberUtils.formatNumber(visitanIncompletas, NumberUtils.FORMAT_NUMER_INTEGER),
-                    "Visitas Incompletas", String.format("%d%% de las visitas",getPercent(visitanIncompletas, visitas)), false)
-            );
-        }
-
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(50),
-                NumberUtils.FORMAT_NUMER_INTEGER), "Cobros Realizados", ""));
-        actividads.add(new Actividad(NumberUtils.formatNumber(random.nextInt(100),
-                NumberUtils.FORMAT_NUMER_INTEGER), "Articulos Devueltos",
-                "Articulos devueltos por los clientes :'(", false));
-
-
-        return actividads;
-   }
-
-   private static int getPercent(float min, float max){
-        float p = ( min / max) * 100.00f;
-        return Math.round(p);
-   }
+        return fragments;
+    }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -173,9 +113,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     public void onPageSelected(int position) {
-        MenuItem menuItem = navigationView.getMenu().getItem(position);
-        navigationView.setSelectedItemId(menuItem.getItemId());
+        MenuItem menuItem = mBottomNavigationView.getMenu().getItem(position);
+        mBottomNavigationView.setSelectedItemId(menuItem.getItemId());
 
+        setTitle(menuItem.getTitle());
     }
 
     @Override
@@ -183,34 +124,40 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 100){
-            if(resultCode == RESULT_OK){
-                User mUser = data.getExtras().getParcelable("user");
-                guardarUsuario(mUser);
-            }else{
-                finish();
-            }
+        switch (requestCode){
+            case REQUEST_LOGIN:
+                if (resultCode == RESULT_OK) {
+                    User mUser = data.getExtras().getParcelable("user");
+                    saveUserInPreferences(mUser);
+                    checkPermissionStorage();
+
+                    Intent serviceSyncAll = new Intent(this, SyncAllService.class);
+                    startService(serviceSyncAll);
+                } else {
+                    finish();
+                }
+                break;
         }
+
     }
 
-    private boolean areUserThere(){
-        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
+    private boolean areUserThere() {
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
 
         return preferences.contains(Constantes.USER);
     }
 
     private User getUserFromPreferences() {
-        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
         User user = new User();
-        user.setUser(preferences.getString(Constantes.USER,""));
+        user.setUser(preferences.getString(Constantes.USER, ""));
 
         Vendor vendor = new Vendor();
-        vendor.setId(preferences.getString(Constantes.VENDOR_CODE,""));
+        vendor.setId(preferences.getString(Constantes.VENDOR_CODE, ""));
         vendor.setName(preferences.getString(Constantes.VENDOR_NAME, ""));
         user.setVendor(vendor);
 
@@ -219,85 +166,101 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return user;
     }
 
-    private void guardarUsuario(User user) {
-        SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
-        SharedPreferences.Editor editor;
-
-        editor = preferences.edit();
-
-        editor.putString(Constantes.USER,user.getUser());
-
-        Vendor vendor = user.getVendor();
-
-        if(vendor != null){
-            editor.putString(Constantes.VENDOR_CODE,vendor.getId());
-            editor.putString(Constantes.VENDOR_NAME,vendor.getName());
-            editor.commit();
-        }
-    }
-
-    private void deletePreferences() {
+    private void saveUserInPreferences(User user) {
         SharedPreferences preferences = getSharedPreferences(Constantes.USER_DATA, MODE_PRIVATE);
         SharedPreferences.Editor editor;
 
         editor = preferences.edit();
-        editor.clear().commit();
 
-        /*editor.remove(Constantes.USER);
-        editor.remove(Constantes.VENDOR_CODE);
-        editor.remove(Constantes.VENDOR_NAME);
-        editor.commit();*/
+        editor.putString(Constantes.USER, user.getUser());
 
+        Vendor vendor = user.getVendor();
+
+        if (vendor != null) {
+            editor.putString(Constantes.VENDOR_CODE, vendor.getId());
+            editor.putString(Constantes.VENDOR_NAME, vendor.getName());
+            editor.commit();
+        }
     }
 
-    public static class TestProgress extends TareaAsincrona<Void, String, Void>{
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int position = item.getOrder() - 1;
+        viewPager.setCurrentItem(position, true);
 
-        private ProgressDialog progressDialog;
-        private int progress;
 
-        public TestProgress(int id, Activity context, OnFinishedProcess listener) {
-            super(id, context, listener);
 
-            progressDialog = ProgressDialog.newInstance("");
+        return true;
+    }
+
+    @Override
+    public void requestChangePage() {
+        viewPager.setCurrentItem(3);
+    }
+
+    private void checkPermissionStorage(){
+        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISO_MEMORIA_REQUEST);
+
+            Log.d(TAG, "checkPermissionStorage: Solicitando permiso de memoria");
+        }else{
+            Log.d(TAG, "checkPermissionStorage: El permiso de memoria ya esta concedido");
         }
+    }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-            progressDialog.show(getContext().getFragmentManager(), "");
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            progressDialog.changeInfo(values[0]);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-
-            for(int i = 0; i < 5; i++){
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        switch (requestCode){
+            case PERMISO_MEMORIA_REQUEST:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Log.d(TAG, "onRequestPermissionsResult: permiso de memoria concedido");
+                }else{
+                    Log.d(TAG, "onRequestPermissionsResult: permiso de memoria denegado");
                 }
-
-                ++progress;
-                publishProgress("Actualizado " + progress );
-            }
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            progressDialog.dismiss();
-            progressDialog = null;
+                break;
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                if(SyncAllService.EXTRA_SYNC_START.equals(action)) {
+                    Toast.makeText(getApplicationContext(), R.string.sync, Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getApplicationContext(), R.string.got_data, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_START);
+        intentFilter.addAction(SyncAllService.EXTRA_SYNC_FINISH);
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    private void toogle(){
+        View v  = findViewById(R.id.progressBar);
+        int visivility = v.getVisibility();
+
+        v.setVisibility( visivility == View.GONE ? View.VISIBLE : View.GONE);
+    }
+
 }

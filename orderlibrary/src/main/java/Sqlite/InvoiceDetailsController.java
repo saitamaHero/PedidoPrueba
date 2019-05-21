@@ -4,16 +4,17 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteTransactionListener;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Models.Client;
 import Models.Invoice;
 import Models.Item;
 
 public class InvoiceDetailsController extends ControllerDetails<Item> {
+    private static final String TAG = "InvoiceDetailsControlle";
 
     public InvoiceDetailsController(SQLiteDatabase sqLiteDatabase) {
         super(sqLiteDatabase);
@@ -43,15 +44,15 @@ public class InvoiceDetailsController extends ControllerDetails<Item> {
 
         long result = -1;
 
+        database.beginTransaction();
+
         for(Item i : items){
             ContentValues cv = getContentValues(i, id);
-
-            try {
-                result = database.insertOrThrow(Invoice.TABLE_NAME_DETAILS, null, cv);
-            } catch (SQLException e) {
-                Log.d("SqlitePrueba", "ErrorClient: " + e.getMessage());
-            }
+            result = database.insert(Invoice.TABLE_NAME_DETAILS, null, cv);
         }
+
+        database.setTransactionSuccessful();
+        database.endTransaction();
 
         return result != -1;
     }
@@ -69,13 +70,16 @@ public class InvoiceDetailsController extends ControllerDetails<Item> {
     public Item getDataFromCursor(Cursor cursor) {
         ItemController controller = new ItemController(getSqLiteDatabase());
 
-        Item item = controller.getById(cursor.getString(cursor.getColumnIndex(Invoice.ITEM_ID)));
+        Item item = controller.getById(cursor.getString(cursor.getColumnIndex(Invoice._ITEM_ID)));
 
         if(item != null) {
-            item.setTaxRate(cursor.getDouble(cursor.getColumnIndex(Invoice._TAX_RATE)));
-            item.setQuantity(cursor.getDouble(cursor.getColumnIndex(Invoice._QTY)));
-            item.setPrice(cursor.getDouble(cursor.getColumnIndex(Invoice._PRICE)));
+            item.setStock(0.0);
+            item.setName(       cursor.getString(cursor.getColumnIndex(Invoice._ITEM_NAME)));
+            item.setTaxRate(    cursor.getDouble(cursor.getColumnIndex(Invoice._TAX_RATE)));
+            item.setQuantity(   cursor.getDouble(cursor.getColumnIndex(Invoice._QTY)));
+            item.setPrice(      cursor.getDouble(cursor.getColumnIndex(Invoice._PRICE)));
 
+            Log.d(TAG, "getDataFromCursor: taxRate: "+item.getTaxRate());
             return item;
         }
 
@@ -86,11 +90,13 @@ public class InvoiceDetailsController extends ControllerDetails<Item> {
     public ContentValues getContentValues(Item item, Object id) {
         ContentValues cv = new ContentValues();
 
-        cv.put(Invoice._ID, String.valueOf(id));
-        cv.put(Invoice.ITEM_ID, item.getId());
-        cv.put(Invoice._PRICE, item.getPrice());
-        cv.put(Invoice._QTY, item.getQuantity());
-        cv.put(Invoice._TAX_RATE, item.getTaxRate());
+        cv.put(Invoice._ID,         String.valueOf(id));
+        cv.put(Invoice._ITEM_ID,    item.getId());
+        cv.put(Invoice._ITEM_NAME,  item.getName());
+        cv.put(Invoice._PRICE,      item.getPrice());
+        cv.put(Invoice._QTY,        item.getQuantity());
+        cv.put(Invoice._TAX_RATE,   item.getTaxRate());
+
 
         return cv;
     }

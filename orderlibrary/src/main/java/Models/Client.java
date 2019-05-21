@@ -1,13 +1,11 @@
 package Models;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import Utils.DateUtils;
@@ -24,11 +22,15 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     private int status;
     private String remoteId;
     private char creditStatus;
+    private Zone clientZone;
+    private NCF ncf;
 
 
     public Client() {
         super();
         distance = 0.0;
+        clientZone = Zone.UNKNOWN_ZONE;
+        ncf = NCF.UNKNOWN_NCF;
     }
 
     protected Client(Parcel in) {
@@ -40,6 +42,16 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         status = in.readInt();
         remoteId = in.readString();
         creditStatus = (char) in.readInt();
+        clientZone = in.readParcelable(Zone.class.getClassLoader());
+        ncf = in.readParcelable(NCF.class.getClassLoader());
+    }
+
+    public Zone getClientZone() {
+        return clientZone;
+    }
+
+    public void setClientZone(Zone clientZone) {
+        if(clientZone != null) this.clientZone = clientZone;
     }
 
     public double getDistance() {
@@ -72,6 +84,25 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         return new DateUtils.DateConverter(this.visitDate.getDateEvent(), Calendar.getInstance().getTime());
     }
 
+    public NCF getNcf() {
+        return ncf;
+    }
+
+    public void setNcf(NCF ncf) {
+        if(ncf != null) this.ncf = ncf;
+    }
+
+    public boolean hasVisitToday(){
+        if(visitDate == null){
+            return false;
+        }
+
+        Date date = DateUtils.deleteTime(visitDate.getDateEvent());
+        Date today = DateUtils.deleteTime(Calendar.getInstance().getTime());
+
+        return date.compareTo(today) == 0;
+    }
+
     public boolean hasInvoices(){
         return this.invoices != null || !(this.invoices.isEmpty());
     }
@@ -98,6 +129,8 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
         dest.writeInt(status);
         dest.writeString(remoteId);
         dest.writeInt(creditStatus);
+        dest.writeParcelable(clientZone, flags);
+        dest.writeParcelable(ncf, flags);
     }
 
     public char getCreditStatus() {
@@ -201,5 +234,21 @@ public class Client extends Person implements Parcelable, ColumnsClient, Updatab
     @Override
     public Object getRemoteId() {
         return this.remoteId;
+    }
+
+
+    public static class SortByVisitDate implements Comparator<Client>
+    {
+
+        @Override
+        public int compare(Client client, Client t1) {
+            if(client.getVisitDate() == null){
+                return  1;
+            }else if(t1.getVisitDate() == null){
+                return -1;
+            }else{
+                return client.getVisitDate().getDateEvent().compareTo(t1.getVisitDate().getDateEvent());
+            }
+        }
     }
 }

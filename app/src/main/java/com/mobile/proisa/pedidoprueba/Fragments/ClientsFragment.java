@@ -4,9 +4,11 @@ package com.mobile.proisa.pedidoprueba.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,35 +27,47 @@ import com.mobile.proisa.pedidoprueba.Activities.DetailsClientActivity;
 import com.mobile.proisa.pedidoprueba.Activities.EditClientActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ClientAdapter;
 import com.mobile.proisa.pedidoprueba.R;
+import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 import com.mobile.proisa.pedidoprueba.Tasks.DialogInTask;
 import com.mobile.proisa.pedidoprueba.Tasks.TareaAsincrona;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
 import BaseDeDatos.ClientUpdater;
 import BaseDeDatos.DiaryUpdater;
+import BaseDeDatos.InvoiceUpdater;
+import BaseDeDatos.NCFUpdater;
 import BaseDeDatos.SqlConnection;
 import BaseDeDatos.SqlUpdater;
+import BaseDeDatos.ZoneUpdater;
 import Models.Client;
+import Models.Invoice;
+import Models.NCF;
 import Sqlite.ClientController;
 import Sqlite.DiaryController;
+import Sqlite.InvoiceController;
 import Sqlite.MySqliteOpenHelper;
+import Sqlite.NCFController;
+import Sqlite.ZoneController;
 
 import static android.app.Activity.RESULT_OK;
 
 
-public class ClientsFragment extends Fragment implements SearchView.OnQueryTextListener, View.OnClickListener, TareaAsincrona.OnFinishedProcess{
+public class ClientsFragment extends FragmentBaseWithSearch implements View.OnClickListener, TareaAsincrona.OnFinishedProcess{
     private static final String PARAM_CLIENT_LIST = "param_client_list";
-    private static final int DETAILS_CLIENT_ACTIVITY = 805;
-    private static final int CREATE_CLIENT_CODE = 806;
-    private static final int DEFAULT_CLIENTS_COUNT = 20;
+    public static final int DETAILS_CLIENT_ACTIVITY = 805;
+    private static final int CREATE_CLIENT_CODE     = 806;
+    private static final int DEFAULT_CLIENTS_COUNT  = 20;
 
     private List<Client> clients;
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
     private ClientAdapter clientAdapter;
+
+    private OnFragmentInteractionListener onFragmentInteractionListener;
 
     public ClientsFragment() {
         // Required empty public constructor
@@ -81,6 +95,8 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         if(getArguments() != null){
             clients = getArguments().getParcelableArrayList(PARAM_CLIENT_LIST);
         }
+
+        onFragmentInteractionListener = (OnFragmentInteractionListener) getActivity();
     }
 
     @Override
@@ -104,27 +120,33 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+
+
                 switch (newState){
                     case RecyclerView.SCROLL_STATE_IDLE:
                         fab.show();
                         break;
 
-                    case RecyclerView.SCROLL_STATE_SETTLING:
-                        fab.hide();
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                         fab.hide();
                         break;
 
-                    case RecyclerView.SCROLL_STATE_DRAGGING:
-                        fab.hide();
-                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                         fab.hide();
+                    break;
+
                 }
 
             }
 
         });
+
         updateList();
     }
 
     private void setAdapter() {
+        Collections.sort(clients, new Client.SortByVisitDate());
+
         clientAdapter = new ClientAdapter(this.clients, R.layout.cliente_card_layout);
         recyclerView.setAdapter(clientAdapter);
 
@@ -140,18 +162,16 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
             @Override
             public void onClientVisitClick(Client client) {
-                if(client.getDistance() < 300.00){
-                    Toast.makeText(getActivity(), "Visita: "+client.toString(),Toast.LENGTH_SHORT).show();
-                }
+                Intent seeMoreIntent = new Intent(getActivity().getApplicationContext(), DetailsClientActivity.class);
+                seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_CLIENT, client);
+                seeMoreIntent.putExtra(DetailsClientActivity.EXTRA_INIT_VISIT, true);
+                startActivityForResult(seeMoreIntent, DETAILS_CLIENT_ACTIVITY);
             }
         });
     }
 
     private List<Client> getClients(int count){
         ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-
-        //Toast.makeText(getActivity(), String.valueOf(controller.exists(Client._ID_REMOTE, "6015")), Toast.LENGTH_LONG).show();
-
         return  controller.getAll(count);
     }
 
@@ -174,14 +194,15 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         item.collapseActionView();
 
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setOnQueryTextListener(this);
+        searchView.setOnQueryTextListener(getOnQueryTextListener());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.sync:
-                new SyncClients(0, getActivity(), this, true).execute();
+                Intent serviceSyncAll = new Intent(getActivity().getApplicationContext(), SyncAllService.class);
+                getActivity().startService(serviceSyncAll);
                 break;
         }
 
@@ -195,8 +216,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        super.onQueryTextChange(newText);
+
         clients = getClients(newText);
         setAdapter();
+
         return true;
     }
 
@@ -206,7 +230,12 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         switch (requestCode){
             case DETAILS_CLIENT_ACTIVITY:
-
+                if(isSearching()){
+                    this.clients = getClients(getTextSearch());
+                    setAdapter();
+                }else{
+                    updateList();
+                }
                 break;
 
             case CREATE_CLIENT_CODE:
@@ -215,30 +244,40 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
                     Client clientToInsert = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
 
                     if(clientToInsert != null){
-                        ClientController controller =
-                                new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
-
-                        if(controller.insert(clientToInsert)){
-                            String msg = getString(R.string.save_success, clientToInsert.getName());
-                            Toast.makeText(getActivity().getApplicationContext(),
-                                    msg, Toast.LENGTH_LONG).show();
-
-
-                           updateList();
-
-                           new SyncClients(0, getActivity(), this).execute();
-                        }else{
-                            Toast.makeText(getActivity().getApplicationContext(),
-                                    R.string.error_to_save, Toast.LENGTH_LONG).show();
-                        }
+                       saveClient(clientToInsert);
                     }
-
-
-
                 }
                 break;
         }
 
+    }
+
+    public void saveClient(final Client clientToInsert)
+    {
+        ClientController controller =
+                new ClientController(MySqliteOpenHelper.getInstance(getActivity()).getWritableDatabase());
+
+        if(controller.insert(clientToInsert)){
+            String msg = getString(R.string.save_success, clientToInsert.getName());
+            Toast.makeText(getActivity().getApplicationContext(),
+                    msg, Toast.LENGTH_LONG).show();
+
+
+            updateList();
+
+            new SyncClients(0, getActivity(), this).execute();
+        }else{
+            /*Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.error_to_save, Toast.LENGTH_LONG).show();*/
+
+            Snackbar.make(recyclerView, R.string.error_to_save, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            saveClient(clientToInsert);
+                        }
+                    }).show();
+        }
     }
 
     private void updateList(){
@@ -246,10 +285,13 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         setAdapter();
     }
 
-    @Override
+/*    @Override
     public void onResume() {
         super.onResume();
-    }
+
+        if(!isSearching)
+            updateList();
+    }*/
 
     @Override
     public void onClick(View view) {
@@ -264,8 +306,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
         if(!task.hasErrors()){
-            Toast.makeText(getActivity(), "The sync is finished", Toast.LENGTH_SHORT).show();
-            Log.d("RemoteData","The sync is finished");
+            Toast.makeText(getActivity(), getString(R.string.updater_success), Toast.LENGTH_SHORT).show();
             updateList();
         }
 
@@ -273,11 +314,11 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
     @Override
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
-
+        Toast.makeText(getActivity(), exceptions.pop().getMessage(), Toast.LENGTH_SHORT).show();
     }
 
 
-    public static class SyncClients extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client> {
+    public static class SyncClients extends DialogInTask<Void, String, Void> implements SqlUpdater.OnDataUpdateListener<Client>, SqlUpdater.OnErrorListener {
 
         public SyncClients(int id, Activity context, OnFinishedProcess listener) {
             super(id, context, listener);
@@ -289,6 +330,7 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
 
         @Override
         protected Void doInBackground(Void... voids) {
+            publishProgress(getContext().getString(R.string.starting));
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             MySqliteOpenHelper mySqliteOpenHelper = MySqliteOpenHelper.getInstance(getContext());
 
@@ -297,22 +339,54 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
             //Si no hay elementos en la base de datos no se analizara practicamente nada.
             ClientUpdater updater = new ClientUpdater(getContext().getApplicationContext(), connection, controller);
             updater.setOnDataUpdateListener(this);
+            updater.setOnErrorListener(this);
             updater.addData(controller.getAll());
             updater.apply();
 
             //Llamar este metodo para que inserte los datos que hacen falta del servidor
             updater.retriveData();
 
-            /*Visitas*/
-            DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
-            //Updater de las visitas
-            DiaryUpdater diaryUpdater       = new DiaryUpdater(getContext().getApplicationContext(), connection, diaryController);
-            diaryUpdater.addData(diaryController.getAll());
-            diaryUpdater.apply();
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                DiaryController diaryController = new DiaryController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                DiaryUpdater diaryUpdater = new DiaryUpdater(getContext().getApplicationContext(), connection, diaryController);
+                diaryUpdater.addData(diaryController.getAll());
+                diaryUpdater.apply();
 
-            //Obtener visitas que estan en el servidor
-            diaryUpdater.retriveData();
+                //Obtener visitas que estan en el servidor
+                diaryUpdater.retriveData();
+            }
 
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Zonas*/
+                ZoneController zoneController = new ZoneController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                ZoneUpdater zoneUpdater = new ZoneUpdater(getContext().getApplicationContext(), connection, zoneController);
+                zoneUpdater.retriveData();
+
+                /*NCF*/
+                NCFController ncfController = new NCFController(mySqliteOpenHelper.getWritableDatabase());
+                NCFUpdater ncfUpdater = new NCFUpdater(getContext().getApplicationContext(), connection, ncfController);
+                ncfUpdater.retriveData();
+            }
+
+            //Si ocurre un error con los clientes no continuar y acabar el proceso
+            if(!isCancelled()) {
+                /*Visitas*/
+                InvoiceController invoiceController = new InvoiceController(mySqliteOpenHelper.getWritableDatabase());
+                //Updater de las visitas
+                InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext().getApplicationContext(), connection, invoiceController);
+
+
+                invoiceUpdater.apply();
+
+
+
+                //invoiceUpdater.retriveData();
+            }
             return null;
         }
 
@@ -341,5 +415,17 @@ public class ClientsFragment extends Fragment implements SearchView.OnQueryTextL
         public void onDataUpdated(Client data) {
 
         }
+
+        @Override
+        public void onError(int error) {
+            publishError(new Exception(getContext().getString(R.string.error_to_updater)));
+            cancel(true);
+        }
+    }
+
+
+
+    public interface  OnFragmentInteractionListener{
+        public void requestChangePage();
     }
 }

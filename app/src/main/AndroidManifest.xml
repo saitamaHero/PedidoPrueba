@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mobile.proisa.pedidoprueba">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -44,7 +46,19 @@
         <activity android:name=".Activities.SelectorItemActivity" />
         <activity android:name=".Activities.VentaActivity" />
         <activity android:name=".Activities.PaymentActivity" />
-        <activity android:name=".Activities.LoginActivity"></activity>
+        <activity android:name=".Activities.LoginActivity" />
+
+        <service android:name=".Services.VisitaActivaService" />
+
+        <activity android:name=".Activities.InvoiceListActivity" />
+
+        <service
+            android:name=".Services.SyncAllService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".Activities.InvoiceDetailsActivity" />
+        <activity android:name=".Activities.DiaryListActivity"></activity>
     </application>
 
 </manifest>

@@ -17,11 +17,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.mobile.proisa.pedidoprueba.R;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 import Models.Client;
+import Models.Zone;
 import Utils.DateUtils;
 
 public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHolder> {
@@ -59,22 +61,25 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         DateUtils.DateConverter converter = client.getTimeToVisit();
 
         if(converter != null){
-            int daysCount = (int)converter.getDays();
-            int hourCount = (int)converter.getHours();
-            int minutesCount = (int)converter.getMinutes();
+            int daysCount    = (int)converter.getDays();
+            int hourCount    = (int)converter.getHours();
 
+            daysCount =  (daysCount == 0) ? daysCount + 1 : daysCount;
+            //int minutesCount = (int)converter.getMinutes();
+            boolean isToday  = DateUtils.deleteTime(Calendar.getInstance().getTime()).compareTo(DateUtils.deleteTime(client.getVisitDate().getDateEvent())) == 0;
 
-            if(daysCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getQuantityString(R.plurals.visit_formateable,
-                                daysCount, daysCount));
+            Calendar calendarForTheVisit = DateUtils.getGregorianCalendarFrom(client.getVisitDate().getDateEvent());
+            boolean isAM = calendarForTheVisit.get(Calendar.AM_PM) == Calendar.AM;
+
+            if(isToday){
+                holder.txtVisitEvent.setTextColor(res.getColor(R.color.goodStatus));
+                holder.txtVisitEvent.setText(res.getString(R.string.today_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
+                        isAM ? "AM" : "PM"));
+            }else if(daysCount > 0){
+                holder.txtVisitEvent.setText(res.getQuantityString(R.plurals.visit_formateable, daysCount, daysCount));
             }else if(hourCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getString(R.string.time_hours, hourCount));
-
-            }else if(minutesCount > 0){
-                holder.txtVisitEvent.setText(
-                        res.getString(R.string.time_minutes, minutesCount));
+                holder.txtVisitEvent.setText(res.getString(R.string.tomorrow_at_time, calendarForTheVisit.get(Calendar.HOUR),calendarForTheVisit.get(Calendar.MINUTE),
+                        isAM ? "AM" : "PM"));
             }else{
                 holder.txtVisitEvent.setText(res.getString(R.string.time_unknow));
             }
@@ -86,7 +91,8 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientHold
         }
 
 
-        holder.txtDistance.setText(String.format(Locale.getDefault(),"%.2f Km",client.getDistance()));
+        Zone zona = client.getClientZone();
+        holder.txtDistance.setText(String.format(Locale.getDefault(),"%s",zona.getName()));
         holder.txtAddress.setText(client.getAddress());
 
         //holder.profilePhoto.setImageURI(client.getProfilePhoto());

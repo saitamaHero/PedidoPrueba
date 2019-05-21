@@ -6,35 +6,46 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import Models.Invoice;
+import Utils.NumberUtils;
 
 public class CashPaymentDialog extends DialogFragment implements TextWatcher, DialogInterface.OnClickListener {
-    private static final String PARAM_INVOICE = "param_invoice";
+    private static final String PARAM_TOTAL = "com.mobile.proisa.pedidoprueba.Dialogs.PARAM_TOTAL";
 
-    private TextView txtDevuelta;
-    private TextInputEditText edtMoney;
+    private TextView txtAmount;
+    private EditText txtDevuelta;
+    private EditText edtMoney;
 
-    private double money;
-    private Invoice invoice;
+    private double mMoney;
+    private double mTotal;
 
 
     private OnPaymentComplete onPaymentComplete;
 
     public static CashPaymentDialog newInstance(Invoice invoice, OnPaymentComplete onPaymentComplete) {
         Bundle args = new Bundle();
-        args.putParcelable(PARAM_INVOICE, invoice);
+        args.putDouble(PARAM_TOTAL, invoice.getTotal());
+        CashPaymentDialog fragment = new CashPaymentDialog();
+        fragment.setOnPaymentComplete(onPaymentComplete);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static CashPaymentDialog newInstance(double total, OnPaymentComplete onPaymentComplete) {
+        Bundle args = new Bundle();
+        args.putDouble(PARAM_TOTAL, total);
+
         CashPaymentDialog fragment = new CashPaymentDialog();
         fragment.setOnPaymentComplete(onPaymentComplete);
         fragment.setArguments(args);
@@ -50,7 +61,9 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
         super.onCreate(savedInstanceState);
 
         if(getArguments() != null){
-            invoice = getArguments().getParcelable(PARAM_INVOICE);
+            mTotal = getArguments().getDouble(PARAM_TOTAL);
+        }else {
+            mTotal = 0.0;
         }
     }
 
@@ -68,7 +81,11 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
 
         txtDevuelta = view.findViewById(R.id.devuelta);
 
+        txtAmount = view.findViewById(R.id.amount);
+        txtAmount.setText(NumberUtils.formatNumber(mTotal, NumberUtils.FORMAT_NUMER_DOUBLE));
+
         builder.setPositiveButton(R.string.ok, this);
+        builder.setNeutralButton(R.string.payment_exact, this);
 
         return builder.create();
     }
@@ -89,27 +106,27 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
         String m = editable.toString();
 
         if(!TextUtils.isEmpty(m)) {
-            money = Double.parseDouble(m);
+            mMoney = Double.parseDouble(m);
         }else{
-            money = 0.0;
+            mMoney = 0.0;
         }
 
-        showDevuelta(money);
+        showDevuelta(mMoney);
     }
 
     private void showDevuelta(double money) {
-        double total = invoice.getTotal();
+        //double mTotal = invoice.getTotal();
         double devuelta = 0.0;
 
-        if(isPaymentComplete(money, total)) {
-            devuelta = money - total;
+        if(isPaymentComplete(money, mTotal)) {
+            devuelta = money - mTotal;
         }
 
         txtDevuelta.setText(NumberUtils.formatNumber(devuelta, NumberUtils.FORMAT_NUMER_DOUBLE));
     }
 
     public boolean isPaymentComplete(double money, double total){
-        return money > total;
+        return money >= total;
     }
 
     @Override
@@ -117,9 +134,15 @@ public class CashPaymentDialog extends DialogFragment implements TextWatcher, Di
         switch (which)
         {
             case DialogInterface.BUTTON_POSITIVE:
-                //Call listener to send the money
-                if(onPaymentComplete != null && isPaymentComplete(money, invoice.getTotal())){
-                    onPaymentComplete.onPaymentComplete(true, money);
+                //Call listener to send the mMoney
+                if(onPaymentComplete != null && isPaymentComplete(mMoney, mTotal)){
+                    onPaymentComplete.onPaymentComplete(true, mMoney);
+                }
+                break;
+
+            case DialogInterface.BUTTON_NEUTRAL:
+                if(onPaymentComplete != null){
+                    onPaymentComplete.onPaymentComplete(true, mTotal);
                 }
                 break;
         }

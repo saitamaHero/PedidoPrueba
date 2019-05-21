@@ -1,6 +1,8 @@
 package com.mobile.proisa.pedidoprueba.Fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -12,6 +14,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextPaint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,25 +29,28 @@ import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.ActividadAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
+
+import Models.Client;
 import Models.Constantes;
 
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import Models.Diary;
+import Models.Invoice;
 import Models.User;
 import Models.Vendor;
 import Sqlite.MySqliteOpenHelper;
+import Utils.NumberUtils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class VendorProfileFragment extends Fragment implements View.OnClickListener, ActividadAdapter.ActividadHolder.OnActividadClick {
+    private static final String TAG = "VendorProfileFragment";
     private User mUser;
     private TextView txtName;
     private TextView txtId;
@@ -88,8 +95,6 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
 
     }
 
-
-
     private User getUserFromPreferences() {
         SharedPreferences preferences = getActivity().getSharedPreferences(Constantes.USER_DATA,MODE_PRIVATE);
         User user = new User();
@@ -120,8 +125,7 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     private void checkPreferences() {
         if(!areUserThere()){
             getActivity().startActivityForResult(new Intent(getActivity(), LoginActivity.class),100);
-        }else{
-
+            //getActivity().finish();
         }
     }
 
@@ -129,12 +133,47 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_log_out:
-                deletePreferences();
+                boolean anyRegisterPending = MySqliteOpenHelper.anyRegisterPending(MySqliteOpenHelper.getInstance(getActivity()).getReadableDatabase(),
+                        Invoice.TABLE_NAME, Diary.TABLE_NAME, Client.TABLE_NAME);
 
-                getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
-                checkPreferences();
+                if(anyRegisterPending){
+                    Toast.makeText(getActivity(), R.string.registers_pending, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.do_you_want_exit)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        logout();
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+
+                builder.create().show();
 
                 break;
+        }
+    }
+
+    private void logout() {
+        deletePreferences();
+        boolean mDbDeleted = MySqliteOpenHelper.deleteDataFromDb(getActivity());//getActivity().deleteDatabase(MySqliteOpenHelper.DBNAME);
+        checkPreferences();
+
+        if(mDbDeleted){
+            //Toast.makeText(getActivity(), "logout: database was deleted successfull", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "logout: database was deleted successfull");
+        }else{
+            //Toast.makeText(getActivity(), "logout: database wasn't deleted", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "logout: database wasn't deleted");
         }
     }
 
@@ -179,54 +218,9 @@ public class VendorProfileFragment extends Fragment implements View.OnClickListe
     public static List<Actividad> getActividades(){
         List<Actividad> actividads = new ArrayList<>();
 
-
-        Actividad actividad;
-
-        actividad = new Actividad(1,NumberUtils.formatNumber(2,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados No Facturación", "", false);
-        actividads.add(actividad);
-
-        actividad = new Actividad(2, NumberUtils.formatNumber(12,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Visitados Sí Facturación", "", true);
-        actividads.add(actividad);
+        Actividad.Builder builder = new Actividad.Builder();
 
 
-        actividad = new Actividad(3, NumberUtils.formatNumber(30,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitar", "En el día de hoy", true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(4, NumberUtils.formatNumber(14,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Total de Clientes a Visitados", "En el día de hoy", true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(5, NumberUtils.formatNumber(8,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Devoluciones",
-                "Un total de RD$"+NumberUtils.formatNumber(368.98, NumberUtils.FORMAT_NUMER_DOUBLE), false);
-        actividads.add(actividad);
-
-
-        actividad = new Actividad(6, NumberUtils.formatNumber(9,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Pagos de Clientes",
-                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), true);
-        actividads.add(actividad);
-
-        actividad = new Actividad(7, NumberUtils.formatNumber(2,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes Nuevos");
-        actividads.add(actividad);
-
-        actividad = new Actividad(9, NumberUtils.formatNumber(9,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Ventas a Crédito",
-                "Un total de RD$"+NumberUtils.formatNumber(9300, NumberUtils.FORMAT_NUMER_DOUBLE), false);
-        actividads.add(actividad);
-
-        actividad = new Actividad(10, NumberUtils.formatNumber(3,
-                NumberUtils.FORMAT_NUMER_INTEGER), "Clientes con Crédito Cerrado");
-        actividads.add(actividad);
-
-
-        actividad = new Actividad(11, "", "Gráficos de Ventas",
-                "Ver el gráfico para el año actual.", true);
-        actividads.add(actividad);
         return actividads;
     }
 

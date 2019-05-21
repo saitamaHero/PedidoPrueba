@@ -21,12 +21,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.mobile.proisa.pedidoprueba.R;
-import com.mobile.proisa.pedidoprueba.Utils.NumberUtils;
 
 import java.util.Calendar;
 
 import Models.Item;
 import Utils.DateUtils;
+import Utils.NumberUtils;
 
 public class DetailsItemActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String EXTRA_ITEM_DATA = "extra_item_data";

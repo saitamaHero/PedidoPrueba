@@ -30,6 +30,7 @@ public class ItemSelectable extends Item implements Parcelable {
         this.setQuantity(item.getQuantity());
         this.setUnit(item.getUnit());
         this.setCost(item.getCost());
+        this.setTaxRate(item.getTaxRate());
         this.selected = selected;
     }
 

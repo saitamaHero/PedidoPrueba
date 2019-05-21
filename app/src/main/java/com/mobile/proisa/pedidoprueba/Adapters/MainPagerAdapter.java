@@ -23,4 +23,10 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return fragmentList.size();
     }
+
+    public void replace(int whichFragment, Fragment fragment)
+    {
+
+        //if()
+    }
 }

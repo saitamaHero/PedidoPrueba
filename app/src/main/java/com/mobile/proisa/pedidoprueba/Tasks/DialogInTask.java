@@ -40,11 +40,20 @@ public abstract class DialogInTask<Params, Progress, Result> extends TareaAsincr
     @Override
     protected void onPostExecute(Result result) {
         super.onPostExecute(result);
+        closeDialog();
+    }
 
+    private void closeDialog() {
         if(mDialogShow){
             progressDialog.dismiss();
             progressDialog = null;
         }
+    }
 
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+
+        closeDialog();
     }
 }

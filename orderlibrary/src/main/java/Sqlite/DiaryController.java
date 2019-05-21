@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,7 +20,8 @@ import Models.Item;
 import Utils.DateUtils;
 
 public class DiaryController extends Controller<Diary> {
-    
+    private static final String TAG = "DiaryController";
+
     public DiaryController(SQLiteDatabase sqLiteDatabase) {
         super(sqLiteDatabase);
     }
@@ -47,9 +50,56 @@ public class DiaryController extends Controller<Diary> {
     public List<Diary> getAllById(Object id) {
         SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
         List<Diary> items = new ArrayList<>();
-        Cursor cursor;
 
-        cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, Diary._CLIENT_ID.concat(" =?"), new String[]{String.valueOf(id)},
+        String incompleteCondition = Diary._START_TIME +" IS NULL AND "+Diary._END_TIME + " IS NULL";
+
+        Cursor cursor = sqLiteDatabase.query(MySqliteOpenHelper.VIEW_VISITAS_NAME, null,
+                Diary._CLIENT_ID.concat(" =? AND ").concat(incompleteCondition)
+                , new String[]{String.valueOf(id)},
+                null, null, null);
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Diary unit = getDataFromCursor(cursor);
+            items.add(unit);
+
+            cursor.moveToNext();
+        }
+
+        return items;
+    }
+
+
+    @Override
+    public boolean exists(String field, Object object) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null, field.concat(" =?"),
+                new String[]{String.valueOf(object)}, null, null, null);
+
+        return cursor.getCount() == 1;
+    }
+
+    public Diary getLastDiary(){
+        Cursor cursor = getSqLiteDatabase().rawQuery("SELECT last_insert_rowid()", null);
+
+        if(cursor.moveToNext()){
+            return getById(cursor.getInt(0));
+        }
+
+        return null;
+    }
+
+    public List<Diary> getAllCompleteById(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Calendar calendar = Calendar.getInstance();
+        List<Diary> items = new ArrayList<>();
+
+        String completeCondition = Diary._START_TIME +" IS NOT NULL AND "+Diary._END_TIME + " IS NOT NULL";
+
+        Cursor cursor = sqLiteDatabase.query(Diary.TABLE_NAME, null,
+                Diary._CLIENT_ID.concat(" =?").concat(" AND ").concat(Diary._EVENT).concat( ">= ? AND ").concat(completeCondition)
+                , new String[]{String.valueOf(id), DateUtils.formatDate(calendar.getTime(), DateUtils.YYYY_MM_DD_HH_mm_ss)},
                 null, null, Diary._EVENT.concat(" ASC"));
         cursor.moveToFirst();
 
@@ -61,6 +111,7 @@ public class DiaryController extends Controller<Diary> {
         }
 
         return items;
+
     }
 
     @Override
@@ -104,11 +155,14 @@ public class DiaryController extends Controller<Diary> {
     public boolean update(Diary item) {
         ContentValues cv = getContentValues(item);
         cv.remove(Diary._ID);
+        cv.remove(Diary._EVENT);
+        cv.remove(Diary._DURATION);
         
         SQLiteDatabase database = getSqLiteDatabase();
 
         int result = database.update(Diary.TABLE_NAME, cv, Diary._ID.concat("=?"), new String[]{String.valueOf(item.getId())});
 
+        Log.d(TAG, "update: result="+result);
         return result == 1;
     }
 
@@ -162,6 +216,21 @@ public class DiaryController extends Controller<Diary> {
         return true;
     }
 
+    public Client getClient(Object id) {
+        SQLiteDatabase sqLiteDatabase = getSqLiteDatabase();
+        Cursor cursor;
+
+        cursor = sqLiteDatabase.query(Client.TABLE_NAME, null, Client._ID.concat(" =?"), new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToNext()) {
+            Client client = new ClientController(getSqLiteDatabase()).getDataFromCursor(cursor);
+            cursor.close();
+            return client;
+        }
+
+        return null;
+    }
+
     @Override
     public Diary getDataFromCursor(Cursor cursor) {
         Diary diary = new Diary();
@@ -171,8 +240,7 @@ public class DiaryController extends Controller<Diary> {
         diary.setComment(cursor.getString(cursor.getColumnIndex(Diary._COMMENT)));
 
         //Cliente
-        ClientController controller = new ClientController(getSqLiteDatabase());
-        Client client = controller.getById(cursor.getString(cursor.getColumnIndex(Diary._CLIENT_ID)));
+        Client client = getClient(cursor.getString(cursor.getColumnIndex(Diary._CLIENT_ID)));
         diary.setClientToVisit(client);
 
         //Duracion aprox. de la visita
@@ -228,5 +296,21 @@ public class DiaryController extends Controller<Diary> {
         cv.put(Diary._ID_REMOTE, String.valueOf(columnsRemote.getRemoteId()));
 
         return cv;
+    }
+
+    @Override
+    public boolean areThereRegistersPending() {
+        String[] columns = new String[]{ColumnsSqlite.ColumnsRemote._STATUS};
+        String selection =  ColumnsSqlite.ColumnsRemote._STATUS + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(ColumnsSqlite.ColumnsRemote.STATUS_PENDING)};
+
+        Cursor cursor = getSqLiteDatabase().query(Diary.TABLE_NAME, columns, selection, selectionArgs,
+                null, null, null);
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+
+        return false;
     }
 }
