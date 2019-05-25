@@ -61,8 +61,7 @@ import Sqlite.MySqliteOpenHelper;
 import Utils.DateUtils;
 import Utils.NumberUtils;
 
-public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener,
-        View.OnClickListener,  TareaAsincrona.OnFinishedProcess, DiaryBroadcastReceiver.OnDiaryStateListener {
+public class PaymentActivity extends BaseCompatAcivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, TareaAsincrona.OnFinishedProcess, DiaryBroadcastReceiver.OnDiaryStateListener {
     private static final String TAG = "PaymentActivity";
 
     private Spinner spPayment;
@@ -98,7 +97,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     /**
      * Crea un broadcast para recivir datos de la visita activa si la hay.
      */
-    private void createBroadcastReceiver(){
+    private void createBroadcastReceiver() {
         broadcastReceiver = new DiaryBroadcastReceiver(this);
 
         IntentFilter intentFilter = new IntentFilter();
@@ -109,7 +108,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     @Override
     public void onVisitStatusChanged(int status, Diary diary) {
-        switch (status){
+        switch (status) {
             case DiaryBroadcastReceiver.OnDiaryStateListener.VISIT_RUNNING:
                 Toast.makeText(getApplicationContext(), R.string.visit_running, Toast.LENGTH_SHORT).show();
                 this.mVisitActive = diary;
@@ -152,6 +151,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     /**
      * Obtiene la factura a mostrar en esta actividad
+     *
      * @return
      */
     private Invoice getInvoiceToShow() {
@@ -169,6 +169,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     /**
      * Devuelve todos los tipos de facturas
+     *
      * @return
      */
     private List<InvoiceType> getInvoiceTypes() {
@@ -210,15 +211,16 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     /**
      * Detiene el servicio de la visita si hay una
      */
-    private void stopVisitService(){
+    private void stopVisitService() {
         //if(mVisitActive){
-            Intent intent = new Intent(this, VisitaActivaService.class);
-            stopService(intent);
+        Intent intent = new Intent(this, VisitaActivaService.class);
+        stopService(intent);
         //}
     }
 
     /**
      * Muestra un dialog para introducir el dinero que se recibe
+     *
      * @param invoiceToSave
      */
     private void showDialogToReturnMoney(Invoice invoiceToSave) {
@@ -235,6 +237,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     /**
      * Devuelve una factura lista para guardar
+     *
      * @return
      */
     private Invoice getReadyInvoice() {
@@ -254,7 +257,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         SQLiteDatabase database = MySqliteOpenHelper.getInstance(this).getWritableDatabase();
         InvoiceController controller = new InvoiceController(database);
 
-        if(TextUtils.isEmpty(mInvoice.getId())){
+        if (TextUtils.isEmpty(mInvoice.getId())) {
             mInvoice = getReadyInvoice();
         }
 
@@ -264,13 +267,13 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
              * LLegado a este punto intentar guardar remotamente la factura y luego volver a esta actividad y salir
              */
 
-            if(controller.insert(mInvoice)) {
-                if(this.mVisitActive != null){
+            if (controller.insert(mInvoice)) {
+                if (this.mVisitActive != null) {
                     List<Invoice> invoices = new ArrayList<>();
                     invoices.add(mInvoice);
 
                     InvoiceDiaryController invoiceDiaryController = new InvoiceDiaryController(database);
-                    if(invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId())){
+                    if (invoiceDiaryController.insertAllWithId(invoices, this.mVisitActive.getId())) {
                         //Toast.makeText(this, "Se guardo la factura en VistasFacturas", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "saveInvoice: Se guardo la factura en VistasFacturas");
                     }
@@ -278,7 +281,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
 
                 new SaveInvoiceTask(0, this, this, true).execute(mInvoice);
-            }else {
+            } else {
                 Snackbar.make(btnCompletePayment, "No se guardó la factura", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.badStatus)).setAction(R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -292,8 +295,8 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
     @Override
     public void onFinishedProcess(TareaAsincrona task) {
-        if(!task.hasErrors()){
-            switch (task.getId()){
+        if (!task.hasErrors()) {
+            switch (task.getId()) {
                 case 0:
                     Invoice invoice = task.getData().getParcelable(EXTRA_INVOICE);
                     startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, invoice), REQUEST_CODE_INVOICE_DETAILS);
@@ -306,7 +309,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CODE_INVOICE_DETAILS:
                 finish();
                 break;
@@ -317,8 +320,8 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     public void onErrorOccurred(int id, Stack<Exception> exceptions) {
         Toast.makeText(this, R.string.invoice_not_save, Toast.LENGTH_LONG).show();
 
-
-        //startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, mInvoice), REQUEST_CODE_INVOICE_DETAILS);
+        mInvoice.setRemoteId("");
+        startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, mInvoice), REQUEST_CODE_INVOICE_DETAILS);
 
 
     }
@@ -371,7 +374,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
     }
 
 
-    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void > implements SqlUpdater.OnDataUpdateListener<Invoice>, SqlUpdater.OnErrorListener {
+    private class SaveInvoiceTask extends DialogInTask<Invoice, String, Void> implements SqlUpdater.OnDataUpdateListener<Invoice>, SqlUpdater.OnErrorListener {
 
         public SaveInvoiceTask(int id, Activity context, OnFinishedProcess listener, boolean mDialogShow) {
             super(id, context, listener, mDialogShow);
@@ -379,32 +382,39 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
         @Override
         protected Void doInBackground(Invoice... invoices) {
-            if(invoices == null || invoices.length  == 0){
+            if (invoices == null || invoices.length == 0) {
                 return null;
             }
 
-            Invoice invoiceToSave =  invoices[0];
+            Invoice invoiceToSave = invoices[0];
 
             publishProgress(getContext().getString(R.string.starting));
 
             SqlConnection connection = new SqlConnection(SqlConnection.getDefaultServer());
             connection.connect();
 
-            InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext(), connection,
-                                       new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
+
+            if (connection.isConnected()) {
+
+                InvoiceUpdater invoiceUpdater = new InvoiceUpdater(getContext(), connection, new InvoiceController(MySqliteOpenHelper.getInstance(getContext()).getWritableDatabase()));
 
 
-            invoiceUpdater.addData(invoiceToSave);
+                invoiceUpdater.addData(invoiceToSave);
 
-            invoiceUpdater.setOnDataUpdateListener(this);
-            invoiceUpdater.setOnErrorListener(this);
+                invoiceUpdater.setOnDataUpdateListener(this);
+                invoiceUpdater.setOnErrorListener(this);
 
-            invoiceUpdater.apply();
+                invoiceUpdater.apply();
 
-            try {
-                connection.getSqlConnection().close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                try {
+                    connection.getSqlConnection().close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }else{
+                publishError(new Exception("Not connection with the server"));
+                getData().putParcelable(EXTRA_INVOICE, invoiceToSave);
             }
 
             return null;
@@ -423,7 +433,7 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
 
         @Override
         public void onError(int error) {
-            publishError(new Exception("Error on SaveInvoiceTask #" +error));
+            publishError(new Exception("Error on SaveInvoiceTask #" + error));
         }
     }
 }

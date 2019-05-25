@@ -25,7 +25,7 @@
             android:paddingStart="@dimen/padding_vertical"
             android:paddingRight="@dimen/padding_vertical"
             android:paddingEnd="@dimen/padding_vertical"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/colorText"
             android:textStyle="bold" />
     </RelativeLayout>
@@ -58,7 +58,7 @@
             android:paddingStart="@dimen/padding_vertical"
             android:paddingRight="@dimen/padding_vertical"
             android:paddingEnd="@dimen/padding_vertical"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/colorText"
             android:textStyle="bold"
             />

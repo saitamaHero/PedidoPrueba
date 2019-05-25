@@ -60,6 +60,11 @@ public class InvoiceDetailsActivity extends PrinterManagmentActivity implements 
     private void loadInvoice() {
         Invoice invoice = getInvoice();
 
+        if(invoice == null){
+            finish();
+            return;
+        }
+
         String code = TextUtils.isEmpty(String.valueOf(invoice.getRemoteId())) ? getString(R.string.not_code) : String.valueOf(invoice.getRemoteId());
         TextView txtCode = findViewById(R.id.code);
         txtCode.setText(code);

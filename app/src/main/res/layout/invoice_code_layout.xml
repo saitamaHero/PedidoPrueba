@@ -32,7 +32,7 @@
             android:paddingLeft="@dimen/padding_horizontal"
             android:paddingRight="@dimen/padding_vertical"
             android:paddingStart="@dimen/padding_vertical"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/colorText"
             android:textStyle="bold" />
     </RelativeLayout>

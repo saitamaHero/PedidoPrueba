@@ -8,8 +8,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
@@ -32,8 +36,18 @@ import com.mobile.proisa.pedidoprueba.Fragments.ItemListFragment;
 import com.mobile.proisa.pedidoprueba.Fragments.VendorProfileFragment;
 import com.mobile.proisa.pedidoprueba.Services.SyncAllService;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import Models.Constantes;
 import Models.Invoice;
@@ -42,9 +56,7 @@ import Models.Vendor;
 import Sqlite.Controller;
 
 
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener,
-        ClientsFragment.OnFragmentInteractionListener
-{
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener, ClientsFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN = 100;
     private static final int PERMISO_MEMORIA_REQUEST = 321;
@@ -63,17 +75,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         checkPreferences();
 
-        Log.d(TAG, "phoneName: " + getPhoneName());
     }
 
-    private String getPhoneName(){
+    private String getPhoneName() {
         return String.format("%s %s", Build.BRAND.toUpperCase(), Build.MODEL.toUpperCase());
     }
 
     private void checkPreferences() {
         if (!areUserThere()) {
             startActivityForResult(new Intent(getApplicationContext(), LoginActivity.class), REQUEST_LOGIN);
-        }else{
+        } else {
             checkPermissionStorage();
         }
     }
@@ -100,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(ItemListFragment.newInstance());
         fragments.add(ClientsFragment.newInstance());
-        //fragments.add(ActividadFragment.newInstance());
         fragments.add(new VendorProfileFragment());
 
         return fragments;
@@ -128,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_LOGIN:
                 if (resultCode == RESULT_OK) {
                     User mUser = data.getExtras().getParcelable("user");
@@ -195,14 +205,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         viewPager.setCurrentItem(3);
     }
 
-    private void checkPermissionStorage(){
-        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    PERMISO_MEMORIA_REQUEST);
+    private void checkPermissionStorage() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISO_MEMORIA_REQUEST);
 
             Log.d(TAG, "checkPermissionStorage: Solicitando permiso de memoria");
-        }else{
+        } else {
             Log.d(TAG, "checkPermissionStorage: El permiso de memoria ya esta concedido");
         }
     }
@@ -211,11 +219,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode){
+        switch (requestCode) {
             case PERMISO_MEMORIA_REQUEST:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "onRequestPermissionsResult: permiso de memoria concedido");
-                }else{
+                } else {
                     Log.d(TAG, "onRequestPermissionsResult: permiso de memoria denegado");
                 }
                 break;
@@ -231,15 +239,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
-                if(SyncAllService.EXTRA_SYNC_START.equals(action)) {
+                if (SyncAllService.EXTRA_SYNC_START.equals(action)) {
                     Toast.makeText(getApplicationContext(), R.string.sync, Toast.LENGTH_LONG).show();
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), R.string.got_data, Toast.LENGTH_SHORT).show();
                 }
             }
         };
 
-        IntentFilter intentFilter =  new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SyncAllService.EXTRA_SYNC_START);
         intentFilter.addAction(SyncAllService.EXTRA_SYNC_FINISH);
 
@@ -253,11 +261,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         unregisterReceiver(broadcastReceiver);
     }
 
-    private void toogle(){
-        View v  = findViewById(R.id.progressBar);
+    private void toogle() {
+        View v = findViewById(R.id.progressBar);
         int visivility = v.getVisibility();
 
-        v.setVisibility( visivility == View.GONE ? View.VISIBLE : View.GONE);
+        v.setVisibility(visivility == View.GONE ? View.VISIBLE : View.GONE);
     }
+
+
 
 }
