@@ -706,9 +706,12 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     Toast.makeText(getApplicationContext(), R.string.visit_finished , Toast.LENGTH_LONG).show();
                 }
 
+
                 Intent serviceSyncAll = new Intent(this, SyncAllService.class);
                 startService(serviceSyncAll);
 
+                Intent prueba = new Intent(this, SeeAcitivitiesActivity.class);
+                startActivity(prueba);
                 break;
 
         }

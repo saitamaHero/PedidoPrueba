@@ -58,7 +58,8 @@
             android:exported="true" />
 
         <activity android:name=".Activities.InvoiceDetailsActivity" />
-        <activity android:name=".Activities.DiaryListActivity"></activity>
+        <activity android:name=".Activities.DiaryListActivity" />
+        <activity android:name=".Activities.SeeAcitivitiesActivity"></activity>
     </application>
 
 </manifest>

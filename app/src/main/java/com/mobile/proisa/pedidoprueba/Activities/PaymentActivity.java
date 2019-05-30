@@ -324,6 +324,9 @@ public class PaymentActivity extends BaseCompatAcivity implements AdapterView.On
         startActivityForResult(new Intent(this, InvoiceDetailsActivity.class).putExtra(EXTRA_INVOICE, mInvoice), REQUEST_CODE_INVOICE_DETAILS);
 
 
+        Log.e(TAG, "onErrorOccurred: "+exceptions.pop().getMessage() );
+
+
     }
 
     public static class InvoiceTypeAdapter extends ArrayAdapter<InvoiceType> implements ListAdapter {

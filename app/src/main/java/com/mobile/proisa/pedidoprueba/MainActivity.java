@@ -25,7 +25,16 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import com.mobile.proisa.pedidoprueba.Activities.LoginActivity;
+import com.mobile.proisa.pedidoprueba.Activities.SeeAcitivitiesActivity;
 import com.mobile.proisa.pedidoprueba.Activities.VentaActivity;
 import com.mobile.proisa.pedidoprueba.Adapters.MainPagerAdapter;
 import com.mobile.proisa.pedidoprueba.Clases.Actividad;
@@ -40,20 +49,33 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 
+import Models.Category;
 import Models.Constantes;
+import Models.Diary;
 import Models.Invoice;
+import Models.Item;
+import Models.Unit;
 import Models.User;
 import Models.Vendor;
 import Sqlite.Controller;
+import Utils.DateUtils;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener, ClientsFragment.OnFragmentInteractionListener {
@@ -74,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setUpViewPager(2);
 
         checkPreferences();
-
     }
 
     private String getPhoneName() {
@@ -147,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
                     Intent serviceSyncAll = new Intent(this, SyncAllService.class);
                     startService(serviceSyncAll);
+
+
                 } else {
                     finish();
                 }
