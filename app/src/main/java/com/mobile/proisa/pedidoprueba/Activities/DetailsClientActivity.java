@@ -387,7 +387,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                     client = data.getExtras().getParcelable(EditClientActivity.EXTRA_DATA);
                     client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
 
-                    //Actualizar
                     ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 
                     if(controller.update(client)){
@@ -411,10 +410,6 @@ public class DetailsClientActivity extends AppCompatActivity implements View.OnC
                         realUri = savePhoto(realUri);
 
                         client.setProfilePhoto(realUri);
-                        client.setStatus(ColumnsSqlite.ColumnStatus.STATUS_PENDING);
-
-                        //Log.d("photoFromGallery", "MediaDatabaseUri: "+data.getData().getPath());
-                        //Log.d("photoFromGallery", "RealUri: "+getRealUriFromGallery(data.getData()).getPath());
 
                         ClientController controller = new ClientController(MySqliteOpenHelper.getInstance(this).getWritableDatabase());
 

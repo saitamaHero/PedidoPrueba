@@ -6,7 +6,7 @@
     <color name="colorText">#000000</color>
 
     <color name="backgroud_blue_light_cardview">#e3f2fd</color>
-    <color name="white">#FFF</color>
+    <color name="white">#FFFFFF</color>
 
     <color name="goodStatus">@android:color/holo_green_dark</color>
     <color name="badStatus">#f44336</color>

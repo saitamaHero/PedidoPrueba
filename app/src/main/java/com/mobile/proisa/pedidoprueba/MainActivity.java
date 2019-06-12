@@ -89,13 +89,17 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         setUpNavigationView();
         setUpViewPager(2);
 
         checkPreferences();
+
+
     }
 
     private String getPhoneName() {

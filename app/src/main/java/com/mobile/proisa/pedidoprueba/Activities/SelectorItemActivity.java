@@ -156,6 +156,7 @@ public class SelectorItemActivity extends AppCompatActivity implements MyOnItemS
     private HashMap<Category, List<ItemSelectable>> getOrder(List<ItemSelectable> itemSelectables){
         HashMap<Category, List<ItemSelectable>> listHashMap = new HashMap<>();
         List<Category> categories = new CategoryController(MySqliteOpenHelper.getInstance(this).getReadableDatabase()).getAll();
+        categories.add(Category.UNKNOWN_CATEGORY);
 
         for(Category currentCategory : categories){
             List<ItemSelectable> listByCategory  = new ArrayList<>();

@@ -82,9 +82,12 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         TextView txtTitle = convertView.findViewById(R.id.listTitle);
-        txtTitle.setText(title.getName());
 
-
+        if(Category.UNKNOWN_CATEGORY.equals(title)){
+            txtTitle.setText(convertView.getContext().getString(R.string.no_category));
+        }else{
+            txtTitle.setText(title.getName());
+        }
 
         return convertView;
     }

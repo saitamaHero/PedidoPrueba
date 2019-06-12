@@ -229,5 +229,6 @@ Cadena que representa maniana con tiempo
     <string name="msg_invoices_total_cash">Total Generado Al Contado</string>
     <string name="msg_invoices_total_credit">Total Generado Crédito</string>
     <string name="msg_visits_pending">Visitas Pendientes</string>
+    <string name="no_category">SIN CATEGORIA</string>
 
 </resources>
