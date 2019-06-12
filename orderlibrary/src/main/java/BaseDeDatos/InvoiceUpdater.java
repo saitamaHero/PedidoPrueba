@@ -26,6 +26,8 @@ import Utils.NumberUtils;
 
 public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
+    private static final String TAG = "InvoiceUpdater";
+
     public InvoiceUpdater(Context context, SqlConnection connection, Controller<Invoice> controller) {
         super(context, connection, controller);
         setHasMasterDetailRelationship(true);
@@ -66,6 +68,14 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
                     numContado = NumberUtils.generateSequence(10, numeracion);
                 }
 
+
+                Log.d(TAG, "factura = "+numeracion);
+                Log.d(TAG, "numCredito = "+numCredito);
+                Log.d(TAG, "numContado = "+numContado);
+                Log.d(TAG, "-----------------------------------");
+
+
+
                 /*Secuencia del NCF*/
                 query = "UPDATE IMBDNCF SET IM_SECUENI = IM_SECUENI + 1 WHERE COD_EMPR = 1 AND IM_CODIGO= ?; SELECT IM_SECUENI FROM IMBDNCF WHERE COD_EMPR = 1 AND IM_CODIGO = ?";
                 preparedStatement = getConnection().getSqlConnection().prepareStatement(query);
@@ -81,7 +91,13 @@ public class InvoiceUpdater extends SqlUpdater<Invoice> {
 
                     String ncfSequence = String.format("%s%s",ncf.getType(),NumberUtils.generateSequence(8, numeracion));
                     data.setNcfSequence(ncfSequence);
+
+                    Log.d(TAG, "ncfSequence= " +ncfSequence);
+                }else{
+                    Log.d(TAG, "No se genero el NCF");
                 }
+
+
 
                 query = "INSERT INTO IVBDHEPE\n"
                         + "(\n"

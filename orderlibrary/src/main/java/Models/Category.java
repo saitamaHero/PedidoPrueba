@@ -46,7 +46,7 @@ public class Category extends SimpleElement implements Parcelable, ColumnsSqlite
 
     @Override
     public String toString() {
-        return String.format("Category{id='%s' name='%s' }",getId(), getName());
+        return String.format("Category{id='%s' name='%s'}",getId(), getName());
     }
 
     @Override
